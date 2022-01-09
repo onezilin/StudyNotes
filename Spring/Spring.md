@@ -1743,7 +1743,7 @@ static List<Arguments> sumRange() {
 
 例如：@DisplayName("我的名称")
 
-![@DisplayName注解的效果](.@DisplayName注解的效果.png)
+![@DisplayName注解的效果](https://onezilin.github.io/StudyNotes/Spring/@DisplayName注解的效果.png)
 
 #### 7、@RunWith
 
