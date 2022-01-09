@@ -11,7 +11,7 @@ Spring 是于 2003 年兴起的一个轻量级的 Java 开发框架（相当于 
 - Spring 的核心是控制反转（IoC）和面向切面（AOP）。简单来说，Spring 是一个分层的 JavaSE/EEfull-stack(一站式) 轻量级开源框架。
 - 可以集成其他框架，方便解耦，简化开发。
 
-![Spring架构](.\Spring架构.png)
+![Spring架构](https://onezilin.github.io/StudyNotes/Spring/Spring架构.png)
 
 ## 二、IoC（inverse of control）
 
@@ -613,7 +613,7 @@ i. `<bean/>`
 
 #### 1、<font color=orange>BeanFactory</font>接口关系
 
-![BeanFactory 接口关系](.\BeanFactory 接口关系.png)
+![BeanFactory 接口关系](https://onezilin.github.io/StudyNotes/Spring/BeanFactory 接口关系.png)
 
 ##### （1） <font color=orange>ListableBeanFactory</font>
 
@@ -633,7 +633,7 @@ ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口
 
 ### （四）<font color=orange>ApplicationContext</font>启动过程分析
 
-![ApplicationContext接口关系](.\ApplicationContext接口关系.png)
+![ApplicationContext接口关系](https://onezilin.github.io/StudyNotes/Spring/ApplicationContext接口关系.png)
 
 #### 1、启动过程中主要接口
 
@@ -804,7 +804,7 @@ b. <font color=orange>ResourcePatternResolver</font>
 
 实际应用中：定义事件、事件监听器和事件发布器需要配置到配置文件，事件在事件发布器中被初始化使用。
 
-![事件监听发布接口](.\事件监听发布接口.png)
+![事件监听发布接口](https://onezilin.github.io/StudyNotes/Spring/事件监听发布接口.png)
 
 ###### ① <font color=orange>EventObject</font>
 
@@ -880,7 +880,7 @@ ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件�
 
 #### 3、[Bean 的生命周期](https://juejin.im/entry/5b11043ee51d4506c95eaacf)
 
-![Bean的生命周期](.\Bean的生命周期.png)
+![Bean的生命周期](https://onezilin.github.io/StudyNotes/Spring/Bean的生命周期.png)
 
 ##### （1）初始化自定义 bean 类前的准备
 
@@ -890,7 +890,7 @@ ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件�
 
 ##### （2）从 BeanDefinition 到 bean 实例的过程和生命周期
 
-![从 BeanDefinition 到 bean 实例的过程和生命周期](.\从 BeanDefinition 到 bean 实例的过程和生命周期.png)
+![从 BeanDefinition 到 bean 实例的过程和生命周期](https://onezilin.github.io/StudyNotes/Spring/从 BeanDefinition 到 bean 实例的过程和生命周期.png)
 
 ##### （3）获取或创建 bean 类实例
 
@@ -1813,7 +1813,7 @@ depends-on 属性的依赖是一种隐示的依赖，保证当前 bean 类 depen
 
 注入依赖显示的声明某种依赖关系。
 
-![三级缓存解决Bean的循环依赖问题](.\三级缓存解决Bean的循环依赖问题.png)
+![三级缓存解决Bean的循环依赖问题](https://onezilin.github.io/StudyNotes/Spring/三级缓存解决Bean的循环依赖问题.png)
 
 - 尝试按顺序从一、二、三级缓存中获取 A 实例，若任一缓存获取得到 A 实例则返回；否则继续。
 - A 进行实例化时，重新生成一个匿名 ObjectFactory 存入三级缓存中，匿名 ObjectFactory 中存储着 A 未初始化的实例。
