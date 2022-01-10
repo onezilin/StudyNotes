@@ -417,9 +417,10 @@ public class FXNewsProvider {
   - request：每次 http 请求都创建一个 bean 实例，请求结束后销毁。
 
   - session：同一个 http session 共享一个 bean 实例。
+
   - globalsession：多服务器间的 session，给每个 global http session 建一个 bean 实例。
 
-  > 注意：request、session 和 globalsession 只适用于 Web 应用程序。
+    > 注意：request、session 和 globalsession 只适用于 Web 应用程序。
 
 - parent：继承 parent 指定的`<bean/>`的属性和依赖注入值。
 
@@ -646,7 +647,6 @@ ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口
 可以在 bean 实例化之前，修改 BeanDefinition 的属性（读取的配置文件中的属性），也就是`<bean/>`的属性。
 
 - 通过配置文件注册 BeanFactoryPostProcessor 的实现类，提供 postProcessBeanFactory()回调方法。
-
 - 若不止一个 BeanFactoryPostProcessor 实现类，还需要实现 Order 接口，设置实现类的执行顺序。
 
 ###### ② [<font color=orange>BeanPostProcessor</font>](https://www.jianshu.com/p/f80b77d65d39)
@@ -854,7 +854,7 @@ ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件�
 
 - 使用 BeanDefinitionParserDelegate 将 Element 解析成 BeanDefinition，并封装成 BeanDefinitionHolder（id，BeanDefinition，aliasesArray）。将其注册到 DefaultListableBeanFactory 容器的 Map 中，并发送注册事件。
 
-> 这两步主要是提取 XML 中 bean 对应的`<bean/>`标签及属性信息，将其存储到 BeanDefinition 中，并将 BeanDefinition 注册到 Spring 容器中。
+  > 这两步主要是提取 XML 中 bean 对应的`<bean/>`标签及属性信息，将其存储到 BeanDefinition 中，并将 BeanDefinition 注册到 Spring 容器中。
 
 ##### （3）[配置 DefaultListableBeanFactor](https://www.cnblogs.com/warehouse/p/9387668.html)
 
@@ -885,7 +885,6 @@ ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件�
 ##### （1）初始化自定义 bean 类前的准备
 
 - 初始化 ConversionService、LoadTimeWeaverAware 等类型的 bean；冻结 BeanFactory，停止 bean 定义、解析、加载和注册。
-
 - 遍历所有的 beanName，合并有 parent 的 bean（也就是配置了 parent 属性的 bean，将其父属性设置到子默认属性中），初始化 FactoryBean 的实现 bean 类。
 
 ##### （2）从 BeanDefinition 到 bean 实例的过程和生命周期
@@ -1798,7 +1797,6 @@ Spring 的 bean 类可以理解为：可以被 Spring 控制创建时机和管�
 java 自定义的注解需要手动配置到配置文件中才能使用：
 
 - `<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>`
-
 - `<context:annotation-config/>`激活注解的相关功能
 
 ### （六）[Spring 怎么解决循环依赖的问题](https://cloud.tencent.com/developer/article/1497692)
