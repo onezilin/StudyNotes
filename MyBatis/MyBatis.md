@@ -4,6 +4,8 @@
 
 [MyBatis](https://mybatis.org/mybatis-3/) 是一个优秀的半自动 ORM（Object Relation Mapping）框架。
 
+MyBatis 对 JDBC 操作数据库的过程进行封装，使开发者只需要关注 SQL 本身，而不需要花费精力去处理例如注册驱动、创建 connection、创建 statement、手动设置参数、结果集检索等 jdbc 繁杂的过程代码。
+
 > 半自动 ORM 框架意思是：需要自己手动将 SQL 语句查询的结果和 POJO 类映射起来（需要手动指定 POJO 类去接收结果集）。
 
 > 背景：MyBatis 本是 Apache 的一个开源项目——iBatis，2010 年迁移到 Google Code，并改名为 MyBatis，2013 年迁移到 github。
@@ -365,14 +367,14 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
 
   ```java
   public class DbcpDataSourceFactory extends BasicDataSource implements DataSourceFactory {
-  
+
       private Properties properties;
-  
+
       @Override
       public void setProperties(Properties properties) {
           this.properties = properties;
       }
-  
+
       @Override
       public DataSource getDataSource() {
           DataSource dataSource = null;
@@ -384,7 +386,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
           }
           return dataSource;
       }
-  
+
       @Override
       public Logger getParentLogger() throws SQLFeatureNotSupportedException {
           return Logger.getLogger(DbcpDataSourceFactory.class.getName());
@@ -419,7 +421,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
   ```xml
   // 扫描指定包下所有 Dao 接口
   <package name="com.studynotes.mybatis"/>
-  
+
   // 引入指定 Dao 接口
   <mapper class="com.studynotes.mybatis.RoleDao"/>
   ```
@@ -1099,7 +1101,7 @@ void updateAuthorValues(Author author);
 
 MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数据库。
 
-![MyBatis一、二级缓存模型](.\MyBatis一、二级缓存模型.png)
+![MyBatis一、二级缓存模型](https://onezilin.github.io/StudyNotes/MyBatis/MyBatis一、二级缓存模型.png)
 
 ### （一）一级缓存
 
@@ -1119,7 +1121,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 #### 1、原理
 
-![一级缓存原理](.\一级缓存原理.png)
+![一级缓存原理](https://onezilin.github.io/StudyNotes/MyBatis/一级缓存原理.png)
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
 - Executor（BaseExecutor）维护一个 Cache（PerpetualCache），SqlSession 调用查询方法时，最终调用 Executor 的 query()方法。
@@ -1175,7 +1177,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 #### 1、原理
 
-![二级缓存原理](.\二级缓存原理.png)
+![二级缓存原理](https://onezilin.github.io/StudyNotes/MyBatis/二级缓存原理.png)
 
 - 当开启二级缓存时，会使用装饰器模式，将创建的 BaseExecutor 装饰成 CacheExecutor。
 
@@ -1209,6 +1211,8 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 ---
 
 ## 六、MyBatis 主要对象
+
+![Mybatis基本架构](https://onezilin.github.io/StudyNotes/MyBatis/Mybatis基本架构.png)
 
 ### （一）SqlSessionFactoryBuilder
 
@@ -1305,7 +1309,7 @@ SqlSession 类似于 JDBC 中的一个 Connection 连接，对外提供了用户
 
 ##### （1）[MyBatis 执行原理](https://www.cnblogs.com/jian0110/p/9452592.html)
 
-![MyBatis执行原理](.\MyBatis执行原理.png)
+![MyBatis执行原理](https://onezilin.github.io/StudyNotes/MyBatis/MyBatis执行原理.png)
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
 - Executor 实现类的 doQuery 中，通过`configuration.newStatementHandler(Executor, MappedStatement, Object, RowBounds, ResultHandler, BoundSql)`有参构造 StatementHandler。
@@ -1443,6 +1447,24 @@ public void test(Integer id) {
 MapperScannerConfigurer 在 application.xml 中配置：
 
 ```xml
+<!-- 分解配置 jdbc.properites -->
+<context:property-placeholder location="classpath:jdbc.properties"/>
+
+<!-- 数据源Druid -->
+<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+    <property name="driver" value="${jdbc.driverClassName}"/>
+    <property name="url" value="${jdbc.url}"/>
+    <property name="username" value="${jdbc.username}"/>
+    <property name="password" value="${jdbc.password}"/>
+</bean>
+
+<!-- sessionFactory 将spring和mybatis整合 -->
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="configLocation" value="classpath:spring-mybatis.xml"/>
+    <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
+</bean>
+
 <!-- Mapper 扫描器 -->
 <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
     <!-- 扫描指定包下的组件 -->
