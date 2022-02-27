@@ -1259,7 +1259,282 @@ public void doSomething(Throwable ex){
 </aop:config>
 ```
 
-## 四、[注解](https://www.jianshu.com/p/f12a6a899746)
+## 四、事务
+
+### （一）[事务相关接口](https://juejin.cn/post/6844903608224333838)
+
+#### 1、<font color=orange>PlatformTransactionManager</font>
+
+平台事务管理器。Spring 并不直接管理事务，而是提供 PlatformTransactionManager 接口及实现类，将事务管理的职责委托给 JDBC、Hibernate 或 JTA 等持久化框架来实现。具体实现类如下：
+
+- DataSourceTransactionManager：使用 Spring JDBC 或者 iBatis 进行持久化数据时使用。
+- HibernateTransactionManager：使用 Hibernate3.0 进行持久化数据时使用。
+- JpaTransactionManager：使用 JPA 进行数据持久化时使用。
+- JtaTransactionManager：使用一个 JTA 实现来管理事务，在一个事务跨越多个资源时使用。
+
+#### 2、<font color=orange>TransactionDefinition</font>
+
+事务定义类。定义一些事务的基本属性：隔离级别、传播行为、回滚规则、是否只读和事务超时。
+
+##### （1）隔离级别
+
+事务的隔离级别，用于解决事务并发时出现的：脏读、不可重复度和幻读情况。
+
+- TransactionDefinition.ISOLATION_DEFAULT：使用后端数据库默认的隔离级别。MySQL 默认为 rr，Oracle 默认为 rc。
+- TransactionDefinition.ISOLATION_READ_UNCOMMITTED：读未提交。事务过程中读到其他事务未提交的数据，可能导致脏读、不可重复度和幻读。
+- TransactionDefinition.ISOLATION_READ_COMMITTED：读已提交。事务过程中读到其他事务已提交的数据，可能导致不可重复度和幻读。
+- TransactionDefinition.ISOLATION_REPEATABLE_READ：可重复读。事务过程中，其他事务修改数据不会对本事务有影响，可能导致幻读。
+- TransactionDefinition.ISOLATION_SERIALIZABLE：序列化。事务过程中，其他事务增删数据不会对本事务有影响。
+
+##### （2）[传播行为](https://blog.csdn.net/weixin_39625809/article/details/80707695)
+
+在一个事务方法中执行另一个事务方法时，必须指定事务应该如何传播。
+
+> 例如：methodA()事务方法中执行 methodB()事务方法时，methodB 是继续在调用者 methodA 的事务中运行呢，还是为自己开启一个新事务运行，这就是由 methodB 的事务传播行为决定的。
+
+- 支持当前事务的情况：
+
+  - TransactionDefinition.PROPAGATION_REQUIRED：如果当前存在事务，则加入该事务；如果当前没有事务，则创建一个新事务。
+
+  - TransactionDefinition.PROPAGATION_SUPPORTS：如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行。
+
+  - TransactionDefinition.PROPAGATION_MANDATORY：如果当前存在事务，则加入改事务；如果当前没有事务，则抛出异常。
+
+- 不支持当前事务的情况：
+
+  - TransactionDefinition.PROPAGATION_REQUIRES_NEW：始终以事务方式运行。如果当前存在事务，则把当前事务挂起；如果当前没有事务，则创建一个新事务。
+
+    > 需要使用 JtaTransactionManager 作为事务管理器。
+    >
+    > 在这里 methodA()和 methodB()是两个独立的事务：
+    >
+    > - 当 methodA()事务方法执行到 methodB()事务方法时，若 methodA()事务仍在执行，则会挂起 methodA()事务，开启 methodB()事务。methodB()事务的回滚或提交对 methodA()事务没有影响。
+    > - 当 methodB()事务执行完后，若 methodA()事务处于挂起状态，则会恢复 methodA()事务。同理，methodA()事务的回滚或提交对 methodB()事务没有影响。
+
+  - TransactionDefinition.PROPAGATION_NOT_SUPPORTED：始终以非事务方式运行。如果当前存在事务，则把当前事务挂起；如果当前没有事务，则以非事务方式运行。
+
+  - TransactionDefinition.PROPAGATION_NEVER：以非事务方式运行。如果当前存在事务，则抛出异常；如果当前没有事务，则以非事务方式运行。
+
+- 其他情况：
+
+  - [TransactionDefinition.PROPAGATION_NESTED](https://zhuanlan.zhihu.com/p/148504094)：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该值等价于 PROPAGATION_REQUIRED（也就是开启一个事务）。
+
+    > 前面的六种事务传播行为是 Spring 从 EJB 中引入的，他们共享相同的概念。而 PROPAGATION_NESTED` Spring 所特有的。
+    >
+    > - 以 PROPAGATION_NESTED 启动的事务内嵌于外部事务中（如果存在外部事务的话），此时，内嵌事务并不是一个独立的事务，它依赖于外部事务的存在，嵌套的子事务不能单独提交，只有通过外部的事务提交，才能引起内部事务的提交。
+    > - 如果外部事务异常，则内部事务必然回滚，这就是和 PROPAGATION_REQUIRES_NEW 的不同。
+    > - 如果内部事务异常，外部事务可以选择捕获异常从而不进行回滚（当然不捕获异常就会回滚），这就是和 PROPAGATION_REQUIRED 的不同。
+
+##### （3）回滚规则
+
+回滚规则定义了哪些异常会导致事务回滚，而哪些不会。
+
+默认情况下，事务只有遇到运行期异常时才会回滚，而在遇到检查型异常时不会回滚。但是可以声明回滚规则，在遇到特定的检查型异常时回滚，在遇到运行期异常时不回滚。
+
+##### （4）是否只读
+
+是否对事务性资源（例如：数据源、JMS 资源等）进行只读操作，可以提高事务处理的性能。
+
+##### （5）事务超时
+
+一个事务所允许执行的最长时间，如果超过该时间限制但事务还没有完成，则自动回滚事务。
+
+#### 3、<font color=orange>TransactionStatus</font>
+
+TransactionStatus 用于记录事务的状态，该接口提供一组方法用于获取或判断事务的相应状态信息。
+
+```java
+public interface TransactionStatus{
+    boolean isNewTransaction(); // 是否是新的事务
+    boolean hasSavepoint(); // 是否有恢复点
+    void setRollbackOnly();  // 设置为只回滚
+    boolean isRollbackOnly(); // 是否为只回滚
+    boolean isCompleted; // 是否已完成
+}
+```
+
+> 上述对象之间的关系：
+>
+> PlatformTransactionManager 平台事务管理器真正管理事务对象，根据事务定义的信息 TransactionDefinition 进行事务管理，在管理事务中产生一些状态，将状态记录到 TransactionStatus 中。
+
+### （二）[事务配置](https://juejin.cn/post/6844903608694079501)
+
+实现声明式事务的四种方式：
+
+#### 1、编程式事务管理
+
+显示地在业务代码中注入 TransactionTemplate 进行事务管理。
+
+```java
+// 业务代码
+public class OrdersService {
+    // 注入Dao层对象
+    private OrdersDao ordersDao;
+
+    public void setOrdersDao(OrdersDao ordersDao) {
+        this.ordersDao = ordersDao;
+    }
+
+    // 注入TransactionTemplate对象
+    private TransactionTemplate transactionTemplate;
+
+    public void setTransactionTemplate(TransactionTemplate transactionTemplate) {
+        this.transactionTemplate = transactionTemplate;
+    }
+
+    public void accountMoney() {
+        // 使用TransactionTemplate进行书屋管理
+        transactionTemplate.execute(new TransactionCallback<Object>() {
+            @Override
+            public Object doInTransaction(TransactionStatus status) {
+                Object result = null;
+                try {
+                    // 小马多1000
+                    ordersDao.addMoney();
+                    // 加入出现异常如下面int
+                    // i=10/0;
+                    int i = 10 / 0;
+                    // 小王少1000
+                    ordersDao.reduceMoney();
+                } catch (Exception e) {
+                    // 出现异常后进行事务回滚
+                    status.setRollbackOnly();
+                    result = false;
+                    System.out.println("Transfer Error!");
+                }
+                return result;
+            }
+        });
+    }
+}
+```
+
+```xml
+<!-- 第一步：配置事务管理器 -->
+<bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <!-- 注入dataSource -->
+    <property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<!-- 第二步：配置事务管理器模板 -->
+<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+    <!-- 注入真正进行事务管理的事务管理器,name必须为 transactionManager否则无法注入 -->
+    <property name="transactionManager" ref="dataSourceTransactionManager"></property>
+</bean>
+
+<!-- 第三步：对象生成及属性注入 -->
+<bean id="ordersService" class="cn.itcast.service.OrdersService">
+    <property name="ordersDao" ref="ordersDao"></property>
+    <!-- 注入事务管理的模板 -->
+    <property name="transactionTemplate" ref="transactionTemplate"></property>
+    <!-- 在这里可以配置TransactionDefinition的一些属性 -->
+</bean>
+```
+
+#### 2、注解式事务管理
+
+使用@Transactional 直接进行事务管理。
+
+```java
+@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT, readOnly = false, timeout = -1)
+public class OrdersService {
+    private OrdersDao ordersDao;
+
+    public void setOrdersDao(OrdersDao ordersDao) {
+        this.ordersDao = ordersDao;
+    }
+
+    public void accountMoney() {
+        // 小马多1000
+        ordersDao.addMoney();
+        // 加入出现异常如下面int
+        // i=10/0; // 事务管理配置后异常已经解决
+        int i = 10 / 0;
+        // 小王少1000
+        ordersDao.reduceMoney();
+    }
+}
+```
+
+```xml
+<!-- 第一步：配置事务管理器 (和配置文件方式一样)-->
+<bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <!-- 注入dataSource -->
+    <property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<!-- 第二步： 开启事务注解 -->
+<tx:annotation-driven transaction-manager="dataSourceTransactionManager" />
+
+<!-- 第三步 在方法所在类上加注解 -->
+
+<!-- 第四步：对象生成及属性注入 -->
+<bean id="ordersService" class="cn.itcast.service.OrdersService">
+    <property name="ordersDao" ref="ordersDao"></property>
+</bean>
+```
+
+[@Transactional 不生效场景](https://baijiahao.baidu.com/s?id=1661565712893820457)
+
+#### 3、基于 AspectJ 的事务管理
+
+使用`<tx>`对 TransactionDefinition 进行配置，与 Spring AOP 紧密结合，使得事务管理更加灵活。
+
+```java
+public class OrdersService {
+    private OrdersDao ordersDao;
+
+    public void setOrdersDao(OrdersDao ordersDao) {
+        this.ordersDao = ordersDao;
+    }
+
+    public void accountMoney() {
+        // 小马多1000
+        ordersDao.addMoney();
+        // 加入出现异常如下面int
+        // i=10/0; // 事务管理配置后异常已经解决
+        int i = 10 / 0;
+        // 小王少1000
+        ordersDao.reduceMoney();
+    }
+}
+```
+
+```xml
+<!-- 第一步：配置事务管理器 -->
+<bean id="dataSourceTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+    <!-- 注入dataSource -->
+    <property name="dataSource" ref="dataSource"></property>
+</bean>
+
+<!-- 第二步：配置事务增强 -->
+<tx:advice id="txadvice" transaction-manager="dataSourceTransactionManager">
+    <!-- 做事务操作 -->
+    <tx:attributes>
+        <!-- 设置进行事务操作的方法匹配规则 -->
+        <!-- name：表示此事务作用于哪些方法 -->
+        <!-- propagation：事务传播行为；isolation：事务隔离级别；read-only：是否只读；rollback-for：发生那些异常时回滚；timeout：事务过期时间 -->
+        <tx:method name="account*" propagation="REQUIRED" isolation="DEFAULT" read-only="false" rollback-for="" timeout="-1" />
+    </tx:attributes>
+ </tx:advice>
+
+<!-- 第三步：配置切面，切面即把增强用在方法的过程 -->
+<aop:config>
+    <!-- 切入点 -->
+    <aop:pointcut expression="execution(* cn.itcast.service.OrdersService.*(..))" id="pointcut1" />
+    <!-- 切面 -->
+    <aop:advisor advice-ref="txadvice" pointcut-ref="pointcut1" />
+</aop:config>
+
+<!-- 第四步：对象生成及属性注入 -->
+<bean id="ordersService" class="cn.itcast.service.OrdersService">
+    <property name="ordersDao" ref="ordersDao"></property>
+</bean>
+```
+
+> [注意](https://blog.csdn.net/u011983531/article/details/70504281)：这里`<aop:advisor>`大多用于事务管理；`<aop:aspect>`主要用于 AOP 中的切面。
+
+## 五、[注解](https://www.jianshu.com/p/f12a6a899746)
 
 ### （一）Spring 注解
 
@@ -1481,7 +1756,7 @@ public class EsProperties {
 > - 需要在启动类或配置类上添加@EnableSync 来开启异步。
 > - @Async 注解的类被 Spring 管理，也就是类还要另外添加@Component 等相关注解。
 
-### （二）SpringBoot 注解。
+### （二）SpringBoot 注解
 
 #### 1、[@RunWith](https://blog.csdn.net/weixin_43671497/article/details/90543225)
 
@@ -1751,7 +2026,7 @@ static List<Arguments> sumRange() {
 - SpringJunit4ClassRunner.class：Junit4 中用于表示运行在 Spring 环境中，可以使用@Autowired 获取 bean。
 - Junit：表示运行在 Junit 的环境。
 
-## 五、疑问
+## 六、疑问
 
 ### （一）bean 类是什么
 
