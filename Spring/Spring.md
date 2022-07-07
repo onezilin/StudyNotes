@@ -1184,7 +1184,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
   // 匹配被@RedisLockAnnotation的方法
   @Pointcut("@annotation(com.annotation.RedisLockAnnotation)")
   public void test() {}
-
+  
   // 将注解作为参数传入，可以获取注解的属性值
   @Before("test() && @annotation(abcdef)")
   public Object before(RedisLockAnnotation abcdef) {
@@ -1319,7 +1319,7 @@ public void doSomething(Throwable ex){
 
   - [TransactionDefinition.PROPAGATION_NESTED](https://zhuanlan.zhihu.com/p/148504094)：如果当前存在事务，则创建一个事务作为当前事务的嵌套事务来运行；如果当前没有事务，则该值等价于 PROPAGATION_REQUIRED（也就是开启一个事务）。
 
-    > 前面的六种事务传播行为是 Spring 从 EJB 中引入的，他们共享相同的概念。而 PROPAGATION_NESTED` Spring 所特有的。
+    > 前面的六种事务传播行为是 Spring 从 EJB 中引入的，他们共享相同的概念。而 PROPAGATION_NESTED 是 Spring 所特有的。
     >
     > - 以 PROPAGATION_NESTED 启动的事务内嵌于外部事务中（如果存在外部事务的话），此时，内嵌事务并不是一个独立的事务，它依赖于外部事务的存在，嵌套的子事务不能单独提交，只有通过外部的事务提交，才能引起内部事务的提交。
     > - 如果外部事务异常，则内部事务必然回滚，这就是和 PROPAGATION_REQUIRES_NEW 的不同。
@@ -1359,7 +1359,7 @@ public interface TransactionStatus{
 
 ### （二）[事务配置](https://juejin.cn/post/6844903608694079501)
 
-实现声明式事务的四种方式：
+实现声明式事务的三种方式：
 
 #### 1、编程式事务管理
 
