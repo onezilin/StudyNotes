@@ -1,3 +1,5 @@
+# MyBatis
+
 > 基于《深入浅出 MyBatis 技术原理与实战》、[【官网】](https://mybatis.org/mybatis-3/zh/index.html)
 
 ## 一、基本概念
@@ -7,7 +9,7 @@
 MyBatis 对 JDBC 操作数据库的过程进行封装，使开发者只需要关注 SQL 本身，而不需要花费精力去处理例如注册驱动、创建 connection、创建 statement、手动设置参数、结果集检索等 jdbc 繁杂的过程代码。
 
 > 半自动 ORM 框架意思是：需要自己手动将 SQL 语句查询的结果和 POJO 类映射起来（需要手动指定 POJO 类去接收结果集）。
-
+>
 > 背景：MyBatis 本是 Apache 的一个开源项目——iBatis，2010 年迁移到 Google Code，并改名为 MyBatis，2013 年迁移到 github。
 
 ## 二、[MyBatis 配置文件参数](https://mybatis.org/mybatis-3/zh/configuration.html)
@@ -22,7 +24,7 @@ MyBatis 对 JDBC 操作数据库的过程进行封装，使开发者只需要关
 
 #### 1、系统定义别名
 
-MyBatis 提供的别名，在`org.apache.ibatis.type.TypeAliasRegistry`中查看。
+MyBatis 提供的别名，在 `org.apache.ibatis.type.TypeAliasRegistry` 中查看。
 
 #### 2、自定义别名
 
@@ -59,7 +61,7 @@ public class MyName {
 
 #### 1、系统定义 typeHandler
 
-MyBatis 提供的 typeHandler，在`org.apache.ibatis.type.TypeHandlerRegistry`查看。
+MyBatis 提供的 typeHandler，在 `org.apache.ibatis.type.TypeHandlerRegistry` 查看。
 
 #### 2、自定义 typeHandler
 
@@ -129,7 +131,7 @@ public class MyStringTypeHandler implements TypeHandler<String> {
 ```xml
 <resultMap type="com.studynotes.mybatis.Role" id="RoleMap">
     <result property="id" column="id" jdbcType="INTEGER"/>
-   	<result property="roleName" column="role_name" typeHandler="com.stydunotes.mybatis.MyStringTypeHandler"/>
+    <result property="roleName" column="role_name" typeHandler="com.stydunotes.mybatis.MyStringTypeHandler"/>
     <result property="age" column="age" jdbcType="TINYINT"/>
     <result property="sex" column="sex" jdbcType="TINYINT"/>
 </resultMap>
@@ -152,11 +154,11 @@ MyBatis 内部提供两个转化枚举类型的 typeHandler：
 
 - EnumTypeHandler：将 jdbcType 的字符串类型和枚举类型进行转化。
 
-  > 注意：数据库中存储的是枚举类型对应的枚举名称，例如：枚举类`SexEnum.MALE`在数据库中存储的是字符串`MALE`。
+  > 注意：数据库中存储的是枚举类型对应的枚举名称，例如：枚举类 `SexEnum.MALE` 在数据库中存储的是字符串 `MALE`。
 
 - EnumOridinalTypeHandler：将 jdbcType 的整型和枚举类型进行转化。
 
-  > 注意：数据库中存储的是枚举类型对应的下标值，例如：枚举类`SexEnum.values()`返回枚举数组，枚举类`SexEnum.MALE`在数据库中存储的是此枚举类在枚举数据中对应的下标值。
+  > 注意：数据库中存储的是枚举类型对应的下标值，例如：枚举类 `SexEnum.values()` 返回枚举数组，枚举类 `SexEnum.MALE` 在数据库中存储的是此枚举类在枚举数据中对应的下标值。
 
 ```java
 // 枚举类例子：
@@ -212,7 +214,7 @@ public enum SexEnum {
 ```xml
 <resultMap type="com.studynotes.mybatis.Role" id="RoleMap">
     <result property="id" column="id" jdbcType="INTEGER"/>
-   	<result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+    <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
     <result property="age" column="age" jdbcType="TINYINT"/>
     <!-- 数据库 sex 列属性为 TINYINT，class Role 的 sex 类型为 SexEnum -->
     <result property="sex" column="sex" typeHandler="org.apache.ibatis.type.EnumOridinalTypeHandler"/>
@@ -230,7 +232,7 @@ public enum SexEnum {
 ```xml
 <resultMap type="com.studynotes.mybatis.Role" id="RoleMap">
     <result property="id" column="id" jdbcType="INTEGER"/>
-   	<result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+    <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
     <result property="age" column="age" jdbcType="TINYINT"/>
     <!-- 数据库 sex 列属性为 CHAR，class Role 的 sex 类型为 SexEnum -->
     <result property="sex" column="sex" typeHandler="org.apache.ibatis.type.EnumOridinalTypeHandler"/>
@@ -277,7 +279,7 @@ public class MyEnumTypeHandler implements TypeHandler<SexEnum> {
 ```xml
 <resultMap type="com.studynotes.mybatis.Role" id="RoleMap">
     <result property="id" column="id" jdbcType="INTEGER"/>
-   	<result property="roleName" column="role_name" jdbcType="VARCHAR"/>
+    <result property="roleName" column="role_name" jdbcType="VARCHAR"/>
     <result property="age" column="age" jdbcType="TINYINT"/>
     <!-- 数据库 sex 列属性为 TINYINT，class Role 的 sex 类型为 SexEnum -->
     <result property="sex" column="sex" typeHandler="org.apache.ibatis.type.EnumOridinalTypeHandler"/>
@@ -290,7 +292,7 @@ public class MyEnumTypeHandler implements TypeHandler<SexEnum> {
 
 #### 1、系统定义 ObjectFactory
 
-系统默认提供并使用`org.apache.ibatis.reflection.factory.DefaultObjectFactory`。
+系统默认提供并使用 `org.apache.ibatis.reflection.factory.DefaultObjectFactory`。
 
 #### 2、自定义 ObjectFactory
 
@@ -367,14 +369,14 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
 
   ```java
   public class DbcpDataSourceFactory extends BasicDataSource implements DataSourceFactory {
-
+  
       private Properties properties;
-
+  
       @Override
       public void setProperties(Properties properties) {
           this.properties = properties;
       }
-
+  
       @Override
       public DataSource getDataSource() {
           DataSource dataSource = null;
@@ -386,7 +388,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
           }
           return dataSource;
       }
-
+  
       @Override
       public Logger getParentLogger() throws SQLFeatureNotSupportedException {
           return Logger.getLogger(DbcpDataSourceFactory.class.getName());
@@ -421,7 +423,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
   ```xml
   // 扫描指定包下所有 Dao 接口
   <package name="com.studynotes.mybatis"/>
-
+  
   // 引入指定 Dao 接口
   <mapper class="com.studynotes.mybatis.RoleDao"/>
   ```
@@ -461,9 +463,9 @@ MyBatis 是针对映射器构造的 SQL 构建的轻量级框架，并且通过�
 
 对应 SQL 的查询语句，可以传入各种类型形参，返回结果。
 
-#### 1、主要属性：
+#### 1、主要属性
 
-- id：`namespace + id`是唯一的，可以通过 SqlSession 调用，或者在动态 Mapper 中对应 Dao 的方法名。
+- id：`namespace + id` 是唯一的，可以通过 SqlSession 调用，或者在动态 Mapper 中对应 Dao 的方法名。
 
 - parameterType：表示 PreparStatement 中的参数的类型，也就是对应 Dao 方法中的形参类型。
 
@@ -471,9 +473,9 @@ MyBatis 是针对映射器构造的 SQL 构建的轻量级框架，并且通过�
 
   > 返回一个结果时，resultType 对应 Dao 方法返回值类型；返回多个结果时，resultType 对应 Dao 方法返回值类型中集合的泛型。
   >
-  > 例如：方法返回值为`Role`或`List<Role>`，resultType 的值都是 com.studynotes.mybatis.Role。
+  > 例如：方法返回值为 `Role` 或 `List<Role>`，resultType 的值都是 com.studynotes.mybatis.Role。
 
-- resultMap：resultMap 可以自动将结果对应 `<resultMap>` 自定义配置规则，是`<resultMap>`标签映射集的引用。
+- resultMap：resultMap 可以自动将结果对应 `<resultMap>` 自定义配置规则，是 `<resultMap>` 标签映射集的引用。
 
 #### 2、传递多个参数方式
 
@@ -557,7 +559,7 @@ public class RoleParam {
 
 - 对一些数值型的参数设置保存的精度。
 
-  ```
+  ```xml
   #{price, javaType=int, jdbcType=NUMBERIC, numericScale=2}
   ```
 
@@ -588,7 +590,7 @@ public void test() {
 
 #### 2、[`<selectKey>`](https://blog.csdn.net/kongkongyanan/article/details/86096657)
 
-将查询值回填给 POJO 类指定属性，和`<insert>、<update>`搭配使用。
+将查询值回填给 POJO 类指定属性，和 `<insert>、<update>` 搭配使用。
 
 主要属性：
 
@@ -614,7 +616,7 @@ public void test() {
 
 ### （五）`<sql>`
 
-定义可复用的 sql 语句，通过`<include>`调用。
+定义可复用的 sql 语句，通过 `<include>` 调用。
 
 ```xml
 <sql id="role_columns">
@@ -639,7 +641,7 @@ public void test() {
 
 #### 1、`<constructor>`
 
-当 POJO 类没有无参构造时，需要指定`<constructor>`，MyBatis 会使用此构造方法构造 POJO 类。
+当 POJO 类没有无参构造时，需要指定 `<constructor>`，MyBatis 会使用此构造方法构造 POJO 类。
 
 > `<idArg>`：标记出作为 ID 的结果可以帮助提高整体性能。
 
@@ -700,7 +702,7 @@ public class RoleCard implements Serializable {
 }
 ```
 
-第一种写法：直接把 RoleCard 定义在`<association>`中。
+第一种写法：直接把 RoleCard 定义在 `<association>` 中。
 
 ```xml
 <resultMap type="com.studynotes.mybatis.RoleCardDto" id="RoleCardDtoMap">
@@ -724,7 +726,7 @@ public class RoleCard implements Serializable {
 </select>
 ```
 
-第二种写法：使用 resultMap 属性引用`<resultMap>`的 id。
+第二种写法：使用 resultMap 属性引用 `<resultMap>` 的 id。
 
 ```xml
 <resultMap type="com.studynotes.mybatis.RoleCardDto" id="RoleCardDtoMap">
@@ -751,11 +753,11 @@ public class RoleCard implements Serializable {
 </select>
 ```
 
-第三种写法：使用 select 属性引用`<select>`的 id。
+第三种写法：使用 select 属性引用 `<select>` 的 id。
 
-- select：对应`<select>`的 id 名或者是 Dao 方法的全路径名。
+- select：对应 `<select>` 的 id 名或者是 Dao 方法的全路径名。
 
-- column：对应父查询中的列名或列的别名，同时也是传入子查询的参数名。若需要传入多个参数，则格式为`column="{prop1=col1,prop2=col2}"`
+- column：对应父查询中的列名或列的别名，同时也是传入子查询的参数名。若需要传入多个参数，则格式为 `column="{prop1=col1,prop2=col2}"`。
 
   > 注意：MyBatis 有个特性，当只有一个值作为参数传递时，传入到 PreparStatement 中的参数名不必和 Dao 方法中的形参名一致。
   >
@@ -806,7 +808,7 @@ public class RoleCard implements Serializable {
 
 代表一对多关系，共有三种写法：
 
-> `<collection>`的用法和`<association>`基本一致。
+> `<collection>` 的用法和 `<association>` 基本一致。
 
 ```java
 // Role 和 Phone 一对多关联，RoleCardDto 是关联的 POJO
@@ -824,9 +826,9 @@ public class Phone implements Serializable {
 }
 ```
 
-第一种用法：直接把 Phone 定义在`<collection>`中。
+第一种用法：直接把 Phone 定义在 `<collection>` 中。
 
-> 注意：一对多时，javaType 为 List 类型，`<collection>`提供 ofType 属性的值为 List 的泛型，也就是多的一方的类型。
+> 注意：一对多时，javaType 为 List 类型，`<collection>` 提供 ofType 属性的值为 List 的泛型，也就是多的一方的类型。
 
 ```xml
 <resultMap type="com.studynotes.mybatis.RoleCardDto" id="RoleCardDtoMap">
@@ -907,9 +909,9 @@ public class Suv extends Vehicle {
 </resultMap>
 ```
 
-第二种：使用 resultMap 属性引用`<resultMap>`的 id，使用指定结果集映射获取结果。
+第二种：使用 resultMap 属性引用 `<resultMap>` 的 id，使用指定结果集映射获取结果。
 
-> `<discriminator>`根据`<resultMap>`id 指定的结果集映射提供 extends 属性，用于表示继承某个`<resultMap>`，当没有使用 extends 属性时，只会填充`<resultMap>`中包含的属性。
+> `<discriminator>` 根据 `<resultMap>` id 指定的结果集映射提供 extends 属性，用于表示继承某个 `<resultMap>`，当没有使用 extends 属性时，只会填充 `<resultMap>` 中包含的属性。
 
 ```xml
 <resultMap id="vehicleResult" type="Vehicle">
@@ -943,12 +945,12 @@ public class Suv extends Vehicle {
 
 > 注意：
 >
-> - 只有使用 select 属性引用`<select>`的 id 级联方式才有效，例如：`<association property="roleCard" column="id" select="com.studynotes.mybatis.demo01.dao.RoleDtoDao.queryByRoleId"/>`。
+> - 只有使用 select 属性引用 `<select>` 的 id 级联方式才有效，例如：`<association property="roleCard" column="id" select="com.studynotes.mybatis.demo01.dao.RoleDtoDao.queryByRoleId"/>`。
 > - 使用表连接方式进行级联的话，就没有延迟加载的概念。
 
 ##### （1）全局配置
 
-在 mybatis-config 的`<settings>`中设置：
+在 mybatis-config 的 `<settings>` 中设置：
 
 - lazyLoadingEnabled：为 true 开启延迟加载。
 
@@ -958,7 +960,7 @@ public class Suv extends Vehicle {
 
 ##### （2）局部配置
 
-若不想进行全局配置，只想对某些级联查询开启/关闭延迟加载，可以在`<association>`标签中添加 fetchType 属性。
+若不想进行全局配置，只想对某些级联查询开启/关闭延迟加载，可以在 `<association>` 标签中添加 fetchType 属性。
 
 - fetchType：lazy 表示开启延时加载；eager 表示关闭延时加载
 
@@ -1017,7 +1019,7 @@ MyBatis 中提供动态 SQL 标签，用于动态的生成 SQL 语句，提高 M
 
 ### （四）`<trim>`
 
-用于替代 SQL 语句中指定的字符串，prefix 属性值替代 prefixOverrides 属性值，多个属性值用【|】隔开，例如：`AND |OR `。
+用于替代 SQL 语句中指定的字符串，prefix 属性值替代 prefixOverrides 属性值，多个属性值用【|】隔开，例如：`AND |OR`。
 
 ```xml
 <select>
@@ -1032,7 +1034,7 @@ MyBatis 中提供动态 SQL 标签，用于动态的生成 SQL 语句，提高 M
 
 ### （五）`<set>`
 
-`<set>`会动态地在行首插入 SET 关键字，并会删掉额外的逗号。
+`<set>` 会动态地在行首插入 SET 关键字，并会删掉额外的逗号。
 
 ```xml
 <update id="updateAuthorIfNecessary">
@@ -1063,7 +1065,7 @@ MyBatis 中提供动态 SQL 标签，用于动态的生成 SQL 语句，提高 M
 
 ### （七）`<script>`
 
-要在带注解的映射器接口类中使用动态 SQL，可以使用`<script>`元素。
+要在带注解的映射器接口类中使用动态 SQL，可以使用 `<script>` 元素。
 
 ```java
 @Update({"<script>",
@@ -1105,9 +1107,9 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 ### （一）一级缓存
 
-一级缓存只针对一个 SqlSession 有效，每个`namespace + selectId`的首次查询结果都会缓存。接下来的对于`namespace + selectId`的查询不会查询数据库，而是直接从缓存中获取。若此 SqlSession 执行了增删改 SQL 语句，则会清空此 SqlSession 中的所有缓存。
+一级缓存只针对一个 SqlSession 有效，每个 `namespace + selectId` 的首次查询结果都会缓存。接下来的对于 `namespace + selectId` 的查询不会查询数据库，而是直接从缓存中获取。若此 SqlSession 执行了增删改 SQL 语句，则会清空此 SqlSession 中的所有缓存。
 
-在 mybatis-config 的`<settings>`中设置 localCacheScope（本地缓存的模式），有两个值：
+在 mybatis-config 的 `<settings>` 中设置 localCacheScope（本地缓存的模式），有两个值：
 
 - SESSION：默认值，开启一级缓存，缓存一个 SqlSession 中执行的所有查询。
 - STATEMENT：本地缓存仅用于此次查询语句，查询完成后便清空此 SqlSession 中的所有缓存。
@@ -1125,7 +1127,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
 - Executor（BaseExecutor）维护一个 Cache（PerpetualCache），SqlSession 调用查询方法时，最终调用 Executor 的 query()方法。
-  1. 获取此次查询的 CacheKey（由`MappedStatement的Id、SQL的offset、SQL的limit、SQL本身以及传给SQL的参数`组成）。
+  1. 获取此次查询的 CacheKey（由 `MappedStatement的Id、SQL的offset、SQL的limit、SQL本身以及传给SQL的参数` 组成）。
   2. 当 flushCache 为 true 时清空 Cache。
   3. 尝试通过 CacheKey 获取 Cache 中对应的值，若有，则返回；若没有，则从数据库中查询后返回。
   4. 当 localCacheScope 值为【STATEMENT】时，则会清空 Cache。
@@ -1138,7 +1140,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 > 注意：调用 SqlSession.commit()二级缓存才生效。
 
-在 mybatis-config 中添加`<setting name="cacheEnabled" value="true"/>`开启二级缓存。
+在 mybatis-config 中添加 `<setting name="cacheEnabled" value="true"/>` 开启二级缓存。
 
 > 优缺点：
 >
@@ -1146,9 +1148,9 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 >
 > - 每个 namespace 有单独的 Cache，一个 namespace 中的增删改对于另一个 namespace 是不可知的，因此对于级联（多表关联）查询时也可能读到脏数据。
 >
->   > 在 mapper 配置文件中添加`<cache-ref namespace="其他namespaceId"/>`声明和其他 namespace 使用同一个 Cache 空间和配置，就可以解决级联（多表关联）查询中更新不可知的问题。
+>   > 在 mapper 配置文件中添加 `<cache-ref namespace="其他namespaceId"/>` 声明和其他 namespace 使用同一个 Cache 空间和配置，就可以解决级联（多表关联）查询中更新不可知的问题。
 
-在 mapper 配置文件中添加`<cache/>`声明此 namespace 使用二级缓存，属性如下：
+在 mapper 配置文件中添加 `<cache/>` 声明此 namespace 使用二级缓存，属性如下：
 
 - type：Cache 使用的类型，默认是 PerpetualCache，也可以实现 Cache 接口，自定义 Cache。
 
@@ -1170,10 +1172,10 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 - readOnly：只读，意味着缓存数据只能读取不能修改。默认 false，也就是可读写，需要对应实体类能够序列化。
 
-`<select>、<insert>、<update>、<delete>`中有两个属性 useCache 和 flushCache，用来更细化地控制缓存：
+`<select>、<insert>、<update>、<delete>` 中有两个属性 useCache 和 flushCache，用来更细化地控制缓存：
 
 - useCache：是否需要使用二级缓存。
-- flushCache：此操作是否清空一级、二级缓存，默认`<select>`为 false，`<insert>、<update>、<delete>`为 true。
+- flushCache：此操作是否清空一级、二级缓存，默认 `<select>` 为 false，`<insert>、<update>、<delete>` 为 true。
 
 #### 1、原理
 
@@ -1187,13 +1189,14 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
   >
   > TransactionalCache 实现 Cache 接口，封装 Cache（和上面的 Cache 是同一个，下面的 Cache 同理），作用是如果事务提交，对缓存的操作才会生效，如果事务回滚或者不提交事务，则不对缓存产生影响。
 
-  1. 获取此次查询的 CacheKey（由`MappedStatement的Id、SQL的offset、SQL的limit、SQL本身以及传给SQL的参数`组成）。
+  1. 获取此次查询的 CacheKey（由 `MappedStatement的Id、SQL的offset、SQL的limit、SQL本身以及传给SQL的参数` 组成）。
 
-  2. <font color="DeepSkyBlue">flushCacheIfRequired(MappedStatement)</font>方法作用：当 flushCache 为 true 时清空 TransactionalCache，同时设置清理标志位 clearOnCommit 为 true。
+  2. <font color="DeepSkyBlue">flushCacheIfRequired(MappedStatement)</font> 方法作用：当 flushCache 为 true 时清空 TransactionalCache，同时设置清理标志位 clearOnCommit 为 true。
 
-  > 注意：此方法只会清空 TransactionalCache，对 Cache 没有影响。
+     > 注意：此方法只会清空 TransactionalCache，对 Cache 没有影响。
 
   3. 判断 useCache 是否为 true，为 true 才可以使用二级缓存。
+
   4. 尝试通过 Cache 和 CacheKey 从 TransactionalCacheManager 中获取对应的值（最终还是从 Cache 中 CacheKey 对应的值）：
 
      - 若有，则返回。
@@ -1218,7 +1221,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 SqlSessionFactoryBuilder 主要作用是通过配置文件或 Configuration 类生成 SqlSessionFactory。
 
-### （二）<font color=orange>SqlSessionFactory</font>
+### （二）<font color="orange">SqlSessionFactory</font>
 
 SqlSessionFactory 是工厂类，主要用于生成 SqlSession 对象实例。
 
@@ -1299,7 +1302,7 @@ public static SqlSessionFactory getSqlSessionFactory2() {
 }
 ```
 
-### （三）<font color=orange>SqlSession</font>
+### （三）<font color="orange">SqlSession</font>
 
 SqlSession 类似于 JDBC 中的一个 Connection 连接，对外提供了用户和数据库之间交互需要的所有方法，隐藏了底层的细节。
 
@@ -1312,7 +1315,7 @@ SqlSession 类似于 JDBC 中的一个 Connection 连接，对外提供了用户
 ![MyBatis执行原理](https://onezilin.github.io/StudyNotes/MyBatis/MyBatis执行原理.png)
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
-- Executor 实现类的 doQuery 中，通过`configuration.newStatementHandler(Executor, MappedStatement, Object, RowBounds, ResultHandler, BoundSql)`有参构造 StatementHandler。
+- Executor 实现类的 doQuery 中，通过 `configuration.newStatementHandler(Executor, MappedStatement, Object, RowBounds, ResultHandler, BoundSql)` 有参构造 StatementHandler。
   - Executor：当前执行 doQuery(..)方法的 Executor。
   - MappedStatement：CURD 标签 id 对应的对象，内部存储当前标签的所有信息，例如：标签属性值、参数、SQL 语句等。
   - Object：传入的参数。
@@ -1420,7 +1423,7 @@ public void test(Integer id) {
 
 - SqlSession.getMapper(..)时，MyBatis 通过动态代理方式生成对应接口的代理类。
 
-  - Configuration 中的 MapperRegistry 维护`Map<Class<?>, MapperProxyFactory<?>> knownMappers`属性。knownMappers 是根据 mybatis_config 中`<mappers>` 引入的映射器进行初始化（根据 namespace 的值获取对应的 Class 对象作为 key，根据 Class 对象构建 MapperProxyFactory 作为 value）。
+  - Configuration 中的 MapperRegistry 维护 `Map<Class<?>, MapperProxyFactory<?>> knownMappers` 属性。knownMappers 是根据 mybatis_config 中 `<mappers>` 引入的映射器进行初始化（根据 namespace 的值获取对应的 Class 对象作为 key，根据 Class 对象构建 MapperProxyFactory 作为 value）。
 
     > 所以动态 Mapper 中 namespace 的值必须是 Dao 接口的全路径名。
 
@@ -1502,7 +1505,7 @@ mybatis:
 
 ## 八、疑问
 
-### （一）`#{}`和`${}`的区别？
+### （一）`#{}` 和 `${}` 的区别？
 
 - `#{}`会创建预编译的语句，然后 MyBatis 设值，并且会在值前后添加【'】单引号。
 - `${}`不会对传入的参数做任何处理，容易被注入攻击。

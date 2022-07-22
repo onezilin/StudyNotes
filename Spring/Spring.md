@@ -111,14 +111,14 @@ public class StaticBarInterfaceFactory {
 
 <bean id="foo" class="...Foo">
     <property name="barInterface">
-    	<ref bean="bar"/>
+        <ref bean="bar"/>
     </property>
 </bean>
 ```
 
 b. 实例工厂方法属性 factory-bean 和 factory-method
 
-工厂类的获取实例对象的方法为非静态方法，需要先实例化工厂类，再使用指定的非静态方法，需要另外的`<bean factory-bean="工厂类 bean 的 id"`指定工厂类实例。
+工厂类的获取实例对象的方法为非静态方法，需要先实例化工厂类，再使用指定的非静态方法，需要另外的 `<bean factory-bean="工厂类 bean 的 id"` 指定工厂类实例。
 
 ```java
 // 实例工厂方法代码样例
@@ -136,7 +136,7 @@ public class NonStaticBarInterfaceFactory {
 
 <bean id="foo" class="...Foo">
     <property name="barInterface">
-    	<ref bean="bar"/>
+        <ref bean="bar"/>
     </property>
 </bean>
 ```
@@ -186,7 +186,7 @@ public class MockNewsPersister implements IFXNewsPersister {
 
 [方法注入的格式和原理](https://yq.aliyun.com/articles/760100)：
 
-- 获取生命周期短的方法格式如下：`<public|protected> [abstract] <return-type> theMethodName(no-arguments);`
+- 获取生命周期短的方法格式如下：`<public|protected> [abstract] <return-type> theMethodName(no-arguments);`。
 - 容器创建长生命周期类时，通过 CGLib 动态代理实现，调用指定方法时，生成生命周期长类的子类，我们拿到的也是这个子类的 bean，此子类 bean 生命周期短。
 
 ```xml
@@ -214,7 +214,7 @@ public class NextDayDateFactoryBean implements FactoryBean {
     public Class getObjectType() {
         return DateTime.class;
     }
-	// 改为原型模式
+    // 改为原型模式
     public boolean isSingleton() {
         return false;
     }
@@ -227,7 +227,7 @@ public class NextDayDateFactoryBean implements FactoryBean {
 
 <bean id="nextDayDateDisplayer" class="...NextDayDateDisplayer">
     <property name="dateOfNextDay">
-    	<ref bean="nextDayDate"/>
+        <ref bean="nextDayDate"/>
     </property>
 </bean>
 ```
@@ -390,7 +390,7 @@ public class FXNewsProvider {
 
 #### 1、beans 标签
 
-`<beans>`可以配置全局属性，可以覆盖内部嵌套的`<bean/>`的默认属性
+`<beans>` 可以配置全局属性，可以覆盖内部嵌套的 `<bean/>` 的默认属性
 
 #### 2、bean 类配置方式
 
@@ -422,13 +422,13 @@ public class FXNewsProvider {
 
     > 注意：request、session 和 globalsession 只适用于 Web 应用程序。
 
-- parent：继承 parent 指定的`<bean/>`的属性和依赖注入值。
+- parent：继承 parent 指定的 `<bean/>` 的属性和依赖注入值。
 
   > 自己类的属性名和 parent 类的属性名同名时才会继承。
 
 - autowire：指定 bean 之间的依赖关系，也就是依赖注入如何确定所注入的值。
 
-  - no：自动绑定，由自己配置`<property/>`。
+  - no：自动绑定，由自己配置 `<property/>`。
 
   - byName：按照类中声明的实例变量的名称，和 xml 中 bean 定义的 beanName 的值进行匹配。
 
@@ -444,7 +444,7 @@ public class FXNewsProvider {
 
 ###### ② bean 子标签
 
-构造函数注入、属性 setter 方法注入在配置文件中`<property/>`和`<constructor-arg/>`注入的值的类型不同，子标签又分为九种：
+构造函数注入、属性 setter 方法注入在配置文件中 `<property/>` 和 `<constructor-arg/>` 注入的值的类型不同，子标签又分为九种：
 
 a. `<value/>`
 
@@ -452,10 +452,10 @@ a. `<value/>`
 
 ```xml
 <constructor-arg>
-	<value>111111</value>
+    <value>111111</value>
 </constructor-arg>
 <property name="attributeName">
-	<value>222222</value>
+    <value>222222</value>
 </property>
 ```
 
@@ -463,38 +463,38 @@ b. `<idref/>`
 
 String 类型，注入当前 bean 对象注入所依赖的 bean 对象的名称的字符串，而不是引用此名称 id 对应的 bean。
 
-> 和`<value/>`区别是，会通过 bean 对象名称监测当前依赖的 bean 对象是否存在
+> 和 `<value/>` 区别是，会通过 bean 对象名称监测当前依赖的 bean 对象是否存在
 
 ```xml
 <property name="newsListenerBeanName">
-	<value>djNewsListener</value>
+    <value>djNewsListener</value>
 </property>
 
 <!-- 等同于 -->
 <property name="newsListenerBeanName">
-	<idref bean="djNewsListener"/>
+    <idref bean="djNewsListener"/>
 </property>
 ```
 
 c. `<ref/>`
 
-引用类型，`<ref/>`标签又有三个属性：
+引用类型，`<ref/>` 标签又有三个属性：
 
-- local：只能指定当前`<bean/>`对象所在的 xml 文件中定义的 bean。
+- local：只能指定当前 `<bean/>` 对象所在的 xml 文件中定义的 bean。
 - parent：指定位于当前容器（BeanFactory）的父容器中定义的对象引用。
 - bean：包括以上条件。
 
 ```xml
 <constructor-arg>
-	<ref local="djNewsPersister"/>
+    <ref local="djNewsPersister"/>
 </constructor-arg>
 
 <constructor-arg>
-	<ref parent="djNewsPersister"/>
+    <ref parent="djNewsPersister"/>
 </constructor-arg>
 
 <constructor-arg>
-	<ref bean="djNewsPersister"/>
+    <ref bean="djNewsPersister"/>
 </constructor-arg>
 ```
 
@@ -504,18 +504,18 @@ List 类型或 Array 类型
 
 ```xml
 <property name="param1">
-	<list>
-		<value> something</value>
-		<ref bean="someBeanName"/>
-		<bean class="..."/>
-	</list>
+    <list>
+        <value> something</value>
+        <ref bean="someBeanName"/>
+        <bean class="..."/>
+    </list>
 </property>
 
 <property name="param2">
-	<list>
-		<value>stringValue1</value>
-		<value>stringValue2</value>
-	</list>
+    <list>
+        <value>stringValue1</value>
+        <value>stringValue2</value>
+    </list>
 </property>
 ```
 
@@ -525,12 +525,12 @@ Set 类型
 
 ```xml
 <property name="valueSet">
-	<set>
-		<value> something</value>
-		<ref bean="someBeanName"/>
-		<bean class="..."/>
-		<list>...</list>
-	</set>
+    <set>
+        <value> something</value>
+        <ref bean="someBeanName"/>
+        <bean class="..."/>
+        <list>...</list>
+    </set>
 </property>
 ```
 
@@ -540,34 +540,34 @@ Map 类型
 
 ```xml
 <property name="mapping">
-	<map>
-		<!-- key用作基本类型 -->
-		<entry key="strValueKey">
-			<value>something</value>
-		</entry>
-		<entry>
-			<key>objectKey</key>
-			<ref bean="someObject"/>
-		</entry>
-		<!-- key-ref用作引用类型 -->
-		<entry key-ref="listKey">
-			<list>
-			</list>
-		</entry>
-	</map>
+    <map>
+        <!-- key用作基本类型 -->
+        <entry key="strValueKey">
+            <value>something</value>
+        </entry>
+        <entry>
+            <key>objectKey</key>
+            <ref bean="someObject"/>
+        </entry>
+        <!-- key-ref用作引用类型 -->
+        <entry key-ref="listKey">
+            <list>
+            </list>
+        </entry>
+    </map>
 </property>
 ```
 
 g. `<props/>`
 
-对应 java.util.Proerties 的对象依赖（Properties 只能指定 String 类型的键和值），内部嵌套<prop/>标签。
+对应 java.util.Proerties 的对象依赖（Properties 只能指定 String 类型的键和值），内部嵌套 `<prop/>` 标签。
 
 ```xml
 <property name="valueSet">
-	<props>
-		<prop key="author">fujohnwang@gmail.com</prop>
-		<prop key="support">support@spring21.cn</prop>
-	</props>
+    <props>
+        <prop key="author">fujohnwang@gmail.com</prop>
+        <prop key="support">support@spring21.cn</prop>
+    </props>
 </property>
 ```
 
@@ -577,62 +577,62 @@ h. `<null/>`
 
 ```xml
 <property name="param1">
-	<null/>
+    <null/>
 </property>
 
 <property name="param2">
-	<null/>
+    <null/>
 </property>
 ```
 
 i. `<bean/>`
 
-若想要对象实例只被当前 bean 引用，则使用内部`<bean/>`，可以不用写 id
+若想要对象实例只被当前 bean 引用，则使用内部 `<bean/>`，可以不用写 id
 
 ```xml
 <bean id="djNewsProvider" class="..FXNewsProvider"> 10
-	<constructor-arg index="0">
-		<bean class="..impl.DowJonesNewsListener"/>
-	</constructor-arg> 11
-	<constructor-arg index="1">
-		<ref bean="djNewsPersister"/>
-	</constructor-arg> 12
+    <constructor-arg index="0">
+        <bean class="..impl.DowJonesNewsListener"/>
+    </constructor-arg> 11
+    <constructor-arg index="1">
+        <ref bean="djNewsPersister"/>
+    </constructor-arg> 12
 </bean>
 ```
 
 ##### （2）注解方式
 
-@Component 类似于使用`<bean/>`进行配置。
+@Component 类似于使用 `<bean/>` 进行配置。
 
-> <bean>下的属性也有对应的注解表示
+> `<bean>` 下的属性也有对应的注解表示。
 
 @Repository、@Service、@Controller 相当于@Component 在 MVC 框架下的细化，和@Component 功能一致。
 
-> 使用`<context:component-scan base-package="包路径">`，扫描相关包下的@Component 及其他三个注解。
+> 使用 `<context:component-scan base-package="包路径">`，扫描相关包下的@Component 及其他三个注解。
 
 ### （三）BeanFactory
 
-#### 1、<font color=orange>BeanFactory</font>接口关系
+#### 1、<font color="orange">BeanFactory</font>接口关系
 
 ![BeanFactory 接口关系](https://onezilin.github.io/StudyNotes/Spring/BeanFactory 接口关系.png)
 
-##### （1） <font color=orange>ListableBeanFactory</font>
+##### （1） <font color="orange">ListableBeanFactory</font>
 
 可以获取多个 bean（传入一个类的 class 对象，可以获取本身及其子类的 bean 实例）。
 
-###### ① <font color=orange>ConfigurableListableBeanFactory</font>
+###### ① <font color="orange">ConfigurableListableBeanFactory</font>
 
 ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口。
 
-##### （2）<font color=orange>HierarchicalBeanFactory</font>
+##### （2）<font color="orange">HierarchicalBeanFactory</font>
 
 可以在应用中起多个 BeanFactory，然后将各个 BeanFactory 设置为父子关系。
 
-##### （3）<font color=orange>AutowireCapableBeanFactory</font>
+##### （3）<font color="orange">AutowireCapableBeanFactory</font>
 
 自动装配 bean，ApplicationContext 虽然没有继承 AutowireCapableBeanFactory，但是 ApplicationContext 使用了组合的思想，在其中定义了 getAutowireCapableBeanFactory()方法。
 
-### （四）<font color=orange>ApplicationContext</font>启动过程分析
+### （四）<font color="orange">ApplicationContext</font>启动过程分析
 
 ![ApplicationContext接口关系](https://onezilin.github.io/StudyNotes/Spring/ApplicationContext接口关系.png)
 
@@ -642,20 +642,20 @@ ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口
 
 容器初始化 bean 时，容器对外暴露的扩展点，可以对 BeanDefinition 进行动态修改
 
-###### ① [<font color=orange>BeanFactoryPostProcessor</font>](https://www.jianshu.com/p/b45efc018bcc)
+###### ① [<font color="orange">BeanFactoryPostProcessor</font>](https://www.jianshu.com/p/b45efc018bcc)
 
-可以在 bean 实例化之前，修改 BeanDefinition 的属性（读取的配置文件中的属性），也就是`<bean/>`的属性。
+可以在 bean 实例化之前，修改 BeanDefinition 的属性（读取的配置文件中的属性），也就是 `<bean/>` 的属性。
 
 - 通过配置文件注册 BeanFactoryPostProcessor 的实现类，提供 postProcessBeanFactory()回调方法。
 - 若不止一个 BeanFactoryPostProcessor 实现类，还需要实现 Order 接口，设置实现类的执行顺序。
 
-###### ② [<font color=orange>BeanPostProcessor</font>](https://www.jianshu.com/p/f80b77d65d39)
+###### ② [<font color="orange">BeanPostProcessor</font>](https://www.jianshu.com/p/f80b77d65d39)
 
 可以在 bean 实例化、依赖注入之后，在显示的初始化之前，修改 bean 的成员变量，完成一些定制的初始化操作。
 
 通过配置文件注册 BeanPostProcessor 的实现类，提供 postProcessBeforeInitialization()方法和 postProcessAfterInitialization()方法
 
-###### ③ [<font color=orange>InstantiationAwareBeanPostProcessor</font>](https://juejin.im/post/5da995d25188256a49204d7b)
+###### ③ [<font color="orange">InstantiationAwareBeanPostProcessor</font>](https://juejin.im/post/5da995d25188256a49204d7b)
 
 继承于 BeanPostProcessor，所以它也是一种参与 BeanDefinition 加工 Bean 过程的 BeanPostProcessor 拦截器, 并且丰富了 BeanPostProcessor 的拦截。
 
@@ -665,45 +665,43 @@ ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口
 
 bean 继承接口然后在 bean 内部实现方法
 
-###### ① <font color=orange>Aware</font>
+###### ① <font color="orange">Aware</font>
 
 用于获取 Spring 容器提供的类的实例对象。
 
-a. <font color=orange>BeanNameAware</font>
+a. <font color="orange">BeanNameAware</font>
 
 setBeanName()，获取当前 bean 的 name（也就是配置文件中的 id 属性）。
 
-b. <font color=orange>BeanfactoryAware</font>
+b. <font color="orange">BeanfactoryAware</font>
 
 setBeanFactory()，获取当前 bean 的 BeanFactory，对于 ApplicationContext 是获取到其中的 DefaultListableBeanFactory。
 
-c. <font color=orange>BeanClassLoaderAware</font>
+c. <font color="orange">BeanClassLoaderAware</font>
 
 setBeanClassLoader()，获取当前 bean 的 ClassLoader。
 
 > 对于 BeanFactory，在 bean 实例化、注入之后，执行 AbstractAutowireCapableBeanFactory 的 invokeAwareMethods()，调用 Aware 的对应方法。
 
----
-
-d. <font color=orange>ResourceLoaderAware</font>
+d. <font color="orange">ResourceLoaderAware</font>
 
 ApplicationContext 继承 ResourceLoader，可以获取到 ResourceLoader 类型的 ApplicationContext 实例。
 
-e. <font color=orange>ApplicationEventPublisherAware</font>
+e. <font color="orange">ApplicationEventPublisherAware</font>
 
 ApplicationContext 继承 ApplicationEventPublisher，可以获取到 ApplicationEventPublisher 类型的 ApplicationContext 实例。
 
-f. <font color=orange>MessageSourceAware</font>
+f. <font color="orange">MessageSourceAware</font>
 
 ApplicationContext 继承 MessageSource，可以获取 MessageSource 类型的 ApplicationContext 实例
 
-g. <font color=orange>ApplicationContextAware</font>
+g. <font color="orange">ApplicationContextAware</font>
 
 获取到当前 ApplicationContext 实例。
 
 > 对于 ApplicationContext，除了上面针对 BeanFactory 的 Aware 接口，也会执行做些 Aware 接口实现类的对应方法。
 
-###### ② [<font color=orange>InitializingBean</font>](https://blog.csdn.net/nrsc272420199/article/details/95033223)
+###### ② [<font color="orange">InitializingBean</font>](https://blog.csdn.net/nrsc272420199/article/details/95033223)
 
 在 BeanPostProcessor 的 before 和 after 之间执行，先执行 InitializingBean 的 afterPropertiesSet()方法，后执行配置文件中的 init-method 方法。
 
@@ -711,7 +709,7 @@ g. <font color=orange>ApplicationContextAware</font>
 >
 > 三者之间执行顺序为：@PostConstruct、InitializingBean、init-method。
 
-###### ③ [<font color=orange>DisposableBean</font>](https://zhuanlan.zhihu.com/p/54215879)
+###### ③ [<font color="orange">DisposableBean</font>](https://zhuanlan.zhihu.com/p/54215879)
 
 在执行完上面操作后，会将 DisposableBean 的实现类注册到 BeanFactory 中，不会马上执行。只有当对象实例不再被使用的时候才会执行相关的自定义销毁逻辑，也就是 Spring 容器关闭的时候执行，后执行配置文件中的 destory-method 方法。
 
@@ -721,7 +719,7 @@ g. <font color=orange>ApplicationContextAware</font>
 >
 > 三者之间执行顺序为：@PreDestroy、DisposableBean、destroy-method。
 
-###### ④ <font color=orange>FactoryBean</font>
+###### ④ <font color="orange">FactoryBean</font>
 
 FactoryBean 是 Spring 容器提供的一种可以扩展容器实例化逻辑的接口，其实现类本身就是作为 bean，需要注册到 BeanFactory 中，用来生产对象。
 
@@ -735,7 +733,7 @@ FactoryBean 是 Spring 容器提供的一种可以扩展容器实例化逻辑的
 
 bean 类表示的都是配置文件中的类，但是在 spring 容器中有一个 BeanDefinition 接口，用于存储 bean 类在配置文件中的配置。
 
-###### ① <font color=orange>BeanDefinition</font>
+###### ① <font color="orange">BeanDefinition</font>
 
 用于存储配置文件中对应 bean 类的配置信息、class 类、id 名和 name 名等信息。
 
@@ -743,7 +741,7 @@ b. BeanDefinitionHolder
 
 其实就是用于存储 bean 的 id 名、name 名、BeanDefinition，方便将信息注册到 BeanDefinitionRegistry 的 Map 中。
 
-###### ② [<font color=orange>BeanDefinitionRegistry</font>](https://www.jianshu.com/p/54afb6bbeb10)
+###### ② [<font color="orange">BeanDefinitionRegistry</font>](https://www.jianshu.com/p/54afb6bbeb10)
 
 用于进行 BeanDefinition 的注册，其实内部就是维持一个 Map，用于存储 bean 类的 id 名和对应和 BeanDefinition。
 
@@ -758,7 +756,7 @@ DefaultListableBeanFactory 实现了 BeanDefinitionRegistry，内部维护一个
 
 ##### （5）资源接口
 
-###### ① <font color=orange>Resource</font>
+###### ① <font color="orange">Resource</font>
 
 普通的 URL 资源定位符只基于 HTTP、FTP、File 等协议的资源定位功能，Resource 在基于以上功能外，还提供在字节流、以文件形式、文件系统、Java 的 classpath 中的资源定位功能，并统一进行封装。
 
@@ -784,7 +782,7 @@ e. InputStreamResource
 
 对 InputStream 进行封装。
 
-###### ② <font color=orange>ResourceLoader</font>
+###### ② <font color="orange">ResourceLoader</font>
 
 通过传入的路径参数，获取对应的 Resource 实现类。
 
@@ -792,11 +790,11 @@ a. DefaultResourceLoader
 
 ResourceLoader 的默认实现，通过 getResource()获取对应 Resource。
 
-b. <font color=orange>ResourcePatternResolver</font>
+b. <font color="orange">ResourcePatternResolver</font>
 
 返回 Resource 数组。
 
-###### ③ <font color=orange>MessageSource</font>
+###### ③ <font color="orange">MessageSource</font>
 
 国际化支持，配置不同国家语言，让 Spring 可以编译不同国家的配置文件。
 
@@ -806,27 +804,27 @@ b. <font color=orange>ResourcePatternResolver</font>
 
 ![事件监听发布接口](https://onezilin.github.io/StudyNotes/Spring/事件监听发布接口.png)
 
-###### ① <font color=orange>EventObject</font>
+###### ① <font color="orange">EventObject</font>
 
 定义具体的事件。
 
-<font color=green>ApplicationEvent</font>
+<font color="green">ApplicationEvent</font>
 
 - ContextClosedEvent：ApplicationContext 即将关闭时定义的事件。
 - ContextRefreshedEvent：ApplicationContext 在初始化或者刷新时定义的事件。
 - RequestHandledEvent：Web 请求处理后定义的事件。
 
-###### ② <font color=orange>EventListener</font>
+###### ② <font color="orange">EventListener</font>
 
 接收并监听具体的事件，并提供相应的处理方法。
 
-a. <font color=orange>ApplicationListener</font>
+a. <font color="orange">ApplicationListener</font>
 
 ApplicationContext 内使用的自定义事件监听器接口。ApplicationContext 启动时，会自动识别并加载 EventListener 实现类，一旦容器内有事件发布，会通知这些注册到容器中的监听器
 
 ###### ③ 事件发布接口
 
-a. <font color=orange>ApplicationEventPublisher</font>
+a. <font color="orange">ApplicationEventPublisher</font>
 
 调用发布器内部方法，将初始化完成的事件发布给监听器，并调用对应的监听方法。
 
@@ -834,7 +832,7 @@ a. <font color=orange>ApplicationEventPublisher</font>
 
 > ApplicationContext 继承自 ApplicationEventPublisher。
 
-b. <font color=orange>ApplicationEventMulticaster</font>
+b. <font color="orange">ApplicationEventMulticaster</font>
 
 ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件发布、监听器注册功能委托给 ApplicationEventMulticaster 来做。
 
@@ -854,7 +852,7 @@ ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件�
 
 - 使用 BeanDefinitionParserDelegate 将 Element 解析成 BeanDefinition，并封装成 BeanDefinitionHolder（id，BeanDefinition，aliasesArray）。将其注册到 DefaultListableBeanFactory 容器的 Map 中，并发送注册事件。
 
-  > 这两步主要是提取 XML 中 bean 对应的`<bean/>`标签及属性信息，将其存储到 BeanDefinition 中，并将 BeanDefinition 注册到 Spring 容器中。
+  > 这两步主要是提取 XML 中 bean 对应的 `<bean/>` 标签及属性信息，将其存储到 BeanDefinition 中，并将 BeanDefinition 注册到 Spring 容器中。
 
 ##### （3）[配置 DefaultListableBeanFactor](https://www.cnblogs.com/warehouse/p/9387668.html)
 
@@ -943,16 +941,16 @@ AOP 对识别业务类，并能织入逻辑代码进行的地方（也就是业�
 
 对那些 Joinpoint 进行拦截（也就是具体的描述哪些 Joinpoint 会进行代码织入）。
 
-格式为`execution([修饰符] 返回值类型 包名.类名.方法名(参数))`：
+格式为 `execution([修饰符] 返回值类型 包名.类名.方法名(参数))`：
 
 > 例如：`pointcut="execution(public \* com.itheima.demo3.CustomerDaoImpl.save(..))"/`，当此类符合规则的 save 方法被调用时，进行代码织入。
 
 - 修饰符可以省略不写，不是必须要出现的。
-- 返回值类型是不能省略不写的：根据你的方法来编写返回值；可以使用 `*`代替。
-- 包名例如：`com.itheima.demo3.BookDaoImpl`，首先 com 是不能省略不写的，但是可以使用`*`代替；中间的包名可以使用`*`号代替；如果想省略中间的包名可以使用`..`。
-- 类名也可以使用`*`号代替；也有类似的写法：`*DaoImpl`进行通配符匹配。
-- 方法也可以使用`*`号代替。
-- 参数如果是一个参数可以使用`*`号代替，如果想代表任意参数使用`..`，多个参数也可以使用`.., String, \*, ..`混合表示。
+- 返回值类型是不能省略不写的：根据你的方法来编写返回值；可以使用 `*` 代替。
+- 包名例如：`com.itheima.demo3.BookDaoImpl`，首先 com 是不能省略不写的，但是可以使用 `*` 代替；中间的包名可以使用 `*` 号代替；如果想省略中间的包名可以使用 `..`。
+- 类名也可以使用 `*` 号代替；也有类似的写法：`*DaoImpl` 进行通配符匹配。
+- 方法也可以使用 `*` 号代替。
+- 参数如果是一个参数可以使用 `*` 号代替，如果想代表任意参数使用 `..`，多个参数也可以使用 `.., String, \*, ..` 混合表示。
 
 > 最精简的格式如下：【execution(\* \*(..))】，表示匹配所有包下的、所有类的、所有方法。
 
@@ -1067,7 +1065,7 @@ class LogHandler implements InvocationHandler {
 - 使用 InvocationHandler 织入增强逻辑代码，使用 Proxy 生成代理类。
 - Proxy 创建代理对象过程中，JDK 会通过根据传入的参数信息动态地在内存中创建和 class 文件等同的字节码。
 - 根据相应的字节码转换成对应的 class，此 class 为 final 修饰，类属性是目标类方法反射后的 Method。
-- 调用 newInstance()创建代理实例。调用实例方法时，相当于调用了 InvocationHandler 的 `invoke(当前代理对象，目标类方法反射后的 Method，方法参数)`方法。
+- 调用 newInstance()创建代理实例。调用实例方法时，相当于调用了 InvocationHandler 的 `invoke(当前代理对象，目标类方法反射后的 Method，方法参数)` 方法。
 
 #### 2、动态字节码增强
 
@@ -1123,7 +1121,7 @@ class LogInterceptor implements MethodInterceptor {
 
 - 使用 MethodInterceptor 织入增强逻辑代码，使用 Enhancer 生成子类。
 - 使用 Enhancer 生成目标类的子类过程中，在内存中创建 class 文件，并进行实例化，此类继承自目标类。
-- 调用子类方法时，相当于调用了 MethodInterceptor 的 `intercept(当前代理对象，目标类方法反射后的 Method, 方法参数, 要触发父类的方法对象)`方法。
+- 调用子类方法时，相当于调用了 MethodInterceptor 的 `intercept(当前代理对象，目标类方法反射后的 Method, 方法参数, 要触发父类的方法对象)` 方法。
 - 对目标对象进行继承扩展，让其生成相应的子类，子类再重写父类方法，织入增强逻辑代码，扩展父类行为。
 
 #### 3、自定义类加载器
@@ -1140,7 +1138,7 @@ Spring AOP 早期提供了相应接口（例如：Pointcut、Advice 等），用
 
 Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹配，底层仍然是由 Spring AOP 自己实现），形成@AspectJ。@AspectJ 代表一种定义 Aspect 的风格，使用注解标注这些定义成 Aspect 的 POJO 类，Spring AOP 根据注解，将被标注类注入系统。
 
-> 自动代理配置：使用`<aop:aspectj-autoproxy/>`配置开启基于注解的 AOP 功能。
+> 自动代理配置：使用 `<aop:aspectj-autoproxy/>` 配置开启基于注解的 AOP 功能。
 
 ##### （1）@Aspect
 
@@ -1184,7 +1182,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
   // 匹配被@RedisLockAnnotation的方法
   @Pointcut("@annotation(com.annotation.RedisLockAnnotation)")
   public void test() {}
-  
+
   // 将注解作为参数传入，可以获取注解的属性值
   @Before("test() && @annotation(abcdef)")
   public Object before(RedisLockAnnotation abcdef) {
@@ -1211,15 +1209,15 @@ public Object beforeUpdate() throws Throwable {
 // 将返回值作为参数传入，可以获取返回值值
 @AfterReturning(returning = "rvt", pointcut = "execution(* lee.*.*(..))"  )
 public void log(Object rvt){
-	System.out.println("获取目标方法返回值" + rvt);
-	// rvt会自动向下转型
-	if (rvt!= null) ystem.out.println("返回值的类型是 " + rvt.getClass());
+    System.out.println("获取目标方法返回值" + rvt);
+    // rvt会自动向下转型
+    if (rvt!= null) ystem.out.println("返回值的类型是 " + rvt.getClass());
 }
 ```
 
 > 注意：
 >
-> - 目标方法返回值为`void`时@AfterReturning 不起作用。
+> - 目标方法返回值为 `void` 时@AfterReturning 不起作用。
 > - Aspect 并不能改变目标方法的返回值。因为在执行切面方法的时候，目标方法已经执行结束，并且返回了。
 
 ###### ③ @AfterThrowing
@@ -1248,14 +1246,14 @@ public void doSomething(Throwable ex){
 
 <aop:config>
     <!-- 定义切入点 -->
-	<aop:pointcut id="mypoint" expression="execution(public * com.itheima.demo3.CustomerDaoImpl.delete(..))"/>
-	<!-- 引入切面类 -->
-	<aop:aspect ref="customerDao">
-		<!-- 定义Advice：切面类的方法和切入点的表达式 -->
-		<aop:before method="log" pointcut="execution(public * com.itheima.demo3.CustomerDaoImpl.save(..))"/>
-		<!-- 引入切入点 -->
-		<aop:after-returning method="afterReturningAdvice" pointcut-ref="mypoint" returning="res" />
-	</aop:aspect>
+    <aop:pointcut id="mypoint" expression="execution(public * com.itheima.demo3.CustomerDaoImpl.delete(..))"/>
+    <!-- 引入切面类 -->
+    <aop:aspect ref="customerDao">
+        <!-- 定义Advice：切面类的方法和切入点的表达式 -->
+        <aop:before method="log" pointcut="execution(public * com.itheima.demo3.CustomerDaoImpl.save(..))"/>
+        <!-- 引入切入点 -->
+        <aop:after-returning method="afterReturningAdvice" pointcut-ref="mypoint" returning="res" />
+    </aop:aspect>
 </aop:config>
 ```
 
@@ -1263,7 +1261,7 @@ public void doSomething(Throwable ex){
 
 ### （一）[事务相关接口](https://juejin.cn/post/6844903608224333838)
 
-#### 1、<font color=orange>PlatformTransactionManager</font>
+#### 1、<font color="orange">PlatformTransactionManager</font>
 
 平台事务管理器。Spring 并不直接管理事务，而是提供 PlatformTransactionManager 接口及实现类，将事务管理的职责委托给 JDBC、Hibernate 或 JTA 等持久化框架来实现。具体实现类如下：
 
@@ -1272,7 +1270,7 @@ public void doSomething(Throwable ex){
 - JpaTransactionManager：使用 JPA 进行数据持久化时使用。
 - JtaTransactionManager：使用一个 JTA 实现来管理事务，在一个事务跨越多个资源时使用。
 
-#### 2、<font color=orange>TransactionDefinition</font>
+#### 2、<font color="orange">TransactionDefinition</font>
 
 事务定义类。定义一些事务的基本属性：隔离级别、传播行为、回滚规则、是否只读和事务超时。
 
@@ -1339,7 +1337,7 @@ public void doSomething(Throwable ex){
 
 一个事务所允许执行的最长时间，如果超过该时间限制但事务还没有完成，则自动回滚事务。
 
-#### 3、<font color=orange>TransactionStatus</font>
+#### 3、<font color="orange">TransactionStatus</font>
 
 TransactionStatus 用于记录事务的状态，该接口提供一组方法用于获取或判断事务的相应状态信息。
 
@@ -1478,7 +1476,7 @@ public class OrdersService {
 
 #### 3、基于 AspectJ 的事务管理
 
-使用`<tx>`对 TransactionDefinition 进行配置，与 Spring AOP 紧密结合，使得事务管理更加灵活。
+使用 `<tx>` 对 TransactionDefinition 进行配置，与 Spring AOP 紧密结合，使得事务管理更加灵活。
 
 ```java
 public class OrdersService {
@@ -1532,7 +1530,7 @@ public class OrdersService {
 </bean>
 ```
 
-> [注意](https://blog.csdn.net/u011983531/article/details/70504281)：这里`<aop:advisor>`大多用于事务管理；`<aop:aspect>`主要用于 AOP 中的切面。
+> [注意](https://blog.csdn.net/u011983531/article/details/70504281)：这里 `<aop:advisor>` 大多用于事务管理；`<aop:aspect>` 主要用于 AOP 中的切面。
 
 ## 五、[注解](https://www.jianshu.com/p/f12a6a899746)
 
@@ -1540,7 +1538,7 @@ public class OrdersService {
 
 #### 1、@Component
 
-被@Component 标注的类，在 Spring 开启 ComponentsScan 的时候，会自动注册为 Spring 的 bean。内有 value 属性，用于设置 bean 的 id。例如：`@Component(value="myInterface")`
+被@Component 标注的类，在 Spring 开启 ComponentsScan 的时候，会自动注册为 Spring 的 bean。内有 value 属性，用于设置 bean 的 id。例如：`@Component(value="myInterface")`。
 
 @Component 是 Spring 的元注解，被它标注的注解有类似的功能：
 
@@ -1570,7 +1568,7 @@ public class OrdersService {
 @Import(B.class)
 @Component
 class A {
-	A() {}
+    A() {}
 }
 ```
 
@@ -1578,7 +1576,7 @@ class A {
 
 #### 3、@ComponentScan
 
-默认扫描当前包及子包，也可以使用`@ComponentScan(com.note.study)`的形式指定扫描的包。将指定包下的@Component 注解的类注册到 Spring。
+默认扫描当前包及子包，也可以使用 `@ComponentScan(com.note.study)` 的形式指定扫描的包。将指定包下的@Component 注解的类注册到 Spring。
 
 #### 4、@Autowired
 
@@ -1586,7 +1584,7 @@ class A {
 
 若@Autowired 注解在接口类型属性上，会自动寻找此接口的实现类。若此接口没有实现类或实现类没有被 Spring 管理或有多个实现类，则会报错。
 
-提供 required 属性，默认为 true。设置`@Autowired(required = false)`，没有找到对应的 bean 时，不会报错，而是将此属性设置为 null。
+提供 required 属性，默认为 true。设置 `@Autowired(required = false)`，没有找到对应的 bean 时，不会报错，而是将此属性设置为 null。
 
 ##### （1）@Qualifier
 
@@ -1679,7 +1677,7 @@ Map<String, Object> testMap;
 
 #### 6、[@ConfigurationProperties](https://blog.csdn.net/superfjj/article/details/104258460)
 
-将配置文件属性值注入到该类所有对应的属性上，若不使用@PropertySource 注解指定配置文件，则默认读取`classpath:application.properties`配置文件。
+将配置文件属性值注入到该类所有对应的属性上，若不使用@PropertySource 注解指定配置文件，则默认读取 `classpath:application.properties` 配置文件。
 
 ```java
 // 读取 application.yml 中前缀为 elasticsearch 的属性值
@@ -1704,7 +1702,7 @@ public class EsProperties {
 
 #### 7、[@Configuration](https://www.lagou.com/lgeduarticle/45996.html)
 
-被@Configuration 注解的类称为配置类，相当于 XML 配置文件。配置文件中使用`<context:annotation-config/>`，注解生效。
+被@Configuration 注解的类称为配置类，相当于 XML 配置文件。配置文件中使用 `<context:annotation-config/>`，注解生效。
 
 [原理](https://blog.csdn.net/sundacheng1989/article/details/92783515)：
 
@@ -1713,7 +1711,7 @@ public class EsProperties {
 
 #### 8、[@Bean](https://blog.csdn.net/qq_33036061/article/details/100831244?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-0&spm=1001.2101.3001.4242)
 
-通过是放在@Configuration 注解的类的方法上，相当于<bean>标签，方法的返回值是 Spring bean。
+通过是放在@Configuration 注解的类的方法上，相当于 `<bean>` 标签，方法的返回值是 Spring bean。
 
 - id 属性默认是方法名，也可以使用 name 属性配置。
 - initMethod 和 destoryMethod 属性，可以指定创建和销毁时调用的方法。
@@ -1857,7 +1855,7 @@ public String handlerRequest (@RequestParam(value = "name") String myName) {
 
 用于将请求路径中的参数绑定到方法中的参数上，作用在方法的形参上。内有 value 属性，表示要绑定的请求路径中的 url 变量
 
-> 注意：和上面@RequestParam 的区别是，@PathVariable 是将【请求路径中的参数】，非【请求的参数】，绑定给形参。例如：`/myTestUrl/myName`，将 name 放在请求路径中，而不是放在`?`后
+> 注意：和上面@RequestParam 的区别是，@PathVariable 是将【请求路径中的参数】，非【请求的参数】，绑定给形参。例如：`/myTestUrl/myName`，将 name 放在请求路径中，而不是放在 `?` 后。
 
 ```java
 // @PathVariable 注解示例
@@ -1983,7 +1981,7 @@ Junit5 用于指定此测试是传参测试，可以在@CsvValue 中传入自定
 @ParameterizedTest
 @CsvSource({"0,1", "1,2"})
 void myTest(int a, int b) {
-	System.out.println(a + b);
+    System.out.println(a + b);
 }
 ```
 
@@ -1996,7 +1994,7 @@ void myTest(int a, int b) {
 @ParameterizedTest
 @MethodSource("sumRange")
 void myTest(int a, int b) {
-	System.out.println(a + b);
+    System.out.println(a + b);
 }
 
 static List<Arguments> sumRange() {
@@ -2048,7 +2046,7 @@ Spring 的 bean 类可以理解为：可以被 Spring 控制创建时机和管�
 
 - BeanFactory 采取延迟加载，调用 getBean()时才进行 bean 的实例化，可能会造成 bean 使用时抛运行异常；ApplicationContext 在容器启动时，一次性加载所有 bean，可能导致加载过慢并且占空间。
 
-  > 可以通过设置`<bean lazy-init="true">`，让 ApplicationContext 对某个 bean 实行懒加载。若当前 bean 被非懒加载的 bean 依赖，则懒加载失效。
+  > 可以通过设置 `<bean lazy-init="true">`，让 ApplicationContext 对某个 bean 实行懒加载。若当前 bean 被非懒加载的 bean 依赖，则懒加载失效。
 
 - BeanFactory 通常以编程的方式被创建；[ApplicationContext 还能以声明的方式创建](https://blog.51cto.com/lsieun/1828581)，例如使用 ContextLoader。
 
@@ -2064,21 +2062,21 @@ Spring 的 bean 类可以理解为：可以被 Spring 控制创建时机和管�
 
 ### （四）BeanFactoryPostProcessor 和 BeanPostProcessor 的区别
 
-- BeanFactoryPostProcessor 是在 bean 实例化之前，主要是对 BeanDefinition 的修改，修改从配置文件读取的类似于`<bean/>的属性和<property/>`关于 bean 的配置信息，例如：lazy-init、depends-on 等。
+- BeanFactoryPostProcessor 是在 bean 实例化之前，主要是对 BeanDefinition 的修改，修改从配置文件读取的类似于 `<bean/>的属性和<property/>` 关于 bean 的配置信息，例如：lazy-init、depends-on 等。
 - BeanPostProcessor 是在 bean 实例化之后，显示的 getBean()之前，对 bean 本身属性的修改
 
 ### （五）@Resource、@PostConstruct、@PreDestroy 等 java 自定义的注解为什么不起作用
 
 java 自定义的注解需要手动配置到配置文件中才能使用：
 
-- `<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>`
-- `<context:annotation-config/>`激活注解的相关功能
+- `<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>`。
+- `<context:annotation-config/>` 激活注解的相关功能。
 
 ### （六）[Spring 怎么解决循环依赖的问题](https://cloud.tencent.com/developer/article/1497692)
 
 Spring 依赖有两种：
 
-#### 1、`<bean/>`的 depends-on 属性的依赖
+#### 1、`<bean/>` 的 depends-on 属性的依赖
 
 depends-on 属性的依赖是一种隐示的依赖，保证当前 bean 类 depends-on 的 bean 类先于自己实例化，并不存在强关联关系（depends-on 的 bean 不是<bean/>指定类的属性）。在 doGetBean()中，用递归判断是否循环 depends-on。
 
