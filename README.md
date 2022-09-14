@@ -3,4 +3,5 @@
 - [x] Spring
 - [x] MyBatis
 - [x] Vue
-- [ ] Elasticsearch
+- [x] Git
+- [x] Elasticsearch
