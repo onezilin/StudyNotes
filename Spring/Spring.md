@@ -806,9 +806,7 @@ b. <font color="orange">ResourcePatternResolver</font>
 
 ###### ① <font color="orange">EventObject</font>
 
-定义具体的事件。
-
-<font color="green">ApplicationEvent</font>
+定义具体的事件。<font color="green">ApplicationEvent</font> 是 Spring 容器内自定义事件类型，继承自 EventObject，它是一个抽象类，需要根据情况提供相应的子类以区分不同情况。默认提供了三个实现：
 
 - ContextClosedEvent：ApplicationContext 即将关闭时定义的事件。
 - ContextRefreshedEvent：ApplicationContext 在初始化或者刷新时定义的事件。
@@ -820,23 +818,27 @@ b. <font color="orange">ResourcePatternResolver</font>
 
 a. <font color="orange">ApplicationListener</font>
 
-ApplicationContext 内使用的自定义事件监听器接口。ApplicationContext 启动时，会自动识别并加载 EventListener 实现类，一旦容器内有事件发布，会通知这些注册到容器中的监听器
+继承自 EventListener，ApplicationContext 内使用的自定义事件监听器接口。ApplicationContext 启动时，会自动识别并加载 EventListener 实现类，一旦容器内有事件发布，会通知这些注册到容器中的监听器。
 
 ###### ③ 事件发布接口
 
 a. <font color="orange">ApplicationEventPublisher</font>
 
-调用发布器内部方法，将初始化完成的事件发布给监听器，并调用对应的监听方法。
+调用发布器内部 publicEvent(ApplicationEvent)方法，将初始化完成的事件发布给监听器，并调用对应的监听方法。
 
-内部维持一个监听器容器，对监听器进行注册管理。
+ApplicationContext 继承自 ApplicationEventPublisher，但是它不会亲自去实现事件的发布和事件监听器的注册，而是内部维护一个 ApplicationEventMulticaster 实现类，由此接口的实现类去实现相应的功能。
 
-> ApplicationContext 继承自 ApplicationEventPublisher。
+> 内部维持一个监听器容器，对监听器进行注册管理。
 
 b. <font color="orange">ApplicationEventMulticaster</font>
 
-ApplicationContext 虽然继承自 ApplicationEventPublisher，但是将事件发布、监听器注册功能委托给 ApplicationEventMulticaster 来做。
+ApplicationEventMulticaster 实现类用于实现事件的发布和事件监听器的注册。
 
-- SimpleApplicationEventMulticaster：容器启动时便会检查是否有自定义的 ApplicationEventMulticaster 的实现类，若有则使用自定义的实现类；若没有则使用默认的实现类。
+<font color="green">AbstractApplicationEventMulticaster</font> 是该接口的抽象实现类，实现事件监听器的管理功能。出于灵活性和扩展性的考虑，事件的发布功能委托给子类实现，Spring 提供了以下默认子类：
+
+- SimpleApplicationEventMulticaster：
+  - 容器启动时便会检查是否有自定义的 ApplicationEventMulticaster 的实现类，若有则使用自定义的实现类；若没有则使用默认的实现类。
+  - 该实现类添加了事件发布功能的实现，不过其默认使用了 SyncTaskExecutor 进行事件的发布，可以让事件同步顺序发布，但是也会造成性能问题。因此，可以提供其他类型的 TaskExecutor 提高性能。
 
 #### 2、[ApplicationContext 中 bean 实例化前的准备](https://juejin.cn/post/6844903694039793672#heading-5)
 
@@ -1700,6 +1702,100 @@ public class EsProperties {
 > - @EnableConfigurationProperties 所在的类需要为 bean 类。
 > - @PropertySource 默认不支持读取 yaml 文件，需要自定义 [yaml 解析工厂](https://blog.csdn.net/qq_40837310/article/details/106587158)，并且添加到@PropertySource 的 factory 属性。
 
+##### （2）[@ConfigurationPropertiesScan](https://cloud.tencent.com/developer/article/1657058)
+
+使用@EnableConfigurationProperties 一个一个地注册配置类，可能导致工作量增多。可以直接在 SpringBoot 启动类中，使用@ConfigurationPropertiesScan 扫描指定包下的被@ConfigurationProperties 注解的类，将其注册为 bean。
+
+```java
+@SpringBootApplication
+// 扫描 config 包下被 @ConfigurationProperties 注解的配置类
+@ConfigurationPropertiesScan("com.my.config")
+public class ConfigPropApp {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigPropApp.class,args);
+    }
+}
+```
+
+##### （3）[@NestedConfigurationProperty](https://blog.csdn.net/u013541707/article/details/113193128)
+
+@ConfigurationProperties 只能将简单的数据类型（例如：String、Integer）注入到配置类的属性，对于复杂数据类型（例如：自定义对象），可以使用@NestedConfigurationProperty 将其注入到指定属性中。另外，使用了这个注解的属性的类型，代表是不在本文件中，而是在其他地方。
+
+```properties
+spring.datasources.test.username=admin
+spring.datasources.test.password=123456
+spring.datasources.test.url=url
+spring.datasources.test.driver=com.mysql
+spring.datasources.duration=5
+```
+
+```java
+@Data
+@ConfigurationProperties(value = "spring.datasources", ignoreInvalidFields = true, ignoreUnknownFields = false)
+@Component
+public class DataSourceProperties {
+    @NestedConfigurationProperty
+    private DataSource test;
+
+    /**
+     * 不写单位默认按照毫秒
+     */
+    @DurationUnit(ChronoUnit.DAYS)
+    private Duration duration;
+}
+
+// 在另外一个 java 文件中
+@Data
+public class DataSource {
+    private String url;
+    private String username;
+    private String password;
+    private String driver;
+}
+```
+
+##### （4）[@ConfigurationPropertiesBindling](https://cloud.tencent.com/developer/article/1809381)
+
+SpringBoot 提供的自定义配置文件转换器注解，可以将配置文件中的配置值转换成其他类型。
+
+```yaml
+# 一个人有多条狗，狗有自己的品种和名字
+person:
+  dogs:
+    husky: '{"name":"erha","age":3}'
+    corgi: '{"name":"pipi","age":4}'
+```
+
+```java
+@Data
+@ConfigurationProperties(prefix = PersonApplicationConfig.PREFIX)
+public class PersonApplicationConfig {
+
+    public static final String PREFIX = "person";
+
+    @NestedConfigurationProperty
+    private Map<String, Dog> dogs;
+
+    @Data
+    public class Dog {
+        private String name;
+
+        private Integer age;
+    }
+}
+
+// 必须注册为 bean
+@Component
+@ConfigurationPropertiesBinding
+public class DogConvert implements Converter<String, PersonApplicationConfig.Dog> {
+    @Override
+    public PersonApplicationConfig.Dog convert(String source) {
+        // 将字符串转化为 Dog 类
+        return JSONObject.parseObject(source, PersonApplicationConfig.Dog.class);
+    }
+}
+```
+
 #### 7、[@Configuration](https://www.lagou.com/lgeduarticle/45996.html)
 
 被@Configuration 注解的类称为配置类，相当于 XML 配置文件。配置文件中使用 `<context:annotation-config/>`，注解生效。
@@ -1753,6 +1849,98 @@ public class EsProperties {
 > - 异步方法必须是 public，返回值是 void 或 Future。
 > - 需要在启动类或配置类上添加@EnableSync 来开启异步。
 > - @Async 注解的类被 Spring 管理，也就是类还要另外添加@Component 等相关注解。
+
+#### 10、[@Valid 和 @Validated](https://cloud.tencent.com/developer/article/1776567)
+
+可以放在类、属性和方法上，表示开启了验证功能，具体的验证功能由 [@Max、@Min](https://blog.csdn.net/zhenwei1994/article/details/81460419) 等标签控制。
+
+@Validated 和 @Valid 最主要的区别是 @Validated 提供分组验证的功能：
+
+```java
+// 两个空接口，用于表示两个分组
+public interface BasicInfo {
+}
+
+public interface AdvanceInfo {
+}
+
+@Data
+public class UserAccount {
+    @NotNull(groups = BasicInfo.class)
+    // group 属性用于指定分组
+    @Size(min = 4, max = 15, groups = BasicInfo.class)
+    private String password;
+
+    @NotBlank(groups = BasicInfo.class)
+    private String name;
+
+    @Min(value = 18, message = "Age should not be less than 18", groups = AdvanceInfo.class)
+    private int age;
+
+    @NotBlank(groups = AdvanceInfo.class)
+    private String phone;
+}
+```
+
+```java
+@RequestMapping(value = "/saveBasicInfoStep1", method = RequestMethod.POST)
+public String saveBasicInfoStep1(
+  // 使用时表明只对在 BasicInfo 分组中的字段进行验证
+  @Validated(BasicInfo.class)
+  @ModelAttribute("useraccount") UserAccount useraccount,
+  BindingResult result, ModelMap model) {
+    if (result.hasErrors()) {
+        return "error";
+    }
+    return "success";
+}
+```
+
+#### 11、[@EventListener](https://blog.csdn.net/baidu_19473529/article/details/97646739)
+
+应用在方法上，被注解的方法会在事件发布接口实现类调用 publicEvent(ApplicationEvent)方法时执行。
+
+```java
+@Slf4j
+public class MyApplicationEvent extends ApplicationEvent {
+    public MyApplicationEvent(Object source) {
+        // ApplicationEvent 没有无参构造
+        super(source);
+        log.info("I am ApplicationEvent");
+    }
+}
+
+@Slf4j
+@Component
+public class Demo07_EventListener {
+
+    // @EventListener 注解也可以传入多个 ApplicationEvent 类，表示同时监听多个事件
+    @EventListener
+    public void executeEventListener(MyApplicationEvent event) {
+        log.info("发布的事件为：{}", event);
+    }
+
+}
+
+// 实现 ApplicationContextAware 获取 ApplicationContext
+@SpringBootTest
+public class Demo09_EventListenerTest implements ApplicationContextAware {
+
+    // ApplicationContext 也继承 ApplicationEventPublisher
+    private ApplicationContext context;
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.context = applicationContext;
+    }
+
+    @Test
+    void eventListenerTest () {
+        // 发布事件
+        context.publishEvent(new MyApplicationEvent(this));
+    }
+}
+```
 
 ### （二）SpringBoot 注解
 
@@ -1809,6 +1997,26 @@ public class Demo02_MagicConditionConfig {
 ##### （1）[@ConditionalOnMissingBean](https://blog.csdn.net/xcy1193068639/article/details/81517456)
 
 用于判断 value 值对应的类型，是否在 Spring IoC 容器中有一个或多个 bean，若没有则会注册 bean。
+
+##### （2）[@ConditionalOnProperty](https://blog.csdn.net/sqlgao22/article/details/96476754)
+
+用于判断配置文件中是否有指定的键值。有三个属性：
+
+- prefix：配置文件中的前缀。
+- name：配置的键名。
+- havingValue：指定键名对应的键值，两个值相同时为 true。
+
+```java
+@Configuration
+public class FilterConfig {
+    // myValue 和 myName 对应的值相同时，注册 bean
+    @ConditionalOnProperty(prefix = "myPrefixName", name = "myName", havingValue = "myValue")
+    @Bean
+    public SmsService getSmsService() {
+        ...
+    }
+}
+```
 
 ### （三）Spring MVC 注解
 
@@ -1903,6 +2111,41 @@ public String handler(@PathVariable(value="name") String myName, @PathVariable(v
 #### 2、@ToString
 
 和@EqualsAndHashCode 类似，是生成 toString()方法。
+
+#### 3、[@Builder](https://blog.csdn.net/u012846445/article/details/109715515)
+
+@Builder 使用创建者模式创建一个对象，比 setter 方式更简单一点。
+
+```java
+@Builder
+@ToString
+public class User {
+    // 使用 builder 创建对象时的默认值
+    @Builder.Default
+    private final String id = UUID.randomUUID().toString();
+    private String username;
+    private String password;
+    @Builder.Default
+    private long insertTime = System.currentTimeMillis();
+
+    @Test
+    void test() {
+        User user = User.builder()
+            .password("admin")
+            .username("admin")
+            .build();
+        System.out.println(user);
+    }
+}
+```
+
+#### 4、[@NoArgsConstructor](https://blog.csdn.net/qq_39249094/article/details/120987277)
+
+作用于类，生成一个无参构造方法。
+
+#### 5、[@AllArgsConstructor](https://blog.csdn.net/qq_39249094/article/details/120860162)
+
+作用于类，生成一个有参构造方法，参数为所有实例变量。
 
 ### （五）[Jackson 注解](https://www.cnblogs.com/cnjavahome/p/8393178.html)
 
