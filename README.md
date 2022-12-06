@@ -5,3 +5,4 @@
 - [x] Vue
 - [x] Git
 - [x] Elasticsearch
+- [x] MySQL
