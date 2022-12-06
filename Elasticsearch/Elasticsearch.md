@@ -3580,7 +3580,7 @@ GET user/_doc/_search
 }
 ```
 
-#### 3、[painless](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/preload-data-to-file-system-cache.html)
+#### 3、[painless](https://www.elastic.co/guide/en/elasticsearch/painless/6.8/painless-lang-spec.html)
 
 painless 是一个为 ES 设计，简单、安全的脚本语言，是 ES 默认的脚本语言。扩展 Java 语法以提供 Groovy 风格的脚本语言特性，使脚本更容易编写。正如它名字一样，学习和使用起来是没痛苦的。
 

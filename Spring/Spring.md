@@ -1184,7 +1184,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
   // 匹配被@RedisLockAnnotation的方法
   @Pointcut("@annotation(com.annotation.RedisLockAnnotation)")
   public void test() {}
-
+  
   // 将注解作为参数传入，可以获取注解的属性值
   @Before("test() && @annotation(abcdef)")
   public Object before(RedisLockAnnotation abcdef) {
@@ -1805,6 +1805,10 @@ public class DogConvert implements Converter<String, PersonApplicationConfig.Dog
 - 被@Configuration 注解的类，其实生成 CGLIB 代理类实例，对@Bean 修饰的方法进行增强。
 - 获取被@bean 注解的方法返回的 Spring bean 实例时，会先查看 Spring 容器中是否有此 bean 实例，若没有，则创建；若有，则返回。
 
+##### （1）[@EnableAutoConfiguration](https://blog.csdn.net/zxc123e/article/details/80222967)
+
+将符合条件（若有@Condition 注解）的配置类（@Configuration 注解的类）都注册为 bean，主要是用来实现自动配置。
+
 #### 8、[@Bean](https://blog.csdn.net/qq_33036061/article/details/100831244?utm_medium=distribute.pc_relevant.none-task-blog-baidujs_title-0&spm=1001.2101.3001.4242)
 
 通过是放在@Configuration 注解的类的方法上，相当于 `<bean>` 标签，方法的返回值是 Spring bean。
@@ -1834,9 +1838,39 @@ public class DogConvert implements Converter<String, PersonApplicationConfig.Dog
 
 > 注意：这个依赖不是注入依赖，而只是想让 DependsOn 的类先被加载。
 
-##### （4）[@EnableAutoConfiguration](https://blog.csdn.net/zxc123e/article/details/80222967)
+##### （4）[@Primary](https://blog.csdn.net/niugang0920/article/details/116275748)
 
-将符合条件（若有@Condition 注解）的配置类（@Configuration 注解的类）都注册为 bean，主要是用来实现自动配置。
+当有多个相同类型的bean时，使用@Primary来赋予bean更高的优先级，用于修饰 @Bean、@Component。
+
+若Spring中有多个相同类型的bean，直接使用 @Autowired 或 @Resource 并且没有指定bean的name时，Spring会抛出NoUniqueBeanDefinitionException的异常。使用 @Primary 可以在没有指定bean的name时，优先选择被 @Primary 注解的bean，相当于设置为此类型默认的bean。
+
+```java
+@SpringTest
+@Configuration
+public class PrimaryConfig {
+
+    @Bean
+    public Employee zhangSanEmployee() {
+        return new Employee("张三");
+    }
+
+    @Bean
+    // 此 bean 的优先级更高
+    @Primary 
+    public Employee liSiEmployee() {
+        return new Employee("李四");
+    }
+    
+    @Test
+    public void test1() {
+        AnnotationConfigApplicationContext context
+            = new AnnotationConfigApplicationContext(PrimaryConfig.class);
+
+        Employee employee = context.getBean(Employee.class);
+        System.out.println(employee); //Employee(name=李四)
+    }
+}
+```
 
 #### 9、[@Async](https://www.cnblogs.com/huanzi-qch/p/11231041.html)
 
@@ -2168,6 +2202,21 @@ private String name;
 @JsonProperty("NAME")
 private String name;
 ```
+
+##### （1）[@JsonField](https://www.cnblogs.com/jtxw/p/15571660.html)
+
+@JsonField 和 @JsonProperty 功能类似，也用于控制字段的序列化。提供以下属性：
+
+- ordinal：序列化字段的顺序，默认为 0。
+- name：和 @JsonProperty 的 value 属性一样。
+- format：用在 Date 属性上，自动格式化日期。例如：`format="yyyy-MM-dd HH:mm:ss"`。
+- serialize：是否能将此字段序列化，默认是 true。
+- deserialize：字段是否能进行反序列化，默认是 true。
+
+和 @JsonProperty 的区别：
+
+- @JsonProperty 位于 jackson 包里面，配合 ObjectMapper 对象可以和 JSON 字符串进行转换。
+- @JsonField 位于 fastjson 包里面，配合 JSON 对象可以和 JSON 字符串进行转换。
 
 #### 3、[@JsonFormat](https://blog.csdn.net/a1035434631/article/details/109740122)
 
