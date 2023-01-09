@@ -1103,7 +1103,7 @@ void updateAuthorValues(Author author);
 
 MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数据库。
 
-![MyBatis一、二级缓存模型](https://onezilin.github.io/StudyNotes/MyBatis/MyBatis一、二级缓存模型.png)
+![MyBatis一、二级缓存模型](./MyBatis一、二级缓存模型.png)
 
 ### （一）一级缓存
 
@@ -1123,7 +1123,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 #### 1、原理
 
-![一级缓存原理](https://onezilin.github.io/StudyNotes/MyBatis/一级缓存原理.png)
+![一级缓存原理](./一级缓存原理.png)
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
 - Executor（BaseExecutor）维护一个 Cache（PerpetualCache），SqlSession 调用查询方法时，最终调用 Executor 的 query()方法。
@@ -1179,7 +1179,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 #### 1、原理
 
-![二级缓存原理](https://onezilin.github.io/StudyNotes/MyBatis/二级缓存原理.png)
+![二级缓存原理](./二级缓存原理.png)
 
 - 当开启二级缓存时，会使用装饰器模式，将创建的 BaseExecutor 装饰成 CacheExecutor。
 
@@ -1215,7 +1215,7 @@ MyBatis 提供一级缓存和二级缓存，用于减少 MyBatis 重复查询数
 
 ## 六、MyBatis 主要对象
 
-![Mybatis基本架构](https://onezilin.github.io/StudyNotes/MyBatis/Mybatis基本架构.png)
+![Mybatis基本架构](./Mybatis基本架构.png)
 
 ### （一）SqlSessionFactoryBuilder
 
@@ -1312,7 +1312,7 @@ SqlSession 类似于 JDBC 中的一个 Connection 连接，对外提供了用户
 
 ##### （1）[MyBatis 执行原理](https://www.cnblogs.com/jian0110/p/9452592.html)
 
-![MyBatis执行原理](https://onezilin.github.io/StudyNotes/MyBatis/MyBatis执行原理.png)
+![MyBatis执行原理](./MyBatis执行原理.png)
 
 - SqlSession 内部维护一个 Executor，CURD 方法都最终都会调用 Executor 的对应方法。
 - Executor 实现类的 doQuery 中，通过 `configuration.newStatementHandler(Executor, MappedStatement, Object, RowBounds, ResultHandler, BoundSql)` 有参构造 StatementHandler。

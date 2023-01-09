@@ -67,7 +67,7 @@ MySQL 是一种开放源代码的关系型数据库管理系统，由瑞典 MySQ
 
 ### （二）[MySQL 基础架构](https://www.cdsy.xyz/computer/soft/database/mysql/20210302/cd16146688138355.html)
 
-![MySQL 基础架构](./MySQL 基础架构.png)
+![MySQL 基础架构](./MySQL基础架构.png)
 
 - connection pool（连接池）：将用户连接、用户名、密码、权限校验、线程处理等需要缓存的需求缓存下来，下次可以直接使用连接池中的连接。
 - SQL 层：SQL 层是 MySQL 的核心，MySQL 的核心服务都是在这一层实现：
@@ -1375,13 +1375,13 @@ MyISAM 使用的是非聚集索引的 b+ 树的数据结构，主键索引的叶
 
 以主键为键值的索引结构，叶子节点存储着主键值和数据的地址，默认创建主键索引。
 
-![MyISAM 主键索引](./MyISAM 主键索引.png)
+![MyISAM主键索引](./MyISAM主键索引.png)
 
 ##### （2）辅助索引
 
 以非主键列为键值的索引结构，叶子节点存储着非主键列的值（说明键值可以重复）和数据的地址。
 
-![MyISAM 辅助索引](./MyISAM 辅助索引.png)
+![MyISAM辅助索引](./MyISAM辅助索引.png)
 
 #### 2、InnoDB
 
@@ -1391,13 +1391,13 @@ MyISAM 使用的是非聚集索引的 b+ 树的数据结构，主键索引的叶
 
 以主键为键值的索引结构，叶子节点存储着主键值和完整的数据，InnoDB 的数据文件也是一个索引文件，默认创建主键索引。
 
-![InnoDB 主键索引](./InnoDB 主键索引.png)
+![InnoDB主键索引](./InnoDB主键索引.png)
 
 ##### （2）辅助索引
 
 以非主键列为键值的索引结构，叶子节点存储着非主键列的值（说明可以重复）和主键的值。因此辅助索引需要检索两遍：第一遍检索辅助索引的键值获取主键值，第二遍通过主键值检索主键索引。
 
-![InnoDB 辅助索引](./InnoDB 辅助索引.png)
+![InnoDB辅助索引](./InnoDB辅助索引.png)
 
 ## 七、[索引](https://www.jianshu.com/p/0d6c828d3c70)
 
@@ -1635,7 +1635,7 @@ select id, name, age from my_table where age = 20;
 
 ##### （4）explain 分析结果
 
-![Explain 分析结果](./Explain 分析结果.jpg)
+![Explain的分析结果](./Explain的分析结果.jpg)
 
 结果的字段含义如下：
 
@@ -1918,7 +1918,7 @@ Mysql 默认的隔离级别。事务 a 只有在提交后，才能读到事务 b
 
 MVCC 机制依赖于 [Read View](https://dev.mysql.com/doc/refman/5.7/en/glossary.html#glos_read_view)，Read View 是数据库内部的一个快照，主要包含 4 个比较重要的内容：
 
-![Read View 的结构](./Read View 的结构.jpg)
+![Read_View的结构](./Read_View的结构.jpg)
 
 - m_ids：表示在生成 Read View 时当前系统中活跃的读写事务的事务 id 列表。
 - min_trx_id：表示在生成 Read View 时当前系统中活跃的读写事务中最小的事务 id，也就是 m_ids 中的最小值。
@@ -2195,7 +2195,7 @@ MySQL 在没拿到存储引擎的数据之前，并不会知道我这一行拿�
 
 ### （二）[为什么 char 类型比 varchar 查询效率高？](https://www.jianshu.com/p/a1aa86e17bf7)
 
-![varchar 和 char 数据存储示意图](./varchar 和 char 数据存储示意图.png)
+![varchar和char数据存储示意图](./varchar和char数据存储示意图.png)
 
 因为我们在创建 char 类型的列时，已经告诉 MySQL 列的长度，MySQL 在查询时，只需要按部就班地寻找就行。而查询 varchar 类型的列时，需要先读取开头的数据长度，再获取对应长度的数据，因此要比 char 类型多读很多次磁盘来获取字段的真实长度。
 
@@ -2233,7 +2233,7 @@ explain select count(*) from my_table;
 explain select count(1) from my_table;
 ```
 
-![count 查询分析](./count 查询分析.png)
+![count的查询分析](./count的查询分析.png)
 
 从此之后 count(1) 和 count(\*) 就根本没区别了，不过在语义上更推荐使用 count(\*)，表示获取总行数而不管是否为空值。
 
