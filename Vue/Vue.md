@@ -1024,6 +1024,215 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 </template>
 ```
 
+### （七）[provide / inject 依赖注入](https://cn.vuejs.org/guide/components/provide-inject.html)
+
+#### 1、prop 逐级透传问题
+
+通常情况下，父组件向子组件传值时会使用 props 属性。但是有一些多层级嵌套的组件，形成了一颗巨大的组件树，而某个深层的子组件需要一个较远的祖先组件中的部分数据。在这种情况下，如果仅使用 props 则必须将其沿着组件链逐级传递下去，这会非常麻烦：
+
+![Prop 逐级透传问题](./Prop 逐级透传问题.png)
+
+若此时 `<Root>` 组件需要向 `<DeepChild>` 组件传值，虽然这里的 `<Footer>` 组件可能根本不关心这些 props，但为了使 `<DeepChild>` 能访问到它们，仍然需要定义并向下传递。如果组件链路非常长，可能会影响到更多这条路上的组件，这一问题被称为**prop 逐级透传**。
+
+`provide` 和 `inject` 可以帮助我们解决这一问题。一个父组件相对于其所有的后代组件，会作为**依赖提供者**。任何后代的组件树，无论层级有多深，都可以**注入**由父组件提供给整条链路的依赖。也就是说在父组件中添加 provide 属性，就可以在任一后代组件中使用 inject 属性获取 provide 提供的数据。
+
+![provide 和 inject 的应用](./provide 和 inject 的应用.png)
+
+#### 2、provide 属性
+
+对于 provide 上的每一个属性，后代组件会用**其键名为注入名**查找**期望注入的值**，属性的值就是要提供的数据。
+
+```js
+// 方式1
+export default {
+  provide: {
+    // 这种形式访问不到 this
+    // message: this.message
+    message: 'hello!'
+  }
+}
+
+// 方式2：
+export default {
+  data() {
+    return {
+      message: 'hello!'
+    }
+  },
+  provide() {
+    // 使用函数的形式，可以访问到 `this`
+    return {
+      message: this.message
+    }
+  }
+}
+```
+
+##### （1）provide()函数
+
+除了在一个组件中提供依赖，我们还可以在整个应用层面（也就是 main.js 或 App.vue 中添加）提供依赖。
+
+```js
+import { createApp } from "vue";
+
+const app = createApp({});
+
+app.provide(/* 注入名 */ "message", /* 值 */ "hello!");
+```
+
+在应用级别提供的数据在该应用内的所有组件中都可以注入，当然也可以在组件中使用 provide()函数：
+
+```js
+// test.js 文件
+import { provide } from "vue";
+
+provide("message", "hello");
+```
+
+#### 3、inject 属性
+
+要注入上层组件 provide 提供的数据，需使用 inject 属性来声明：
+
+```js
+export default {
+  // provide 中提供的 message 注入到 inject 的 message 中
+  inject: ["message"],
+  data() {
+    return {
+      // 注入会在组件自身的状态之前被解析，因此你可以在 data() 中访问到注入的属性
+      fullMessage: this.message,
+    };
+  },
+};
+```
+
+当以数组形式使用 `inject`，注入的属性会以同名的 key 暴露到组件实例上；当以对象形式使用 `inject`，可以为 `inject` 中的注入的属性提供别名和默认值。
+
+```js
+export default {
+  // 当声明注入的默认值时，必须使用对象形式
+  inject: {
+    message: {
+      from: "message", // 当与原注入名同名时，这个属性是可选的
+      default: "default value",
+    },
+    user: {
+      // 需要独立数据的，请使用工厂函数
+      default: () => ({ name: "John" }),
+    },
+  },
+};
+```
+
+> 注意：
+>
+> - 默认情况下，`inject` 假设传入的注入名会被**某个祖先链上的组件提供**。如果该注入名的确没有任何组件提供，则会抛出一个运行时警告。
+> - `inject` 会沿祖先链向上寻找 `provide` 提供的注入属性，只要找到就停止。
+
+##### （1）inject()函数
+
+Vue 也提供函数的方式注入值：
+
+```js
+import { inject } from "vue";
+import { fooSymbol } from "./injectionSymbols";
+
+// 注入值的默认方式
+const foo = inject("foo");
+
+// 注入响应式的值
+const count = inject("count");
+
+// 注入一个值，若为空则使用提供的默认值
+const bar = inject("foo", "default value");
+
+// 注入一个值，若为空则使用提供的工厂函数
+const baz = inject("foo", () => new Map());
+
+// 注入时为了表明提供的默认值是个函数，需要传入第三个参数
+const fn = inject("function", () => {}, false);
+```
+
+#### 4、[非响应式](https://zhuanlan.zhihu.com/p/184967263)
+
+`provide`和`inject`绑定并不是可响应的。这是刻意为之的。然而，如果你传入了一个可监听的对象，那么其对象的 property 还是可响应的。
+
+```js
+// Father.js
+export default {
+  components: {
+    Son
+  },
+  data() {
+    return {
+      message: 'hello', //
+      messageObject: {
+        prop: 'helloObject'
+      }
+    }
+  },
+  provide() {
+    return {
+      message: this.message,
+      messageObject: this.messageObject
+    }
+  }
+}
+
+// Son.js
+export default {
+  inject: ['message', 'messageObject']
+}
+```
+
+分别修改 message 值和 messageObject 属性值，可以在子组件中看到 message 值并未改变，而 messageObject 的属性值改变了。可以看出对于基本类型是非响应式的，子组件无法获取响应后的值。有两种解决方案：
+
+（1）把值转为箭头函数
+
+```js
+// Father.js
+provide() {
+  return {
+    message: () => this.message
+  }
+}
+
+// Son.js
+export default {
+  inject: ['message'],
+  data() {
+    return {
+      fullMessage: message() // 子类获取的 message 是一个函数，需要调用才能获取值
+    }
+  }
+}
+```
+
+由于不是响应式，这个函数将会被调用多次，下面是更好的解决方法。
+
+（2）传入 Vue 实例
+
+更好一些的解决方案是把`provide`所在的 Vue 实例给传递下去：
+
+```js
+// Father.js
+provide() {
+  return {
+    message: this // 传入 this
+  }
+}
+
+// Son.js
+export default {
+  inject: ['message'],
+  data() {
+    return {
+      fullMessage: message.message // 子类获取 message 属性
+    }
+  }
+}
+```
+
 ## 三、[Vue-Router](https://router.vuejs.org/zh/introduction.html)
 
 网络原理中，路由指的是根据上一接口的数据包中的 IP 地址，查询路由表转发到另一个接口，它决定的是一个端到端的网络路径。
