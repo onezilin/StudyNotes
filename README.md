@@ -6,3 +6,5 @@
 - [x] Git
 - [x] Elasticsearch
 - [x] MySQL
+- [ ] Java
+  - [x] JavaVirtualMachine
