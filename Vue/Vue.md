@@ -76,11 +76,12 @@ MVVM 作为数据绑定的入口，整合 Observe、Compile 和 Watcher。通过
 
 ## 二、Vue
 
-### （一）属性
+### （一）组件选项
 
-在 JS 中基本结构
+在 JS 中基本结构，其中传入 Vue 的对象参数叫做组件选项
 
 ```js
+// 组件选项为 {el: '#app', data: {}, ......} 等
 let myVue = new Vue({el: '#app', data: {}, ......})
 ```
 
@@ -1231,6 +1232,376 @@ export default {
     }
   }
 }
+```
+
+### （八）render 渲染
+
+#### 1、虚拟 DOM
+
+虚拟 DOM（Virtual Document Object Model，简称 VDOM）是一种编程概念，意为将目标所需的 UI 通过数据结构**虚拟**地表示出来，保存在内存中，然后将真实的 DOM 与之保存同步。
+
+虚拟 DOM 在 Vue 文件中通常以 `<template>`标签、template 属性等形式表现：
+
+```js
+const vnode = {
+  type: "div",
+  props: {
+    id: "hello",
+  },
+  children: [
+    /* 更多 vnode */
+  ],
+};
+```
+
+这里所说的 vnode 即一个纯 JavaScript 的对象 (一个虚拟节点)，它代表着一个 `<div>` 元素。它包含我们创建实际元素所需的所有信息。它还包含更多的子节点，这使它成为虚拟 DOM 树的根节点。
+
+#### 2、[渲染过程](https://cn.vuejs.org/guide/extras/rendering-mechanism.html)
+
+![虚拟DOM渲染过程](./虚拟DOM渲染过程.png)
+
+Vue 组件挂载时会发生以下几件事：
+
+- 编译（Complied）：Vue 模板被编译成渲染函数——即用来返回虚拟 DOM 树的函数。
+- 挂载（Mounted）：运行时渲染器调用渲染函数，遍历返回的虚拟 DOM 树，并基于它创建实际的 DOM 树。
+- 更新：当一个依赖（可以理解为 data 中的数据）发生变化后，副作用（可以理解为回调函数）会重新运行，这时候会创建一个更新后的虚拟 DOM 树。运行时渲染器遍历这棵新树，将它与旧树进行比较，找出它们之间的区别，然后将必要的更新应用到真实 DOM。
+
+#### 3、模板和渲染函数
+
+Vue 模板（也就是 template）会被预编译成虚拟 DOM 渲染函数（render()函数）。Vue 也提供 render()函数使我们不用模板编译，直接手写渲染函数。**在处理高动态的逻辑时，渲染函数相比于模板更加灵活，因此可以完全地使用 JS 来构建想要的 vnode**。区别：
+
+- 模板（template）：
+  - 模板更贴近实际的 HTML。这使得我们能够更方便地重用一些已有的 HTML 代码片段，能够带来更好的可访问性体验、能更方便地使用 CSS 应用样式，并且更容易使设计师理解和修改。
+  - 由于其确定的语法，更容易对模板做静态分析。这使得 Vue 的模板编译器能够应用许多编译时优化来提升虚拟 DOM 的性能表现。
+- 渲染函数（render）：
+  - 渲染函数一般只会在需要处理高度动态渲染逻辑的可重用组件中使用。
+
+#### 4、[渲染函数](https://v2.cn.vuejs.org/v2/guide/render-function.html)
+
+##### （1）render()
+
+Vue 提供 render() 来声明渲染函数，render 有一个 h()函数作为形参，返回值为字符串、vnode 或 vnode 数组：
+
+```js
+export default {
+  data() {
+    return {
+      returnType: 'string'
+      msg: 'hello'
+    }
+  },
+
+  render(h) {
+    switch(this.type){
+      // 1、返回字符串
+      case 'string':
+        return this.msg
+      // 2、返回单个 vnode
+      case 'vnode':
+        return h('div', this.msg)
+      // 3、返回 vondoe 数组
+      case 'vnodeList':
+        return  Array.from({ length: 20 }).map(() => h('div', this.msg))
+    }
+  }
+}
+```
+
+> 注意：
+>
+> - render()函数和 template 模板同时存在时，template 模板不生效。
+> - **Vue2 和 Vue3 的 render()函数还是有区别的，这里主要讲的是 Vue2 的 render()，穿插和 Vue3 的不同，注意查找对应的 API**。
+
+##### （2）创建 vnode
+
+① [使用 JSX 来创建 vnode](https://github.com/vuejs/jsx-vue2)
+
+```jsx
+// 使用大括号 {} 来嵌入变量值
+const vnode = <div id={dynamicId}>hello, {userName}</div>;
+```
+
+JSX 是 JS 的一个类似 XML 的扩展，可以像写 HTML 一样创建 vnode，可读性更好。虽然最早由 React 引入，但实际上 JSX 语法并没有定义运行时语义，并且能被编译成各种不同的输出形式。
+
+> 注意：
+>
+> - Vue 的 JSX 编写代码方式与 React 中 JSX 的编写代码方式不同，因此不能在 Vue 应用中使用 React 的 JSX 代码。
+> - 在 TypeScript 中使用 JSX 时，需要在 tsconfig.json 中配置 `"jsx": "preserve"`。
+
+**在 JSX 中，可以正常地在标签中添加属性，也可以使用扩展运算符导入对象。**
+
+```jsx
+const vnode = <input type="email" />;
+
+// 使用扩展运算符导入对象
+const obj = {
+  type: "email",
+  placeholder: "Enter your email",
+};
+// ... 三个点表示扩展运算符
+const vnode = <input {...{ attrs: obj }} />;
+```
+
+② Vue3 中提供一个 [h()函数](https://cn.vuejs.org/guide/extras/render-function.html#creating-vnodes)用于创建 vnode：
+
+```js
+import { h } from "vue";
+
+const vnode = h(
+  "div", // type
+  { id: "foo", class: "bar" }, // props
+  [
+    /* children */
+  ]
+);
+```
+
+h() 是 hyperscript 的简称——意思是**能生成 HTML 的 JavaScript**。这个名字来源于许多虚拟 DOM 实现默认形成的约定。一个更准确的名称应该是 createVnode()，但当你需要多次使用渲染函数时，一个简短的名字会更省力。
+
+> 注意：vnode 对象必须唯一，也就是说一个 js 对象只能对应一个 vnode。
+>
+> ```js
+> function render() {
+>   const p = h("p", "hi");
+>   return h("div", [
+>     // 一个 js 变量对应两个 vnode 是无效的
+>     p,
+>     p,
+>   ]);
+> }
+> ```
+>
+> 可以使用一个工厂函数来生成多个 vnode：
+>
+> ```js
+> function render() {
+>   return h(
+>     "div",
+>     Array.from({ length: 20 }).map(() => {
+>       return h("p", "hi");
+>     })
+>   );
+> }
+> ```
+
+##### （3）createVnode()函数参数
+
+createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h()函数）有三个参数：
+
+- 第一个参数（必填）：可以为 `String | Object | Function`
+
+  - String：表示的是 HTML 标签名，也可以是子组件的名称。
+
+  - Object：是 Vue 对象的组件选项对象。
+
+    ```js
+    render (h) {
+      let myVue = {
+        // 这里的 slot 是必需的
+        template: '<div class="detail"><slot></slot></div>',
+        created () {
+          console.log(this)
+        }
+      }
+      return h(
+        myVue,
+        {lass: { 'item-details': true }}
+      )
+    }
+    ```
+
+  - Function：返回一个含有标签名或者组件选项对象的 async 函数。
+
+- 第二个参数（选填）：包括 HTML 的 attribute、JS 对象的 property 以及 Vue 的部分组件选项。
+
+  ```js
+  {
+    // 与 `v-bind:class` 的 API 相同，
+    // 接受一个字符串、对象或字符串和对象组成的数组
+    class: {
+      'my-class-name': true,
+      bar: false
+    },
+    // 与 `v-bind:style` 的 API 相同，
+    // 接受一个字符串、对象，或对象组成的数组
+    style: {
+      color: 'red',
+      fontSize: '14px'
+    },
+    // 普通的 HTML attribute
+    attrs: {
+      id: 'my-id'
+    },
+    // 若本身是一个组件，props 表示传给组件的数据，对应组件中的 props
+    props: {
+      myProp: 'bar'
+    },
+    // DOM property
+    domProps: {
+      innerHTML: 'baz'
+    },
+    // 事件监听器在 `on` 内，
+    // 但不再支持如 `v-on:keyup.enter` 这样的修饰器。
+    // 需要在处理函数中手动检查 keyCode；也可以使用 withMofifiers 函数
+    on: {
+      // 与 @click 等价
+      click: this.clickHandler
+    },
+    // 仅用于组件，用于监听原生事件，而不是组件内部使用
+    // `vm.$emit` 触发的事件。
+    nativeOn: {
+      click: this.nativeClickHandler
+    },
+    // 自定义指令。注意，你无法对 `binding` 中的 `oldValue`
+    // 赋值，因为 Vue 已经自动为你进行了同步。
+    directives: [
+      {
+        name: 'my-custom-directive',
+        value: '2',
+        expression: '1 + 1',
+        arg: 'foo',
+        modifiers: {
+          bar: true
+        }
+      }
+    ],
+    // 若第一个参数表示的是一个组件，scopedSlots 表示传递给组件的插槽，作用域插槽的格式为：
+    // { name: props => VNode | Array<VNode> }
+    scopedSlots: {
+      default: (props) => h('span', props.text)
+    },
+    // 如果组件是其它组件的子组件，需为插槽指定名称
+    slot: 'name-of-slot',
+    // 其它特殊顶层 property
+    key: 'myKey',
+    ref: 'myRef',
+    // 如果你在渲染函数中给多个元素都应用了相同的 ref 名，
+    // 那么 `$refs.myRef` 会变成一个数组。
+    refInFor: true
+  }
+  ```
+
+- 第三个参数（选填）：表示子 vnode，可以为字符串或数组（包含字符串类型和 vnode 类型）。
+
+  ```js
+  import Foo from "./Foo.vue";
+  import Bar from "./Bar.jsx";
+
+  function render() {
+    return h("div", [h(Foo), h(Bar)]);
+  }
+  ```
+
+重点讲一下 slot 在 render 中的代码编写方式：
+
+###### ① slot 插槽
+
+Vue 提供一个称为 `$slots / $scopedSlots` 的组件实例，在子组件中，用于访问父组件传递给子组件的 slot 插槽或作用域插槽。
+
+```vue
+<!-- 父组件 Father.vue -->
+<div>
+  <son>
+    <div :slot="'notExistSlot'">I'm a slot，I'm undefined in Son's Components</div>
+    <div>I'm default slot</div>
+  </son>
+</div>
+
+<!-- 子组件 Son.vue -->
+let son = new Vue({
+  name: 'son',
+  template: '<div></div>'
+  mounted() {
+    console.log('我是子组件，下面输出父组件给我的 slot：', this.$slots)
+  }
+})
+```
+
+从以下输出结果中可以看出两点信息：
+
+- 子组件中不存在 `<slot/>` 时，父组件传递给子组件的插槽也可以被 `$slots` 获取，只是不展示。
+- 父组件中没有命名的插槽统一看作 default 插槽。
+- `this.$slots` 的返回结果是以 slot 名为键名，以 vnode 为键值的对象；若父组件没有传递插槽，则返回值为空对象。
+
+![slot组件实例输出结果解析](./slot组件实例输出结果解析.png)
+
+**a. 在 createVnode()函数中使用插槽**
+
+言归正传，我们想为某个子组件 vnode 定义 slot 插槽，可以使用以下方式：
+
+```vue
+<script>
+function render(h) {
+  return h("div", [
+    // 定义普通插槽
+    this.$slots.default,
+    // 定义作用域插槽
+    this.$scopedSlots.paramsSlot({
+      test: this.myTest,
+    }),
+  ]);
+}
+</script>
+
+// 相当于 Son.vue 中
+<template>
+  <div>
+    <slot />
+    <slot name="paramsSlot" :test="myTest" />
+  </div>
+</template>
+```
+
+当我们想在父组件中传递 slot 插槽给子组件，可以使用以下方式：
+
+```js
+function render(h) {
+  return h("Son", {
+    scopedSlots: {
+      default: function () {
+        return h("span", "default");
+      },
+      paramsSlot: function (props) {
+        return h("span", props.text);
+      },
+    },
+  });
+}
+```
+
+**b. 在 JSX 中使用插槽**
+
+在 JSX 中定义插槽就简单一点：
+
+```jsx
+const vnode =
+<div>
+  // 可以直接使用标签，也可以使用 $slots
+  <slot />
+  {this.$slots.default1()}
+  <slot name="paramsSlot" :test="myTest" />
+  {this.$slots.paramsSlot1({ test: this.myTest })}
+</div>
+```
+
+在 JSX 中使用插槽也很方便：
+
+```jsx
+let obj =
+const vnode =
+<son>
+  // 具名插槽
+  <div slot="default">默认值</div>
+</son>
+
+// 使用 scopedSlots 传递作用域插槽
+const scopedSlots = {
+  default: () => <div>默认值</div>,
+  paramsSlot1: (props) => <div>{props}</div>
+}
+<son scopedSlots={scopedSlots}></son>
+// 也可以使用扩展操作符
+<son {...{scopedSlots}}></son>
 ```
 
 ## 三、[Vue-Router](https://router.vuejs.org/zh/introduction.html)
