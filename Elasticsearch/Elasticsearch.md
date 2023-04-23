@@ -1,6 +1,6 @@
 # Elasticsearch
 
-> 基于[【官网】](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)、[搜索引擎](https://www.cnblogs.com/leeSmall/category/1210814.html)
+> 基于[【官网】](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)、[搜索引擎](https://www.cnblogs.com/leeSmall/category/1210814.html)、[高德开放平台](https://lbs.amap.com/)
 >
 > 以下操作都是在 Kibana 6.8.16，Elasticsearch 6.8.16 上进行操作，index 名为 user，type 名为 \_doc。
 >
@@ -1142,8 +1142,254 @@ GET user?include_type_name=false
 
 #### 3、地理位置类型（Geo datatypes）
 
-- [地理坐标类型（Geo-point datatype）](https://blog.csdn.net/zhou870498/article/details/80529255)： geo_point。geo_point 类型 用于存储经纬度坐标。
-- 地理形状类型（Geo-Shape datatype）： geo_shape。geo_shape 类型用于存储类似于多边形的复杂形状。
+（1）地理坐标类型（[Geo-point datatype](https://www.elastic.co/guide/en/elasticsearch/reference/6.0/geo-point.html)）： geo_point。geo_point 类型 用于存储经纬度坐标。
+
+```json
+PUT user
+{
+  "mappings": {
+    "properties": {
+      "location": {
+        "type": "geo_point"
+      }
+    }
+  }
+}
+
+// 存储 geo_point 类型数据的四种方式
+
+// 对象方式
+PUT user/_doc/1
+{
+  "text": "Geo-point as an object",
+  "location": {
+    "lat": 41.12, // 纬度
+    "lon": -71.34 // 经度
+  }
+}
+
+// 字符串方式，格式为 "lat,lon"
+PUT user/_doc/2
+{
+  "text": "Geo-point as a string",
+  "location": "41.12,-71.34"
+}
+
+// geohash 方式
+PUT user/_doc/3
+{
+  "text": "Geo-point as a geohash",
+  "location": "drm3btev3e86"
+}
+
+// 数据方式，格式为 [lon, lat]
+PUT user/_doc/4
+{
+  "text": "Geo-point as an array",
+  "location": [ -71.34, 41.12 ]
+}
+```
+
+> 注意：内部依然以对象方式存储，因此在 scripts 脚本中使用时以 `doc['location'].lat; doc['location'].lon` 方式获取值。
+
+（2）地理形状类型（[Geo-Shape datatype](https://www.elastic.co/guide/en/elasticsearch/reference/6.0/geo-shape.html)）： geo_shape。geo_shape 类型用于存储多种类型的地理坐标。
+
+**geo_shape 类型提供以下属性**：
+
+- tree：要使用的 PrefixTree（前缀树）的实现方式。
+  - geohash（默认值）：使用 GeoHashPrefixTree。
+  - quadtree：使用 QuadPrefixTree。
+- precision：该值指定所需的精度，ES 将计算最佳 tree_levels 值以满足此精度。默认是数字后接一个距离单位，默认的距离单位是 m（米）。可以使用此参数设置一个合适的值去代替 tree_levels 参数。
+- tree_levels：PrefixTree 使用的最大层数，可以用来控制 shape 表示的精度，从而控制多少个 terms 被索引。默认为所选 PrefixTree 实现的默认值。默认值为 50m。
+- strategy：该值定义了如何在建立索引和搜索时描述 shape 的方式。
+  - recursive（默认值）：支持所有 shape，支持 INTERSECTS、DISJOINT、WITHIN、CONTAINS 查询。
+  - term：仅支持 Point（点类型）的 shape，仅支持 INTERSECTS 查询。
+- orientation：定义如何解释存储的多边形顶点顺序。根据坐标系统规则不同取值：
+  - 右手规则（默认值）：right、ccw、counterclockwise，都表示为按逆时针读取顶点顺序，符合 OGC 标准。
+  - 左手规则：left、cw、clockwise，都表示为按顺时针读取顶点顺序。
+
+```json
+PUT /user
+{
+  "mappings": {
+    "properties": {
+      "location": {
+        "type": "geo_shape",
+        "tree": "quadtree",
+        "precision": "1m"
+      }
+    }
+  }
+}
+```
+
+**PrefixTrees 的概念**：
+
+为了有效地表示索引中的形状，形状被转换为一系列代表网格正方形（通常称为**rasters**）的哈希，使用 PrefixTree 接口的具体实现方式。树的概念来自以下事实：前缀使用多个网格层，每个网格层的精度越来越高以代表地球。可以将其视为在更高的缩放水平下增加地图或图像的细节水平。
+
+geo_shape 不提供 100%的准确性，根据它的配置方式，它可能会为 INTERSECTS、WITHIN 和 CONTAINS 查询返回一些假阳性，为 DISJOINT 查询返回一些假阴性。为了减轻这种情况，为 tree_levels 参数选择适当的值并相应地调整期望是很重要的。例如，一个点可能靠近一个特定网格单元格的边界，因此可能不匹配只匹配它旁边的单元格的查询，即使形状非常接近该点。
+
+geo_shape 支持的多种 shape 类型，GeoJSON 格式用于描述 shape，**有以下类型的 shape**：
+
+① point：一个地址坐标。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "point",
+    "coordinates" : [-77.03653, 38.897676]
+  }
+}
+```
+
+② linestring：由两个及以上的点组成的线段。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "linestring",
+    "coordinates" : [[-77.03653, 38.897676], [-77.009051, 38.889939]]
+  }
+}
+```
+
+③ 多边形：由一组点的数组组成的多边形，其中数组中起点（第一个点）和终点（最后一个点）必须相同，也就是说多边形必须封闭。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "polygon",
+    "coordinates" : [
+      // 注意：这里是一个数组，并且起点和终点坐标相同
+      [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ]
+    ]
+  }
+}
+```
+
+若包含多个数组，除了第一个数组表示多边形外，剩余的数组都表示为多边形内部的洞。
+
+![多边形及内部的洞](./多边形及内部的洞.png)
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "polygon",
+    "coordinates" : [
+      [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0] ],
+      // 与多边形组成的空洞
+      [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2] ]
+    ]
+  }
+}
+```
+
+> **注意事项**：GeoJSON 不强制顶点的特定顺序，因此日期线和极点周围可能出现不明确的多边形。为了减轻歧义，开放地理空间联盟(OGC)简单特征访问规范定义了以下顶点排序：
+>
+> - 外部的环：Counterclockwise（逆时针）。
+> - 内部的环：Clockwise（顺时针）。
+>
+> 对于不跨日期线的多边形，在 ES 中顺序无关紧要；对于跨数据线的多边形，ES 规定顶点顺序需要符合上面的 OGC 规范。否则会创建一个不符合的多边形，并将返回不符合预期的查询结果。
+
+④ multipoint：一组点的坐标。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "multipoint",
+    "coordinates" : [
+      [102.0, 2.0], [103.0, 2.0]
+    ]
+  }
+}
+```
+
+⑤ multilinestring：一组线的坐标。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "multilinestring",
+    "coordinates" : [
+      [ [102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0] ],
+      [ [100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0] ],
+      [ [100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8] ]
+    ]
+  }
+}
+```
+
+⑥ multipolygon：一组多边形的坐标。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type" : "multipolygon",
+    "coordinates" : [
+      [ [[102.0, 2.0], [103.0, 2.0], [103.0, 3.0], [102.0, 3.0], [102.0, 2.0]] ],
+      [
+        [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]],
+        [[100.2, 0.2], [100.8, 0.2], [100.8, 0.8], [100.2, 0.8], [100.2, 0.2]]
+      ]
+    ]
+  }
+}
+```
+
+⑦ geometrycollection：几何图形的集合。
+
+```json
+POST /user/_doc
+{
+  "location" : {
+    "type": "geometrycollection",
+    "geometries": [
+      {
+        "type": "point",
+        "coordinates": [100.0, 0.0]
+      },
+      {
+        "type": "linestring",
+        "coordinates": [ [101.0, 0.0], [102.0, 1.0] ]
+      }
+    ]
+  }
+}
+```
+
+⑧ envelope：包含左上和右下两个点组成的矩形。
+
+```json
+POST /user/_doc
+{
+    "location" : {
+        "type" : "envelope",
+        "coordinates" : [ [-45.0, 45.0], [45.0, -45.0] ]
+    }
+}
+```
+
+⑨ circle：由中点和半径组成的圆。
+
+```json
+POST /example/doc
+{
+  "location" : {
+    "type" : "circle",
+    "coordinates" : [-45.0, 45.0],
+    "radius" : "100m"
+  }
+}
+```
+
+> 注意：由于 geo_shape 类型很复杂，因此无法根据此类型的字段排序或直接获取，geo_shape 类型字段的值只有通过 `_source` 获取。
 
 #### 4、特定类型（Specialised datatypes）
 
@@ -2579,6 +2825,195 @@ POST /user/_cache/clear?query=true
 POST /user/_cache/clear?request=true
 
 POST /user/_cache/clear?fielddata=true
+```
+
+#### 5、geo 查询
+
+geo 查询分为以下 4 种：
+
+##### （1）GeoShape Query
+
+查询 geo_shape 类型的字段。
+
+> geo_shape 查询使用与 geo_shape 映射相同的网格正方形表示，以查找具有与查询形状相交的形状的文档。它还将使用与字段映射定义的相同的 prefixTree 配置。
+
+geo_shape 查询包含两种查询方式：直接写在在 query 中的查询；指定文档的指定字段查询。
+
+① Inline Shape Definition
+
+类似于 geo_shape 类型，geo_shape 查询使用 Geojson 表示形状。
+
+```json
+GET /user/_search
+{
+  "query":{
+    "bool": {
+      "must": {
+        "match_all": {}
+      },
+      "filter": {
+        "geo_shape": {
+          // 查询的字段
+          "location": {
+            "shape": {
+              // shape 的类型
+              "type": "envelope",
+              "coordinates" : [[13.0, 53.0], [14.0, 52.0]]
+            },
+            "relation": "within"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+relation 表示查询的字段与指定几何图形的关系：
+
+- intersects（默认值）：geo_shape 字段与查询的几何图形**相交**。
+- disjoint：geo_shape 字段与查询的几何图形**没有任何关系**，也就是不包含、不相交。
+- within：geo_shape 字段**被包含**在查询的几何图形中。
+- contains：geo_shape 字段**包含**查询的几何图形。
+
+② Pre-Indexed Shape
+
+若手动输入坐标进行查询可能很麻烦，可以使用预先存储的坐标数据进行查询，这样可以更加语义化。
+
+```json
+PUT /shapes
+{
+  "mappings": {
+    "doc": {
+      "properties": {
+        "location": {
+          "type": "geo_shape"
+        }
+      }
+    }
+  }
+}
+
+// 预先存储 id 为 deu 的坐标数据
+PUT /shapes/doc/deu
+{
+  "location": {
+    "type": "envelope",
+    "coordinates" : [[13.0, 53.0], [14.0, 52.0]]
+  }
+}
+
+GET /user/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_shape": {
+          "location": {
+            // 使用预先存储的坐标数据进行查询
+            "indexed_shape": {
+              "index": "shapes", // index 名称
+              "type": "doc", // type 名称
+              "id": "deu", // 指定文档 id
+              "path": "location" // 指定字段
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### （2）Geo Bounding Box Query
+
+查询落在指定矩形区域内的 geo_point 类型的数据。
+
+```json
+GET /_search
+{
+  "query": {
+    "bool" : {
+      "must" : {
+        "match_all" : {}
+      },
+      "filter" : {
+        "geo_bounding_box" : {
+          // 查询的字段
+          "location" : {
+            // 左上顶点
+            "top_left" : {
+              "lat" : 40.73,
+              "lon" : -74.1
+            },
+            // 右下顶点
+            "bottom_right" : {
+              "lat" : 40.01,
+              "lon" : -71.12
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+top_left 和 bottom_right 分别表示矩形的左上顶点和右下顶点，若字段为 geo_point 数组类型，只要一个点符合，此文档就符合该查询条件。
+
+##### （3）Geo Distance Query
+
+查询以指定坐标为中心，指定长度为半径的圆中的 geo_point 类型的数据。
+
+```json
+GET /user/_search
+{
+  "query": {
+    "bool" : {
+      "must" : {
+        "match_all" : {}
+      },
+      "filter" : {
+        "geo_distance" : {
+          // 半径
+          "distance" : "200km",
+          // 查询的字段
+          "location" : {
+            "lat" : 40,
+            "lon" : -70
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### （4）Geo Polygon Query
+
+查询落在指定多边形内的 geo_point 类型的数据。
+
+```json
+GET /user/_search
+{
+  "query": {
+    "bool": {
+      "filter": {
+        "geo_polygon" : {
+          // 查询的字段
+          "location" : {
+            // 多边形各个顶点坐标
+            "points" : [
+              {"lat" : 40, "lon" : -70},
+              {"lat" : 30, "lon" : -80},
+              {"lat" : 20, "lon" : -90}
+            ]
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 ## 八、 [Aggregation 聚合](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/search-aggregations.html)
