@@ -10,3 +10,4 @@
   - [x] JavaVirtualMachine
   - [x] JavaConcurrency
   - [x] JavaConatiner
+- [x] Redis
