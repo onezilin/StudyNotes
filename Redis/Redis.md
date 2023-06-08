@@ -16,7 +16,7 @@ Redis 是用 C 语言开发的一个开源的高性能键值对（key-value）�
 >
 > Salvatore Sanfilippo 自己也没有想到，短短的几年时间，Redis 就拥有了庞大的用户群体。Hacker News 在 2012 年发布了一份数据库的使用情况调查，结果显示有近 12%的公司在使用 Redis。国内如新浪微博、街旁网、知乎网，国外如 GitHub、Stack Overflow、Flickr 等都是 Redis 的用户。
 >
-> VMware 公司从 2010 年开始赞助 Redis 的开发， Salvatore Sanfilippo 和 Pieter Noordhuis 也分别在 3 月和 5 月加入 VMware，全职开发 Redis。
+> VMware 公司从 2010 年开始赞助 Redis 的开发，Salvatore Sanfilippo 和 Pieter Noordhuis 也分别在 3 月和 5 月加入 VMware，全职开发 Redis。
 
 ### （一）NoSQL
 
@@ -83,7 +83,7 @@ KEYS h[ae]llo // 匹配 hello 和 hallo，但不匹配 hillo 。
 SCAN cursor [MATCH pattern] [COUNT count]
 ```
 
-SCAN 命令每次被调用之后， 都会向用户返回一个新的游标， 用户在下次迭代时需要使用这个新游标作为 SCAN 命令的游标参数， 以此来延续之前的迭代过程。以 0 作为游标开始一次新的迭代， 一直调用 SCAN 命令， 直到命令返回游标 0 。
+SCAN 命令每次被调用之后，都会向用户返回一个新的游标，用户在下次迭代时需要使用这个新游标作为 SCAN 命令的游标参数，以此来延续之前的迭代过程。以 0 作为游标开始一次新的迭代，一直调用 SCAN 命令，直到命令返回游标 0 。
 
 #### 3、EXISTS
 
@@ -348,7 +348,7 @@ Redis 在多个客户端操作同一 List 类型的 key 时，提供了阻塞命
 2. 将客户端的信息记录到 `server.db[i]->blocking_keys` 中（其中 `i` 为客户端所使用的数据库号码）。
 3. 继续维持客户端和服务器之间的网络连接，但不再向客户端传送任何信息，造成客户端阻塞。
 
-`server.db[i]->blocking_keys` 是一个字典， 字典的键是那些造成客户端阻塞的键， 而字典的值是一个链表， 链表里保存了所有因为这个键而被阻塞的客户端 （被同一个键所阻塞的客户端可能不止一个，同一个客户端也可能被不同的键阻塞）：
+`server.db[i]->blocking_keys` 是一个字典，字典的键是那些造成客户端阻塞的键，而字典的值是一个链表，链表里保存了所有因为这个键而被阻塞的客户端 （被同一个键所阻塞的客户端可能不止一个，同一个客户端也可能被不同的键阻塞）：
 
 ![List阻塞命令阻塞客户端](./List阻塞命令阻塞客户端.png)
 
@@ -360,7 +360,7 @@ Redis 在多个客户端操作同一 List 类型的 key 时，提供了阻塞命
 
 **先阻塞先服务（FBFS）策略**：
 
-当程序添加一个新的被阻塞客户端到 `server.blocking_keys` 字典的链表中时， 它将该客户端放在链表的最后；而当 Redis 取消客户端的阻塞时， 它从链表的最前面开始取消阻塞： 这个链表形成了一个 FIFO 队列， 最先被阻塞的客户端总是最先脱离阻塞状态， Redis 文档称这种模式为先阻塞先服务（FBFS，first-block-first-serve）。
+当程序添加一个新的被阻塞客户端到 `server.blocking_keys` 字典的链表中时，它将该客户端放在链表的最后；而当 Redis 取消客户端的阻塞时，它从链表的最前面开始取消阻塞： 这个链表形成了一个 FIFO 队列，最先被阻塞的客户端总是最先脱离阻塞状态，Redis 文档称这种模式为先阻塞先服务（FBFS，first-block-first-serve）。
 
 ##### （1）BLPOP
 
@@ -680,7 +680,7 @@ WATCH key [key ...]
 
 ![Redis事务中的WATCH命令](./Redis事务中的WATCH命令.png)
 
-> 注意：如果你使用 WATCH 监视了一个带过期时间的键， 那么即使这个键过期了， 事务仍然可以正常执行。
+> 注意：如果你使用 WATCH 监视了一个带过期时间的键，那么即使这个键过期了，事务仍然可以正常执行。
 
 #### 5、UNWATCH
 
@@ -1094,7 +1094,7 @@ Sentinel(哨兵)是用于监控 Redis 集群中 Master 状态的工具，是 Red
 
 **故障迁移**：
 
-当 Master 被标记为客观下线后，Sentinel 之间会选举出一个领导者，此领导者会进行故障迁移，它会将失效 Master 的一个 Slave 升级为新的 Master，并让其他 Slave 作为该新 Master 的从服务器；当客户端试图连接失效的主服务器时， 集群也会向客户端返回新主服务器的地址， 使得集群可以使用新主服务器代替失效服务器。
+当 Master 被标记为客观下线后，Sentinel 之间会选举出一个领导者，此领导者会进行故障迁移，它会将失效 Master 的一个 Slave 升级为新的 Master，并让其他 Slave 作为该新 Master 的从服务器；当客户端试图连接失效的主服务器时，集群也会向客户端返回新主服务器的地址，使得集群可以使用新主服务器代替失效服务器。
 
 ## 九、其他概念
 
