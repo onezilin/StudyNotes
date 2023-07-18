@@ -10,5 +10,9 @@
   - [x] JavaVirtualMachine
   - [x] JavaConcurrency
   - [x] JavaConatiner
+  - [x] JavaIO
+  - [x] JavaNIO
 - [x] Redis
 - [x] Kafka
+- [x] Eureka
+- [x] ZooKeeper
