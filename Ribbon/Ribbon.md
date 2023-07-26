@@ -256,7 +256,7 @@ public class OrderMain80 {
 
 > 注意：是相同类型的 Bean，不是相同名称的 Bean。
 
-此外 Ribbon 还提供 @RibbonClients 注解，用于为多个服务设置自定义配置：
+此外 Ribbon 还提供 @RibbonClients 注解，defaultConfiguration 属性用于配置全局自定义配置；value 属性用于为多个服务设置自定义配置：
 
 ```java
 @RibbonClients(defaultConfiguration = RibbonClientConfiguration.class, value = {@RibbonClient(name = "CLOUD-PAYMENT-SERVICE", configuration = MySelfRule.class)})
