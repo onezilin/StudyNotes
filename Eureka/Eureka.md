@@ -29,7 +29,7 @@
 
 ---
 
-SpringCloud 封装了 Netfix 公司开发的 Eureka 模块来实现服务治理。
+SpringCloud 封装了 Netflix 公司开发的 Eureka 模块来实现服务治理。
 
 Eureka 使用 Java 语言开发，采用 CS（Client-Server，客户端-服务端）的设计架构，遵循 AP 原则。
 
