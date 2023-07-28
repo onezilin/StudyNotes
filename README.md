@@ -16,3 +16,5 @@
 - [x] Kafka
 - [x] Eureka
 - [x] ZooKeeper
+- [x] Ribbon
+- [x] OpenFeign
