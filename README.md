@@ -18,3 +18,5 @@
 - [x] ZooKeeper
 - [x] Ribbon
 - [x] OpenFeign
+- [x] Hystrix
+- [x] Gateway
