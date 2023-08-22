@@ -20,3 +20,4 @@
 - [x] OpenFeign
 - [x] Hystrix
 - [x] Gateway
+- [x] Config
