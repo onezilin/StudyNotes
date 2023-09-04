@@ -36,7 +36,7 @@ Eureka 使用 Java 语言开发，采用 CS（Client-Server，客户端-服务�
 > [CAP 原则](https://blog.csdn.net/yeyazhishang/article/details/80758354)：是指在一个分布式系统中，Consistency（一致性）、 Availability（可用性）、Partition tolerance（分区容错性），最多只能同时三个特性中的两个，三者不可兼得。
 >
 > - C（Consistency，一致性）：所有节点在同一时间的数据完全一致。
-> - A（Availability，可用性）：保证每个请求不管成功或者失败都有响应。
+> - A（Availability，可用性）：保证每个请求在一定时间内得到正确的响应。
 > - P（Partition Tolerance，分区容错性）：在分布式系统中，遇到某节点或网络分区故障的时候，仍然能够对外提供满足一致性或可用性的服务。
 
 ### （一）重要知识点
