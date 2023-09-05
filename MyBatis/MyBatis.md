@@ -1439,6 +1439,52 @@ public void test(Integer id) {
 
     > 所以动态 Mapper 中增删改查标签的 id 值必须和 Dao 接口的方法名相同。
 
+### （五）@Mapper
+
+上面的 `sqlSession.getMapper(RoleDao.class)` 编码方式获取 RoleDao 接口代理类并调用对应方法的方式比较麻烦，现在已提供 @Mapper 注解，用于自动生成被注解的接口代理类，并注入到 Spring 容器中。
+
+```java
+@Mapper
+public interface RoleDao {
+    @Select("select * from role where id = #{id}")
+    Role queryById(Integer id);
+}
+```
+
+使用 @Mapper 注解后，上面 **Java 接口和 xml 文件**中的代码写法改为：
+
+```java
+@Resource
+private RoleDao roleDao;
+
+@Test
+public void test(Integer id) {
+    Role role = roleDao.queryById(1);
+    log.info("role：[{}]", role);
+}
+```
+
+#### 1、@MapperScan
+
+按照上面的 @Mapper 注解写法，每有一个 Dao 接口，我们就需要为其添加一个 @Mapper 注解，这样写起来很麻烦，也可能会遗漏，因此出现了 @MapperScan 注解，@MapperScan 注解可以扫码指定包下的所有接口，为其生成代理类，相当于为指定包下所有接口添加 @Mapper 注解。
+
+```java
+// 在Configuration配置类中添加Mapper扫描器注解
+@Configuration
+@MapperScan(basePackages = "com.studynotes.mybatis")
+public class MyBatisConfig {
+
+}
+```
+
+```java
+// @Mapper // 不用添加 @Mapper 注解
+public interface RoleDao {
+    @Select("select * from role where id = #{id}")
+    Role queryById(Integer id);
+}
+```
+
 ## 七、MyBatis 应用
 
 ### （一）[Spring 中应用](https://www.jianshu.com/p/412051d41d73)
@@ -1468,14 +1514,15 @@ MapperScannerConfigurer 在 application.xml 中配置：
     <property name="mapperLocations" value="classpath:/mapper/*Mapper.xml"/>
 </bean>
 
-<!-- Mapper 扫描器 -->
+<!-- Mapper 扫描器，等同于 @MapperScan。实际上是先有此 xml 配置，Spring 3.x+ 才提供 @MapperScan 注解 -->
+<!-- 第一种写法  -->
 <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
     <!-- 扫描指定包下的组件 -->
     <property name="basePackage" value="com.studynotes.mybatis"/>
 </bean>
 
-<!-- 也可以使用这种形式 -->
-<mybatis:scan base-package="org.mybatis.spring.sample.mapper" />
+<!-- 第二种写法 -->
+<mybatis:scan base-package="com.studynotes.mybatis" />
 ```
 
 ### （二）[SpringBoot 中应用](https://segmentfault.com/a/1190000018559769)
