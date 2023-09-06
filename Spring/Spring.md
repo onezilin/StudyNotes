@@ -1148,7 +1148,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
 
 ##### （2）@Order
 
-使用 Order 改变切面执行顺序，数值越小优先级越高。
+设置该类在 Spring 容器中的加载顺序，数值越小优先级越高。
 
 ##### （3）@Pointcut
 
@@ -1184,7 +1184,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
   // 匹配被@RedisLockAnnotation的方法
   @Pointcut("@annotation(com.annotation.RedisLockAnnotation)")
   public void test() {}
-
+  
   // 将注解作为参数传入，可以获取注解的属性值
   @Before("test() && @annotation(abcdef)")
   public Object before(RedisLockAnnotation abcdef) {
