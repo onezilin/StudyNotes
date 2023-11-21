@@ -3540,7 +3540,7 @@ YUM（Yellow dog Updater, Modified）就是基于上面的思路实现的，**Ce
 
 当用户通过 yum 命令下载软件时，用户端主机会主动获取 YUM 服务器中的清单列表，根据各软件的属性依赖制作出对应的解决方案，然后可以自动处理软件的相依属性问题，并安装所有依赖的软件：
 
-![YUM 使用的流程示意图](./YUM 使用的流程示意图.png)
+![YUM 使用的流程示意图](./YUM使用的流程示意图.png)
 
 这种通过远程服务器解决属性依赖的机制称为**线上升级机制**。在应用上，基于 dpkg 管理机制就开发出 APT，RPM 则依开发商的不同，有 Red Hat 系统的 yum，SuSE 系统的 Yast Online Update (YOU)，Mandriva 的 urpmi 软件等。
 
