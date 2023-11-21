@@ -3627,11 +3627,14 @@ yum 仓库配置文件位于 `/etc/yum.repos.d/` 目录下，名称为 `*.repo`�
 | all      | 将所有仓库数据都删除     |
 
 ```shell
-# 清除仓库的所有数据
+# 1、清除仓库的所有数据
+[root@www ~]# yum clean all
+
+# 2、重新生成仓库的缓存数据
 [root@www ~]# yum makecache
 
-# 重新生成仓库的缓存数据
-[root@www ~]# yum makecache
+# 3、展示所有已配置的、可用的仓库
+yum repolist
 ```
 
 ##### （6）群组管理
