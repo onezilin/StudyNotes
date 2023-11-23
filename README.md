@@ -6,12 +6,13 @@
 - [x] Git
 - [x] Elasticsearch
 - [x] MySQL
-- [ ] Java
+- [x] Java
   - [x] JavaVirtualMachine
   - [x] JavaConcurrency
   - [x] JavaConatiner
   - [x] JavaIO
   - [x] JavaNIO
+  - [x] JavaCore
 - [x] Redis
 - [x] Kafka
 - [x] Eureka
@@ -21,3 +22,5 @@
 - [x] Hystrix
 - [x] Gateway
 - [x] Config
+- [ ] Sentinel
+- [ ] Linux
