@@ -3159,6 +3159,10 @@ Period 原来表示两个日期之间的差值，比如：年与年的差值，�
 
 代码编译后，resource 和 src 下的文件或文件夹都会被放在 `target/classes` 文件夹中，因此在运行时，classpath 指的是此文件夹路径。
 
+在 IDEA 中查看，就是如下位置：
+
+![classpath路径的位置](./classpath路径的位置.png)
+
 ### （六）组合操作符，例如 `+=` 的注意事项
 
 类似于 `+=` 的操作符称为组合操作符，组合操作符有个特性——会自动将结果转型为左边的变量的类型。
@@ -3188,3 +3192,42 @@ i = i +1;
 > Java 基本数据类型中的整型和浮点型都是需要有一位符号位，不支持设置无符号数据。
 >
 > [浮点型取值范围的的计算方式](https://www.jianshu.com/p/be3e15352485)
+
+### （八）[Class.getResource() 与 ClassLoader.getResource() 获取 URL 资源的相同点与区别](https://blog.csdn.net/qq_38240227/article/details/121910461)
+
+```java
+URL url = xxx.class.getResource("路径名");
+
+URL url = xxx.class.getClassLoader().getResource("/路径名");
+```
+
+两者都可以从 classpath 中获取对应路径的资源，两者的区别是：
+
+- Class.getResource()：路径如果以 `/` 开头，那么会**以 classpath 为根路径**去查找资源；如果不以 `/` 开头，那么会**以这个类的 class 文件所在的路径为根路径**去查找资源。
+- ClassLoader.getResource()：ClassLoader 并不关心包路径，它永远以**以 classpath 为根路径**去查找资源，并且路径不需要以 `/` 开头，所有以 `/` 开头的路径都返回 null。
+
+> getResource() 方法会返回指定路径上**碰见的第一个资源**。
+
+ClassLoader 除了会查找 classpath 路径下的资源，也会去查找其他路径下的资源，根据加载器不同分为三类，每种类加载器中都有 `URLClassPath ucp`  属性，用于记录可以查找资源的路径：
+
+- 启动类加载器（Bootstrap ClassLoader）：记录 `java/jre/lib`  下的 jar 包路径。
+- 扩展类加载器（Extension ClassLoader）：记录 `java/jre/lib/ext` 下的 jar 包路径。
+- 应用程序类加载器（Application ClassLoader）：记录 classpath 路径以及依赖的 jar 包路径（如果使用 Maven 管理依赖，那么也会存储 Maven 仓库中依赖的 jar 包路径）。
+
+此外 ClassLoader 还提供 getResources() 方法，可以用于获取路径下所有的指定名称的资源：
+
+```java
+public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+
+public static void main(String[] args) throws IOException {
+    ClassLoader classLoader = Demo07_ClassLoader.class.getClassLoader();
+    Enumeration<URL> urls = classLoader.getResources(FACTORIES_RESOURCE_LOCATION);
+    while (urls.hasMoreElements()) {
+        URL url = urls.nextElement();
+        System.out.println(url);
+    }
+
+    URL url = Demo07_ClassLoader.class.getResource("/" + FACTORIES_RESOURCE_LOCATION);
+    System.out.println(url);
+}
+```
