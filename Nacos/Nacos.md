@@ -169,7 +169,7 @@ spring:
 Nacos 通过 dataId 确定要读取的配置文件，dataId 格式为：
 
 ```text
-${profile}-${spring.profile.active}-${file-extension}
+${prefix}-${spring.profile.active}-${file-extension}
 ```
 
 - `prefix`：通过 `spring.cloud.nacos.config.prefix` 配置指定，默认为 `spring.application.name` 配置值。

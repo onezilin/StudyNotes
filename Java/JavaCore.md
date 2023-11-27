@@ -3204,13 +3204,13 @@ URL url = xxx.class.getClassLoader().getResource("/路径名");
 两者都可以从 classpath 中获取对应路径的资源，两者的区别是：
 
 - Class.getResource()：路径如果以 `/` 开头，那么会**以 classpath 为根路径**去查找资源；如果不以 `/` 开头，那么会**以这个类的 class 文件所在的路径为根路径**去查找资源。
-- ClassLoader.getResource()：ClassLoader 并不关心包路径，它永远以**以 classpath 为根路径**去查找资源，并且路径不需要以 `/` 开头，所有以 `/` 开头的路径都返回 null。
+- ClassLoader.getResource()：ClassLoader 并不关心包路径，它永远会**以 classpath 为根路径**去查找资源，并且路径不需要以 `/` 开头，所有以 `/` 开头的路径都返回 null。
 
 > getResource() 方法会返回指定路径上**碰见的第一个资源**。
 
-ClassLoader 除了会查找 classpath 路径下的资源，也会去查找其他路径下的资源，根据加载器不同分为三类，每种类加载器中都有 `URLClassPath ucp`  属性，用于记录可以查找资源的路径：
+ClassLoader 除了会查找 classpath 路径下的资源，也会去查找其他路径下的资源，根据加载器不同分为三类，每种类加载器中都有 `URLClassPath ucp` 属性，用于记录可以查找资源的路径：
 
-- 启动类加载器（Bootstrap ClassLoader）：记录 `java/jre/lib`  下的 jar 包路径。
+- 启动类加载器（Bootstrap ClassLoader）：记录 `java/jre/lib` 下的 jar 包路径。
 - 扩展类加载器（Extension ClassLoader）：记录 `java/jre/lib/ext` 下的 jar 包路径。
 - 应用程序类加载器（Application ClassLoader）：记录 classpath 路径以及依赖的 jar 包路径（如果使用 Maven 管理依赖，那么也会存储 Maven 仓库中依赖的 jar 包路径）。
 
