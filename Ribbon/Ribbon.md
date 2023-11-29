@@ -191,7 +191,36 @@ public class OrderController {
 }
 ```
 
-### （四）自定义配置
+### （四）[超时重试](https://juejin.cn/post/6893079768997363719)
+
+Ribbon 提供超时重试机制，相关配置如下：
+
+```yml
+ribbon:
+  http:
+    client:
+      enabled: true # 开启 Ribbon 超时重试机制
+  OkToRetryOnAllOperations: true # 对所有操作请求都进行重试,默认false
+  ReadTimeout: 1000 # 负载均衡超时时间，默认值5000
+  ConnectTimeout: 3000 # 请求连接的超时时间，默认值2000
+  MaxAutoRetries: 1 # 对当前实例的重试次数，默认0
+  MaxAutoRetriesNextServer: 0 # 重试切换实例的次数，默认1
+```
+
+开启 Ribbon 重试机制后，当连接或请求超时后会进行重试，重试包括：
+
+- MaxAutoRetries：对当前实例进行重试。
+- MaxAutoRetriesNextServer：当前实例重试 MaxAutoRetries 次数后仍然没有成功，则重新切换实例进行连接或请求，最多切换 MaxAutoRetriesNextServer 次。
+
+Ribbon 开启重试机制后，执行次数和时间如下：
+
+```txt
+对单个实例请求次数：1 + MaxAutoRetries
+最大执行次数：(1 + MaxAutoRetries) * (1 + MaxAutoRetriesNextServer)
+最大执行时间：(1 + MaxAutoRetries) * (1 + MaxAutoRetriesNextServer) * ReadTimeout
+```
+
+### （五）自定义配置
 
 Ribbon 中有一个默认配置类 RibbonClientConfiguration，用于设置某些默认值：
 
@@ -285,7 +314,7 @@ CLOUD-PAYMENT-SERVICE:
 
 优先级：配置文件 > @RibbonClient 注解 > RibbonClientConfiguration 默认配置。
 
-### （五）[停更说明](https://github.com/Netflix/ribbon)
+### （六）[停更说明](https://github.com/Netflix/ribbon)
 
 Ribbon 已处于维护阶段，也就是不再主动更新。
 
