@@ -479,7 +479,7 @@ Feign 中结合了 Ribbon、Hystrix，三者的超时时间规则如下：
 
 （1）没有设置过 Feign 超时，也就是等于默认值的时候，就会读取 Ribbon 的配置（读取超时默认为 1000ms）。
 
-（2）OpenFeign 和 Ribbon 的超时时间只会有一个生效两者是二选一的，且 OpenFeign 优先。
+（2）Feign 和 Ribbon 的超时时间只会有一个生效两者是二选一的，且 OpenFeign 优先。
 
 ```yml
 ribbon:
@@ -494,7 +494,7 @@ feign:
         readTimeout: 8000
 ```
 
-（3）Ribbon 和 Hystrix 中超时时间取两者的最小值
+（3）Feign/Ribbon（优先 Feign，底层就是使用 Ribbon） 和 Hystrix 中超时时间取两者的最小值
 
 ```yml
 hystrix:
@@ -506,7 +506,7 @@ hystrix:
             timeoutInMilliseconds: 4000
 ```
 
-一般来说，会**设置 Ribbon 的超时时间小于 Hystrix**， 这是因为 Ribbon 有重试机制。(这里说的 ribbon 超时时间是包括重试在内的，即最好要让 Ribbon 的重试全部执行，直到 Ribbon 超时被触发)。
+一般来说，会**设置 Ribbon 的超时时间小于 Hystrix**， 这是因为 Ribbon 有重试机制。(这里说的 Ribbon 超时时间是包括重试在内的，即最好要让 Ribbon 的重试全部执行，直到 Ribbon 超时被触发)。
 
 ## 三、Hystrix Dashboard 使用
 
