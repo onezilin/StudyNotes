@@ -7,32 +7,34 @@
 > Sentinel Core 依赖版本：1.8.6（sentinel-core 1.8.1 版本修改了部分包名，如果出现兼容问题，需要自己引入相关版本的依赖）
 >
 > ```xml
-> <!--SpringCloud ailibaba sentinel -->
-> <dependency>
->  <groupId>com.alibaba.cloud</groupId>
->  <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
->  <version>2021.1</version>
->  <exclusions>
->      <exclusion>
->          <groupId>com.alibaba.csp</groupId>
->          <artifactId>sentinel-core</artifactId>
->      </exclusion>
->  </exclusions>
-> </dependency>
+> <dependecies>
+>     <!--SpringCloud ailibaba sentinel -->
+>     <dependency>
+>         <groupId>com.alibaba.cloud</groupId>
+>         <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+>         <version>2021.1</version>
+>         <exclusions>
+>             <exclusion>
+>             <groupId>com.alibaba.csp</groupId>
+>             <artifactId>sentinel-core</artifactId>
+>             </exclusion>
+>         </exclusions>
+>     </dependency>
 >
-> <!-- Sentinel core -->
-> <dependency>
->  <groupId>com.alibaba.csp</groupId>
->  <artifactId>sentinel-core</artifactId>
->  <version>${sentinel.version}</version>
-> </dependency>
+>     <!-- Sentinel core -->
+>     <dependency>
+>         <groupId>com.alibaba.csp</groupId>
+>         <artifactId>sentinel-core</artifactId>
+>         <version>${sentinel.version}</version>
+>     </dependency>
 >
-> <!-- Sentinel 项目和 Console 控制台通信依赖-->
-> <dependency>
->  <groupId>com.alibaba.csp</groupId>
->  <artifactId>sentinel-transport-simple-http</artifactId>
->  <version>${sentinel.version}</version>
-> </dependency>
+>     <!-- Sentinel 项目和 Console 控制台通信依赖-->
+>     <dependency>
+>         <groupId>com.alibaba.csp</groupId>
+>         <artifactId>sentinel-transport-simple-http</artifactId>
+>         <version>${sentinel.version}</version>
+>     </dependency>
+> </dependecies>
 > ```
 
 ## 一、基本概念
@@ -130,23 +132,26 @@ public String myFallback() {
 - value：用于设置资源的名称，**必填**。
 - entryType：资源的调用方向，EntryType 类型，默认值为 EntryType.OUT。
 - blockHandler：blockHandler 用于处理服务限流后抛出的 BlockException 异常，**相当于服务限流后的后续处理逻辑**。有以下几个注意点：
-  - 必须是 public 修饰符
+  - 必须是 public 修饰符。
+  - 必须和原方法在同一个类中。
   - 返回值类型、参数类型必须与原方法一致，并且参数最后加一个额外的、BlockException 类型的参数。
 - blockHandlerClass：若 blockHandler 和原方法不在同一个类，则需要使用 blockHandlerClass 指定 blockHandler 所在类。有以下几个注意点：
   - 必须和 blockHandler 搭配使用。
-  - blockHandler 方法必须是 public static 修饰符。
+  - 该类中的 blockHandler 方法必须是 public static 修饰符。
 - fallback：fallback 用于处理服务抛出的异常（包括 BlockException），有以下注意点：
+  - 必须是 public 修饰符。
+  - 必须和原方法在同一个类中。
   - 返回值类型、参数类型必须与原方法一致，或者参数最后加一个额外的、Throwable 类型的参数用于接收对应的异常。
 - fallbackClass：若 fallback 和原方法不在同一个类，则需要使用 fallbackClass 指定 fallback 所在类。有以下几个注意点：
-  - 必须和 blockHandler 搭配使用。
-  - blockHandler 方法必须是 public static 修饰符。
+  - 必须与 fallback 或 defaultFallback 属性配合使用。
+  - 该类中的 fallback 方法必须是 public static 修饰符。
 - defaultFallback：默认的 fallback 方法名称。
 - exceptionsToIgnore：用于指定哪些异常被排除掉，不会计入异常统计中，也不会进入 fallback 逻辑中，而是会原样抛出。
 
 > 注意：
 >
 > - 注解不支持 private 方法。
-> - 若同时配置了 blockHandler 和 fallback，则被限流降级而抛出 BlockException 时只会进入 blockHandler 处理逻辑。
+> - fallback **只会处理业务本身抛出的异常**，例如 NPE 等异常；blockHandler 只会处理 BlockException 相关异常。有规则情况下，没有配置 blockHandler，则会调用 BlockRequestHandler（默认为 DefaultBlockRequestHandler）处理 BlockException，因此 fallback 不会去处理 BlockException，而 blockHandler 只会处理 BlockException。
 
 ### （二）定义规则
 
@@ -365,7 +370,7 @@ entry(Method method, EntryType type, int count, Object... args) throws BlockExce
 - burstCount：突发数量。当参数到达阈值后，为了应对突发的流量，可以使用 burstCount 属性。burstCount 使用的是令牌桶算法，当流量到达阈值后，允许突发流量获取到令牌，获取的令牌的请求可以继续执行。
   - 注意：令牌的数量就是 burstCount 值，不会自动补充，令牌消耗完后就没有了。
 - grade：限流模式。
-- durationInSec：统计窗口时间长度，也就是在这个时间窗口内，热点参数到达阈值就会被限流；进入下个时间窗口后，又重新进行统计。默认值为 1s。
+- durationInSec：统计窗口时间长度，也就是在这个时间窗口内，热点参数到达阈值就会被限流，默认值为 1s。
 - controlBehavior：流控效果，支持快速失败和匀速排队模式。
 - maxQueueingTimeMs：最大排队等待时长，仅在匀速排队模式生效。
 - paramIdx：热点参数的索引，必填，对应 `SphU.entry(xxx, args)` 中的 arg 数组的索引位置，即对第几个参数进行限流。
@@ -476,3 +481,341 @@ Sentinel 提供 Node 节点用于记录 QPS、RT 等信息，其下实现类有�
 ![ClusterNode结构示意图](./ClusterNode结构示意图.png)
 
 名称为 DefaultNode2 的资源在 EntranceNodeOne 和 EntranceNodeTwo 两条链路中，它对应的 ClusterNode 就记录两条链路累加的统计信息。
+
+## 五、应用
+
+### （一）Ribbon
+
+Sentinel 可以与 Ribbon 搭配，当 Ribbon 请求超时后，Sentinel 通过 fallback 实现服务降级。此外，Sentinel 也可以通过配置规则，再设置 blockHandler 属性，实现服务限流的业务逻辑。
+
+```java
+@GetMapping("/consumer/fallback/{id}")
+@SentinelResource(value = "fallback", fallback = "handleFallback", blockHandler = "handleBlockHandler")
+public CommonResult<Payment> fallback(@PathVariable Long id) {
+    return handleRequest(id);
+}
+
+public CommonResult<Payment> handleFallback(@PathVariable Long id, Throwable e) {
+    Payment payment = new Payment(id, null);
+    return new CommonResult<>(444, "兜底异常 handleFallback, exception 内容:  " + e.getMessage(), payment);
+}
+
+public CommonResult<Payment> handleBlockHandler(@PathVariable Long id, Throwable e) {
+    Payment payment = new Payment(id, null);
+    return new CommonResult<>(445, "兜底异常 handleBlockHandler, exception 内容:  " + e.getMessage(), payment);
+}
+```
+
+```yml
+ribbon:
+  http:
+    client:
+      enabled: true # 开启 Ribbon 超时重试机制
+  ReadTimeout: 6000
+  ConectTimeout: 6000
+```
+
+### （二）Feign
+
+在 Feign 篇章中，Feign 引入 Hystrix 依赖，搭配 Hystrix 实现服务降级：
+
+```yml
+feign:
+  circuitbreaker:
+    enabled: true
+# 注意：开启 Feign 服务降级， ↑ 新版用这种方式开启。↓ 旧版用这个
+#  hystrix:
+#    enabled: true
+```
+
+Feign 也可以搭配 Sentinel 实现服务降级：
+
+```yml
+# 激活 Sentinel 对 Feign 的支持
+feign:
+  sentinel:
+    enabled: true
+```
+
+```java
+@FeignClient(value = "nacos-payment-provider", fallback = PaymentFallbackService.class)
+public interface PaymentService {
+
+    @GetMapping(value = "/paymentSQL/{id}")
+    CommonResult<Payment> paymentSQL(@PathVariable("id") Long id);
+}
+```
+
+> 注意：fallback 只能处理业务本身的异常，实现服务降级功能，对于 BlockException 异常，fallback 不会处理哦。
+
+### （三）[Nacos](https://github.com/alibaba/Sentinel/wiki/%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%99%E6%89%A9%E5%B1%95)
+
+我们通过 Sentinel 的 Dashboard 控制台添加规则时，这些规则是存储在内存中的，每次服务重启都需要重新配置。
+
+于是 Sentinel 提出了动态规则扩展的概念，即规则存储在文件、数据库或者配置中心当中。Sentinel 提供的 ReadableDataSource 接口给予我们对接任意配置源的能力，相比直接通过 API 修改规则，实现 ReadableDataSource 接口是更加可靠的做法。ReadableDataSource 接口常见的实现方式有：
+
+- **AutoRefreshDataSource（拉模式）**：客户端主动向某个规则管理中心定期轮询拉取规则，然后注册到规则管理器中（例如 FlowRuleManager）。这样做的方式是简单，缺点是无法及时获取变更。Sentinel 已支持的数据源扩展：Consul、Eureka。
+- **AbstractDataSource（推模式）**：客户端通过注册监听器的方式时刻监听变化，规则中心统一推送，然后将规则注册到规则管理器中。这种方式有更好的实时性和一致性保证。Sentinel 已支持的数据源扩展：Zookeeper、Redis、Nacos、Apollo、etcd。
+
+以 Nacos 为例，引入 Nacos 数据源依赖即可使用动态规则扩展：
+
+```xml
+<!-- Nacos 动态规则扩展数据源依赖 -->
+<dependency>
+    <groupId>com.alibaba.csp</groupId>
+    <artifactId>sentinel-datasource-nacos</artifactId>
+</dependency>
+```
+
+修改 yml 配置文件，格式如下：
+
+```yml
+spring:
+  application:
+    name: cloudalibaba-sentinel-service
+  cloud:
+    sentinel:
+      datasource:
+        myFlowRule1: # 自定义数据源名称，任意
+          nacos:
+            server-addr: 192.168.190.134:8848 # Nacos Server 地址，多个可以用逗号隔开
+            namespace: myCustomNamespaceID # 命名空间 namespace ID，读取此 namespace 下的配置
+            group-id: CUSTOM_GROUP # 组名
+            data-id: ${spring.application.name}-flow-rules # 指定配置文件名
+            data-type: json # 指定配置文件类型
+            rule-type: flow # 指定规则类型，在 com.alibaba.cloud.sentinel.datasource.RuleType 中查看支持的类型
+            # username: xxxxxx # Nacos 账号
+            # password: xxxxxx # Nacos 密码
+```
+
+在 Nacos 中添加配置，以 FlowRule 的配置为例：
+
+```json
+// namespace：myCustomNamespaceID
+// group-id：CUSTOM_GROUP
+// data-id：cloudalibaba-sentinel-service-flow-rules
+// 配置格式：json
+[
+  {
+    "resource": "/flowRule/testA",
+    "limitApp": "default",
+    "grade": 1,
+    "count": 2,
+    "strategy": 0,
+    "controlBehavior": 0,
+    "clusterMode": false
+  }
+]
+```
+
+重启服务后，就可以在 Sentinel 控制台中看到我们在 Nacos 配置的规则：
+
+![Nacos动态规则扩展效果](./Nacos动态规则扩展效果.png)
+
+### （四）[Gateway](https://github.com/alibaba/Sentinel/wiki/%E7%BD%91%E5%85%B3%E9%99%90%E6%B5%81)
+
+在 Gateway 篇章中，我们用 Hystrix 实现服务降级功能，用基于 Redis 的令牌桶算法实现服务限流功能。
+
+从 1.6.0 版本开始，Sentinel 提供了 Spring Cloud Gateway 的适配模块：
+
+> 官方给出了两种 Gateyway 搭配方式：
+>
+> 第一种是只引入下面的依赖，然后需要自己进行一系列的配置：
+>
+> ```xml
+> <dependencies>
+>  <dependency>
+>         <groupId>org.springframework.cloud</groupId>
+>         <artifactId>spring-cloud-starter-gateway</artifactId>
+>     </dependency>
+>
+>     <dependency>
+>         <groupId>com.alibaba.csp</groupId>
+>         <artifactId>sentinel-spring-cloud-gateway-adapter</artifactId>
+>     </dependency>
+> </dependencies>
+> ```
+>
+> 第二种使用 Spring Cloud Alibaba Sentinel，就无需自己做一系列配置，下面讲的是第二种方式。
+
+```xml
+<dependencies>
+    <!--gateway-->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-gateway</artifactId>
+    </dependency>
+
+    <!-- 引入sentinel进行服务降级熔断 -->
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-starter-alibaba-sentinel</artifactId>
+    </dependency>
+
+    <!-- gateway网关整合sentinel进行限流降级 -->
+    <dependency>
+        <groupId>com.alibaba.cloud</groupId>
+        <artifactId>spring-cloud-alibaba-sentinel-gateway</artifactId>
+    </dependency>
+</dependencies>
+```
+
+```yml
+spring:
+  application:
+    name: cloud-gateway
+  cloud:
+    sentinel:
+      filter:
+        enabled: false # false 表示不开启 URL 粒度的限流功能
+      transport:
+        dashboard: 192.168.190.134:8080 # 配置 Sentinel 控制台地址及端口号
+        port: 8719 # Sentinel 控制台和客户端通信的端口号，不配置的话默认是 8719，如果被占用了会自动往上加 1 找一个未被占用的端口
+        client-ip: 192.168.1.137 # 配置 Sentinel 客户端 IP（也就是本机 IP），不配置可能会识别成 Sentinel 控制台所在的 IP，导致错误
+    gateway:
+      routes:
+        - id: payment_routh
+          uri: lb://CLOUD-PAYMENT-SERVICE # lb://服务注册中心的微服务名称，这种方式开启负载均衡
+          predicates:
+            - Path=/payment/**
+            - Query=timeout,true
+```
+
+> 注意：
+>
+> - Sentinel 网关流控默认的粒度是 route 维度以及自定义 API 分组维度，默认**不支持 URL 粒度**。若通过 Spring Cloud Alibaba 接入，请将 `spring.cloud.sentinel.filter.enabled` 配置项置为 false（若在网关流控控制台上看到了 URL 资源，就是此配置项没有置为 false）。
+>
+>   ![Gateway搭配Sentinel时出现URL资源的问题](./Gateway搭配Sentinel时出现URL资源的问题.png)
+>
+> - 若使用 Spring Cloud Alibaba Sentinel 数据源模块，需要注意网关流控规则数据源类型是 `gw-flow`，若将网关流控规则数据源指定为 flow 则不生效。
+
+#### 1、规则
+
+Sentinel 1.6.0 引入了 Sentinel API Gateway Adapter Common 模块，此模块中包含**网关限流的规则**和**自定义 API 的实体和管理逻辑**。
+
+##### （1）网关限流规则（GatewayFlowRule）
+
+网关限流规则，可以针对不同 route 或自定义的 API 分组进行限流。
+
+**基本属性**：
+
+- resource：资源名，即规则作用的资源。可以是网关中的 route id 或者用户自定义的 API 分组名称。
+- resourceMode：规则作用的类型，也就是上面 resource 指的是 route id 还是用户自定义的 API 分组名称。
+  - RESOURCE_MODE_ROUTE_ID：route，默认值。
+  - RESOURCE_MODE_CUSTOM_API_NAME：用户自定义的 API 分组名称。
+- count：限流阈值。
+- intervalSec：统计窗口时间长度，也就是在这个时间窗口内，请求到达阈值就会被限流，默认值为 1s。
+- controlBehavior：流控效果，目前支持两种：
+  - CONTROL_BEHAVIOR_DEFAULT：快速失败。
+  - CONTROL_BEHAVIOR_RATE_LIMITER：匀速排队。
+- burst：突发数量，CONTROL_BEHAVIOR_DEFAULT 流控效果生效。
+- maxQueueingTimeoutMs：匀速排队模式下的最长排队时间，CONTROL_BEHAVIOR_RATE_LIMITER 流控效果生效。
+- paramItem：参数限流配置。若不提供，则代表不针对参数进行限流，该网关规则将会被转换成普通 FlowRule 流控规则；否则会转换成 ParamFlowRule 热点规则。其中的字段：
+  - parseStrategy：统计哪个参数作为限流的依据，目前 1.6.3 版本已支持五种（这些常量都在 SentinelGatewayConstants 中）：
+    - PARAM_PARSE_STRATEGY_CLIENT_IP：来源 IP。
+    - PARAM_PARSE_STRATEGY_HOST：Host。
+    - PARAM_PARSE_STRATEGY_HEADER：Header 中的属性。
+    - PARAM_PARSE_STRATEGY_URL_PARAM：URL 参数。
+    - PARAM_PARSE_STRATEGY_COOKIE：Cookie 中的属性。
+  - fieldName：当 parseStrategy 类型为 Header、URL 参数、Cookie 时，需要指定具体的属性名称。
+  - pattern：参数匹配值，只有匹配该模式的请求属性值会纳入统计和流控；若为空则统计该请求属性的所有值。（1.6.2 版本开始支持）
+  - matchStrategy：对于上面的 pattern 参数匹配值，以哪种策略进行匹配。（1.6.2 版本开始支持）
+    - PARAM_MATCH_STRATEGY_EXACT：精确匹配。
+    - PARAM_MATCH_STRATEGY_CONTAINS：子串匹配。
+    - PARAM_MATCH_STRATEGY_REGEX：正则匹配。
+
+我们可以通过硬编码的方式创建 GatewayFlowRule 规则，再通过 GatewayRuleManager 手动载入；也可以通过 Sentinel Dashboard 控制台设置；现在又有动态规则扩展数据源（例如 Nacos）的方式。
+
+##### （2）API 分组（ApiDefinition）
+
+API 分组可以将对匹配到的请求进行划分，并将上面的设置的网关限流规则（resourceMode 为 API 分组类型），统一作用到 API 分组的请求中。
+
+```java
+@PostConstruct
+private void initCustomizedApis() {
+    Set<ApiDefinition> definitions = new HashSet<>();
+    ApiDefinition api1 = new ApiDefinition("some_customized_api")
+        .setPredicateItems(new HashSet<ApiPredicateItem>() {{
+            add(new ApiPathPredicateItem().setPattern("/product/foo/**")
+                .setMatchStrategy(SentinelGatewayConstants.URL_MATCH_STRATEGY_PREFIX));
+        }});
+    definitions.add(api1);
+    GatewayApiDefinitionManager.loadApiDefinitions(definitions);
+}
+```
+
+```yml
+spring:
+  cloud:
+    gateway:
+      enabled: true
+      routes:
+        - id: product_route
+          uri: lb://product
+          predicates:
+            - Path=/product/**
+```
+
+当访问网关的 URL 为 `http://localhost:8090/product/foo/22` 的时候，对应的统计会加到 product_route 和 some_customized_api 这两个资源上面。
+
+#### 2、[重要类](https://blog.csdn.net/C18298182575/article/details/102580788)
+
+sentinel-gateway 依赖包中提供许多类，我们可以直接使用，也可以自定义覆盖。
+
+##### （1）[SentinelGatewayFilter](https://cloud.tencent.com/developer/article/1460985)
+
+SentinelGatewayFilter 实现 GatewayFilter、GlobalFilter 过滤器接口，它可以将 Route 封装为资源，Sentinel 就可以对这些资源进行监控和控制，实现限流、熔断等功能。
+
+##### （2）SentinelGatewayBlockExceptionHandler
+
+SentinelGatewayBlockExceptionHandler 实现 WebExceptionHandler 接口，是服务限流、降级时的 BlockException 的异常处理类。我们也可以自定义 WebExceptionHandler 接口实现类并作为 Bean 注入 Spring 容器，实现自己的异常处理逻辑。
+
+##### （3）BlockRequestHandler
+
+在 SentinelGatewayBlockExceptionHandler 中，会调用 BlockRequestHandler 接口实现类，BlockRequestHandler 接口用于处理异常响应信息，Sentinel 默认提供 DefaultBlockRequestHandler 实现类，也就是我们在响应中看到的 `Blocked by Sentinel: xxxxxx` 信息。
+
+如果只是单纯地想设置自己的响应信息，我们也可以自定义 BlockRequestHandler 接口实现类：
+
+```java
+public class OpenBlockRequestHandler implements BlockRequestHandler {
+
+    @Override
+    public Mono<ServerResponse> handleRequest(ServerWebExchange exchange, Throwable ex) {
+        // JSON result by default.
+        return ServerResponse.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(fromObject(buildErrorResult(ex)));
+    }
+
+    private CommonResult<String> buildErrorResult(Throwable ex) {
+        return new CommonResult<>(444, "OpenBlockRequestHandler：请求过于频繁，请稍后重试", null);
+    }
+}
+```
+
+```java
+/**
+ * Description: Description: 自定义异常响应类，代替默认的 DefaultBlockRequestHandler
+ */
+@PostConstruct
+public void doInit() {
+    GatewayCallbackManager.setBlockHandler(new OpenBlockRequestHandler());
+}
+```
+
+![自定义BlockRequestHandler实现的响应结果](./自定义BlockRequestHandler实现的响应结果.png)
+
+不过 Sentinel 除了实现 BlockRequestHandler 的方式自定义异常响应，也可以通过配置文件的方式设置：
+
+```yml
+spring:
+  cloud:
+    sentinel:
+      scg: # 自定义异常响应
+        fallback:
+          mode: response # 值有两种：一种是 response，返回文字提示信息；一种是redirect，重定向跳转
+          response-status: 200 # 响应的状态
+          content-type: "application/json" # content-type
+          response-body: '{"code": 200, "message": "请求失败，稍后重试！"}' # 响应体
+          # redirect: http://www.baidu.com # 重定向的 URL，mode 值为 redirect 时生效
+```
