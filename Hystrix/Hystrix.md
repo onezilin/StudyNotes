@@ -397,7 +397,7 @@ public class PaymentService {
 }
 ```
 
-### （三）配置文件
+### （三）[配置文件](https://github.com/Netflix/Hystrix/wiki/Configuration)
 
 当然 SpringCloud 也提供配置文件的配置方式，覆盖默认配置：
 
@@ -412,6 +412,13 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 3000
+    # 自定义配置
+    myCommandkey: # 对应 commandkey 字段
+      circuitBreaker:
+        requestVolumeThreshold: 10
+        errorThresholdPercentage: 50
+        sleepWindowInMilliseconds: 5000
+        enabled: true
 ```
 
 ### （四）[Feign 对 Hystrix 的支持](https://blog.51cto.com/u_16012040/6130762)
