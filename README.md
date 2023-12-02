@@ -1,6 +1,7 @@
 # StudyNotes
 
 - [x] Spring
+  - [x] SpringFrameworkAnnotation
 - [x] MyBatis
 - [x] Vue
 - [x] Git
@@ -22,5 +23,5 @@
 - [x] Hystrix
 - [x] Gateway
 - [x] Config
-- [ ] Sentinel
-- [ ] Linux
+- [x] Sentinel
+- [x] Linux
