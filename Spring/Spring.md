@@ -26,7 +26,7 @@ IoC（inverse of control、控制反转）是指把创建 Bean 对象的权利�
 
 #### 1、`<bean>` 标签
 
-通过 `<bean>` 标签，Spring 可以识别配置好的类及相关属性配置，为类创建 Bean 对象并注入到 Spring 容器。
+通过 `<bean>` 标签，Spring 可以识别配置好的类及相关属性配置，为类创建 Bean 对象并注册到 Spring 容器。
 
 ##### （1）`<bean>` 标签属性
 
@@ -38,17 +38,17 @@ IoC（inverse of control、控制反转）是指把创建 Bean 对象的权利�
 
     > 单例模式和 singleton 单例属性有区别的，单例模式指的是在同一个 ClassLoader 中只有一个实例。
 
-  - prototype：bean 的创建方式为原型模式，每次都会生成一个新的对象实例给请求方，不由容器管理，由请求方负责该实例的生命周期。
+  - prototype：Bean 的创建方式为原型模式，每次都会生成一个新的对象实例给请求方，不由容器管理，由请求方负责该实例的生命周期。
 
     > 可以应用于不能共享一个 Bean 的场景，例如：Stuct2。
 
   ***
 
-  - request：每次 http 请求都创建一个 Bean 实例，请求结束后销毁。
+  - request：每次 HTTP 请求都创建一个 Bean 实例，将 Bean 储存在 ServletRequest 上下文中，请求结束后销毁。
 
-  - session：同一个 http session 共享一个 Bean 实例。
+  - session：同一个 Session 共享一个 Bean 实例，将 Bean 存储在 HttpSession 中。
 
-  - globalsession：多服务器间的 session，给每个 global http session 建一个 Bean 实例。
+  - application：多服务器间的 Session，给每个 Global Session 建一个 Bean 实例，将 Bean 存储在 ServletContext 中。
 
     > 注意：request、session 和 globalsession 只适用于 Web 应用程序。
 
@@ -655,7 +655,7 @@ Spring AOP 早期提供了相应接口（例如：Pointcut、Advice 等），用
 
 #### 1、注解方式
 
-Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹配，底层仍然是由 Spring AOP 自己实现），形成 @AspectJ。@AspectJ 代表一种定义 Aspect 的风格，使用注解标注这些定义成 Aspect 的 POJO 类，Spring AOP 根据注解，将被标注类注入系统。
+Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹配，底层仍然是由 Spring AOP 自己实现），形成 @AspectJ。@AspectJ 代表一种定义 Aspect 的风格，使用注解标注这些定义成 Aspect 的 POJO 类，Spring AOP 根据注解，将被标注类注册到系统。
 
 > 自动代理配置：使用 `<aop:aspectj-autoproxy/>` 配置开启基于注解的 AOP 功能。
 
@@ -780,7 +780,7 @@ public void doSomething(Throwable ex){
 
 ### （一）[事务相关接口](https://juejin.cn/post/6844903608224333838)
 
-#### 1、<font color="orange">PlatformTransactionManager</font>
+#### 1、PlatformTransactionManager
 
 平台事务管理器。Spring 并不直接管理事务，而是提供 PlatformTransactionManager 接口及实现类，将事务管理的职责委托给 JDBC、Hibernate 或 JTA 等持久化框架来实现。具体实现类如下：
 
@@ -789,7 +789,7 @@ public void doSomething(Throwable ex){
 - JpaTransactionManager：使用 JPA 进行数据持久化时使用。
 - JtaTransactionManager：使用一个 JTA 实现来管理事务，在一个事务跨越多个资源时使用。
 
-#### 2、<font color="orange">TransactionDefinition</font>
+#### 2、TransactionDefinition
 
 事务定义类。定义一些事务的基本属性：隔离级别、传播行为、回滚规则、是否只读和事务超时。
 
@@ -856,7 +856,7 @@ public void doSomething(Throwable ex){
 
 一个事务所允许执行的最长时间，如果超过该时间限制但事务还没有完成，则自动回滚事务。
 
-#### 3、<font color="orange">TransactionStatus</font>
+#### 3、TransactionStatus
 
 TransactionStatus 用于记录事务的状态，该接口提供一组方法用于获取或判断事务的相应状态信息。
 
@@ -1065,14 +1065,14 @@ BeanFactory 容器启动速度快（懒加载的原因），所需的资源有�
 
 BeanFactory 接口提供以下实现类：
 
-![BeanFactory接口关系](E:/Onezilin/StudyNotes/Spring/BeanFactory接口关系.png)
+![BeanFactory接口关系](./BeanFactory接口关系.png)
 
-- <font color="orange">ListableBeanFactory</font>：可以获取多个 bean（传入一个类的 Class 对象，可以获取本身及其子类的 Bean 实例）。
+- ListableBeanFactory：可以获取多个 bean（传入一个类的 Class 对象，可以获取本身及其子类的 Bean 实例）。
 
-  - <font color="orange">ConfigurableListableBeanFactory</font>：ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口。
+  - ConfigurableListableBeanFactory：ConfigurableListableBeanFactory 直接或间接的继承第二层的三个接口。
 
-- <font color="orange">HierarchicalBeanFactory</font>：可以在应用中起多个 BeanFactory，然后将各个 BeanFactory 设置为父子关系。
-- <font color="orange">AutowireCapableBeanFactory</font>：自动装配 Bean，ApplicationContext 虽然没有继承 AutowireCapableBeanFactory，但是 ApplicationContext 使用了组合的思想，在其中定义了 getAutowireCapableBeanFactory()方法。
+- HierarchicalBeanFactory：可以在应用中起多个 BeanFactory，然后将各个 BeanFactory 设置为父子关系。
+- AutowireCapableBeanFactory：自动装配 Bean，ApplicationContext 虽然没有继承 AutowireCapableBeanFactory，但是 ApplicationContext 使用了组合的思想，在其中定义了 getAutowireCapableBeanFactory()方法。
 
 通过 BeanFactory 注册并管理 Bean 类：
 
@@ -1092,7 +1092,7 @@ public static void main(String[] args) {
 }
 ```
 
-#### 2、ApplicationContext
+#### 2、<font color="orange">ApplicationContext</font>
 
 ApplicationContext 在 BeanFactory 的基础上构建，是相对比较高级的容器实现。除了拥有 BeanFactory 的所有功能，ApplicationContext 还提供其其他高级特性，例如：事件发布、国际化信息支持等。
 
@@ -1100,7 +1100,7 @@ ApplicationContext 所管理的 Bean 对象，在该容器启动后，默认全�
 
 ApplicationContext 提供以下实现类：
 
-![ApplicationContext接口关系](E:/Onezilin/StudyNotes/Spring/ApplicationContext接口关系.png)
+![ApplicationContext接口关系](./ApplicationContext接口关系.png)
 
 [ClassPathXmlApplicationContext 和 FileSystemXmlApplicationContext](http://www.blogjava.net/alinglau36/archive/2009/05/26/278050.html) 是 ApplicationContext 的派生类，用于读取指定位置的配置文件，有以下区别：
 
@@ -1121,9 +1121,9 @@ public static void main(String[] args) {
 
 #### 3、区别
 
-- ApplicationContext 是 BeanFactory 的间接子类。
+- ApplicationContext 是 BeanFactory 的派生类。
 
-  > 注意：虽然 Application 间接的继承 BeanFactory，但是在操作过程还还是使用组合的思想，在内部持有一个实例化的 BeanFactory（DefaultListableBeanFactory），以后所有的 BeanFactory 相关操作委托给这个实例处理。
+  > 注意：虽然 Application 间接的继承 BeanFactory，但是在操作过程中还是使用组合的思想，在内部持有一个实例化的 BeanFactory（DefaultListableBeanFactory），以后所有的 BeanFactory 相关操作委托给这个实例处理。
 
 - BeanFactory 采取延迟加载，调用 getBean()方法时才进行 Bean 的实例化，可能会造成 Bean 使用时抛运行异常；ApplicationContext 在容器启动时，一次性加载所有 bean，可能导致加载过慢并且占空间。
 
@@ -1133,108 +1133,124 @@ public static void main(String[] args) {
 
 - BeanFactory 和 ApplicationContext 都支持 BeanPostProcessor、BeanFactoryPostProcessor 的使用，区别：BeanFactory 需要手动将其注册为 Bean（例如调用 BeanFactory 的 set 方法），而 ApplicationContext 则是自动注册（只需要进行配置）。
 
-### （二）<font color="orange">ApplicationContext</font> 启动过程分析
+### （二）[ApplicationContext 启动过程](https://www.cnblogs.com/lifullmoon/p/14453083.html)
 
-#### 1、启动过程中使用的重要接口
+ApplicationContext 启动的大部分工作都是由 AbstractApplicationContext.refresh() 完成。
 
-##### （1）容器级生命周期接口
+![AbstractApplicationContext的refresh方法](./AbstractApplicationContext的refresh方法.png)
 
-容器初始化 Bean 时，容器对外暴露的扩展点，可以对 BeanDefinition 进行动态修改。
+#### 1、启动前的准备工作
 
-① [<font color="orange">BeanFactoryPostProcessor</font>](https://www.jianshu.com/p/b45efc018bcc)
+记录容器启动时间、对 Environment 环境进行校验。
 
-可以在 Bean 实例化之前，修改 BeanDefinition 的属性（读取的配置文件中的属性），也就是 `<bean/>` 的属性。
+#### 2、BeanFactory 创建阶段
 
-- 通过配置文件注册 BeanFactoryPostProcessor 的实现类，提供 postProcessBeanFactory()回调方法。
-- 若不止一个 BeanFactoryPostProcessor 实现类，还需要实现 Order 接口，设置实现类的执行顺序。
+初始化 BeanFactory，由它加载 BeanDefinition 元信息。
 
-② [<font color="orange">BeanPostProcessor</font>](https://www.jianshu.com/p/f80b77d65d39)
+- 如果已存在 BeanFactory，则销毁 BeanFactory 及其中的 Bean。
+- 创建 BeanFactory（默认为 DefaultListableBeanFactory）实例，对 BeanFactory 设置一些基本配置，例如：是否允许同名 Bean 的覆盖、是否允许懒加载。
+- 加载 BeanDefinition 元信息，并将其注册到 BeanFactory（**以【beanName, BeanDefinition】形式存储**）。由子类实现，**主要为注解和 XML 的区别**：
+  - [AbstractXmlApplicationContext](https://www.cnblogs.com/lifullmoon/p/14437305.html)：读取指定的 XML 文件，解析 `import、alias、bean、beans` 标签，**生成 BeanDefinition 对象并将其注册到 BeanFactory**。
+  - [AnnotationConfigWebApplicationContext](https://www.cnblogs.com/lifullmoon/p/14451788.html)：扫描指定包下的 Class 类，**判断类是否带有 @Component 注解或其派生注解，再判断该类不是内部类是一个具体类**（不是接口也不是抽象类，如果是抽象类则需要带有 @Lookup 注解），**解析生成 BeanDefinition 对象并将其注册到 BeanFactory**。
 
-可以在 Bean 实例化、依赖注入之后，在显示的初始化之前，修改 Bean 的成员变量，完成一些定制的初始化操作。
+#### 3、[BeanFactory 准备阶段](https://www.cnblogs.com/warehouse/p/9387668.html)
 
-通过配置文件注册 BeanPostProcessor 的实现类，提供 postProcessBeforeInitialization()方法和 postProcessAfterInitialization()方法
+主要是为 BeanFactory 设置一些属性。
 
-③ [<font color="orange">InstantiationAwareBeanPostProcessor</font>](https://juejin.im/post/5da995d25188256a49204d7b)
+- 设置 ClassLoader、添加 SPEL 语言支持、添加 Spring 自带的属性编辑器。
 
-继承于 BeanPostProcessor，所以它也是一种参与 BeanDefinition 加工 Bean 过程的 BeanPostProcessor 拦截器, 并且丰富了 BeanPostProcessor 的拦截。
+- 添加 ApplicationContextAwareProcessor。
 
-> 是在 Bean 类实例化过程中做处理，作用于 Bean 实例未生成和已生成的时候
+  - ApplicationContextAwareProcessor 作用：实现 BeanPostProcessor 接口，Bean 初始化之后，如果 Bean 是 Aware 类型，则调用其对应的 set 方法，让 Bean 获取相关资源。例如：在 ApplicationContextAware 的实现类初始化后，ApplicationContextAwareProcessor 调用它的 setApplicationContext()方法，让这个 Bean 获取 ApplicationContext。
 
-##### （2）Bean 级生命周期接口
+- [设置 Aware 忽略依赖](https://www.jianshu.com/p/3c7e0608ff1f)：即在 default-autowire 自动依赖注入开启的情况下，忽略掉自动通过 Aware 的 setter 方法依赖注入属性，而是通过手动调用 setter 方式设置属性（例如在 ApplicationContextAwareProcessor 中手动调用 Aware 的 setter）。
 
-###### ① <font color="orange">Aware</font>
+- 设置几个依赖注入的特殊规则，如下：
 
-用于获取 Spring 容器提供的类的实例对象，提供以下实现类：
+  ![设置几个依赖注入的特殊规则](./设置几个依赖注入的特殊规则.png)
 
-- <font color="orange">BeanNameAware</font>：内部提供 setBeanName()方法，获取当前 Bean 的 name（也就是配置文件中的 id 属性）。
-- <font color="orange">BeanfactoryAware</font>：内部提供 setBeanFactory()方法，获取当前 Bean 的 BeanFactory，对于 ApplicationContext 是获取到其中的 DefaultListableBeanFactory。
-- <font color="orange">BeanClassLoaderAware</font>：内部提供 setBeanClassLoader()方法，获取当前 Bean 的 ClassLoader。
+  例如：当我们依赖注入为 ResourceLoader、ApplicationContext 类型属性时，值都是同一个 ApplicationContext。
 
-> 以上三个接口，对于 BeanFactory，在 Bean 实例化、注入之后，执行 AbstractAutowireCapableBeanFactory 的 invokeAwareMethods()，调用 Aware 的对应方法。
+- 添加 ApplicationListenerDetector。
 
-- <font color="orange">ResourceLoaderAware</font>：ApplicationContext 继承 ResourceLoader，可以获取到 ResourceLoader 类型的 ApplicationContext 实例。
-- <font color="orange">ApplicationEventPublisherAware</font>：ApplicationContext 继承 ApplicationEventPublisher，可以获取到 ApplicationEventPublisher 类型的 ApplicationContext 实例。
-- <font color="orange">MessageSourceAware</font>：ApplicationContext 继承 MessageSource，可以获取 MessageSource 类型的 ApplicationContext 实例。
-- <font color="orange">ApplicationContextAware</font>：获取到当前 ApplicationContext 实例。
+  - ApplicationListenerDetector 作用：实现 BeanPostProcessor 接口，Bean 初始化之后，如果 Bean 是 ApplicationListener 类型且为单例模式，则将其添加到 ApplicationContext 的 **applicationListeners 属性**。
 
-> 以上四个接口，对于 ApplicationContext，除了上面针对 BeanFactory 的 Aware 接口，也会执行做些 Aware 接口实现类的对应方法。
+- 将一些重要的 Beans 注册进 Spring 容器。
 
-###### ② [<font color="orange">InitializingBean</font>](https://blog.csdn.net/nrsc272420199/article/details/95033223)
+  - 将 Environment 注册进 Spring 容器。
+  - 将 SystemProperties（Java System Properties）注册进 Spring 容器。
 
-在 BeanPostProcessor 的 before 和 after 之间执行，先执行 InitializingBean 的 afterPropertiesSet()方法，后执行配置文件中的 init-method 方法。
+#### 4、BeanFactory 后置处理
 
-> @PostConstruct 是 java 定义的注解，使用在成员方法上，和 init-method 起类似作用。
->
-> 三者之间执行顺序为：@PostConstruct、InitializingBean、init-method。
+**在此之前 BeansFactory 中只有 BeanDefinition，还没有实例化任何 Bean。**
 
-###### ③ [<font color="orange">DisposableBean</font>](https://zhuanlan.zhihu.com/p/54215879)
+- 对 BeansFactory 进行一些后置处理，例如：添加 BeanPostProcessor，**扩展点**。
+- **实例化 BeanFactoryPostProcessor 类型的 Bean（即后面的 Bean 实例化过程）**，调用 postProcessBeanFactory() 方法，可以操作 BeansFactory。例如：BeanDefinitionRegistryPostProcessor 解析 @Bean 等注解定义的 Bean。
+- **实例化 BeanFactoryPostProcessor 类型的 Bean（即后面的 Bean 实例化过程）**，添加到 BeanFactory 中。
+- 初始化 MessageSource 国际化支持。
+- 初始化 ApplicationEventMulticaster（默认为 SimpleApplicationEventMulticaster）事件广播器。
+- onRefresh()方法在 AbstractApplicationContext 是空实现，**扩展点**。
+- 将 ApplicationListener 监听器添加到 ApplicationEventMulticaster 事件广播器中，**并发布早期事件**。有两个注意点：
+  - 早期事件是指 ApplicationContext 还没有初始化完，就通过 publishEvent()方法发布的事件。
+  - 监听器有两种：
+    - 一种是直接通过 ApplicationContext.addApplicationListener() 方式添加到 Spring 容器，这种可以直接调用 onApplicationEvent()方法监听事件。
+    - 一种是通过成为 Bean 注册进 Spring 容器（在此步骤还没有实例化 Bean），如果**监听到对应事件**，则会**实例化该事件监听器（即后面的 Bean 实例化过程）**，再调用 onApplicationEvent()方法事件监听事件。例如：广播器发布 EventA 早期事件，BeanFactory 中有两个事件监听器的 BeanDefinition（EventAListener、EventBListener），则此时只会实例化 EventAListener 去监听事件。
 
-在执行完上面操作后，会将 DisposableBean 的实现类注册到 BeanFactory 中，不会马上执行。只有当对象实例不再被使用的时候才会执行相关的自定义销毁逻辑，也就是 Spring 容器关闭的时候执行，后执行配置文件中的 destory-method 方法。
+#### 5、[实例化 Bean](https://www.cnblogs.com/lifullmoon/p/14452795.html)
 
-本来 BeanFactory 和 ApplicationContext 不会自动调用 destory-method 方法，需要在合适的时机手动调用 destroySingletons()，但是 AbstractApplicationContext 中的钩子方法，实现了自动调用 destory-method 方法。
+BeanFactory 对 Bean 进行实例化并注入依赖。
 
-> @PreDestory 是 java 定义的注解，使用在成员方法上，和 destory-method 起到类似的作用。
->
-> 三者之间执行顺序为：@PreDestroy、DisposableBean、destroy-method。
+- 初始化 ConversionService、LoadTimeWeaverAware（AOP 相关）等类型的 Bean。
+- 冻结 BeanFactory：停止 Bean 定义、解析、加载和注册。
+- **对 Bean 进行实例化并注入依赖。**
 
-###### ④ <font color="orange">FactoryBean</font>
+对 Bean 进行实例化并注入依赖过程如下：
 
-FactoryBean 是 Spring 容器提供的一种可以扩展容器实例化逻辑的接口，其实现类本身就是作为 bean，需要注册到 BeanFactory 中，用来生产对象。
+![从BeanDefinition到bean实例的过程和生命周期](./从BeanDefinition到bean实例的过程和生命周期.png)
 
-> 注意：依赖注入后，获取的不是 FactoryBean 的实现类实例，而是 getObject()返回的实例。
+Bean 的实例化过程很复杂，重点关注三个地方：
 
-##### （3）Bean 自身的调用方法
+- FactoryBean 在实例化过程中的作用。
+- 三级缓存处理循环依赖。
+- Bean 的生命周期。
 
-通过配置文件中 init-method 和 destory-method 指定方法名，在 Bean 启动和销毁过程中，会执行对应的方法。
+#### 6、结束扫尾阶段
 
-##### （4）Bean 接口
+- 清除 ApplicationContext 中的缓存。
+- 发布 ContextRefreshedEvent 事件：ContextRefreshedEvent 意味着 ApplicationContext 已启动完成。
 
-Bean 类表示的都是配置文件中的类，但是在 Spring 容器中有一个 BeanDefinition 接口，用于存储 Bean 类在配置文件中的配置。
+### （三）启动过程中的重要接口
 
-###### ① <font color="orange">BeanDefinition</font>
+#### 1、BeanDefinition 相关接口
 
-用于存储配置文件中对应 Bean 类的配置信息、class 类、id 名和 name 名等信息。
+在 BeanFactory 创建阶段，使用了很多 BeanDefinition 相关接口。
 
-###### ② BeanDefinitionHolder
+（1）<font color="orange">BeanDefinition</font>
+
+用于存储配置文件中 `<bean>` 标签对应 Bean 类的配置信息、class 类、id 名和 name 名等信息。
+
+> Bean 类表示注册进 Spring 容器的类； BeanDefinition 接口，用于存储 Bean 类在配置文件中的配置。
+
+（2）BeanDefinitionHolder
 
 其实就是用于存储 Bean 的 id 名、name 名、BeanDefinition，方便将信息注册到 BeanDefinitionRegistry 的 Map 中。
 
-###### ③ [<font color="orange">BeanDefinitionRegistry</font>](https://www.jianshu.com/p/54afb6bbeb10)
+（3）[BeanDefinitionRegistry](https://www.jianshu.com/p/54afb6bbeb10)
 
 用于进行 BeanDefinition 的注册，其实内部就是维持一个 Map，用于存储 Bean 类的 id 名和对应和 BeanDefinition。
 
-DefaultListableBeanFactory 实现了 BeanDefinitionRegistry，内部维护一个 BeanDefinitionMap<beanNameString，BeanDefinition>
+DefaultListableBeanFactory 实现了 BeanDefinitionRegistry，内部维护一个 `BeanDefinitionMap<string，BeanDefinition>`，用于存储 beanName 及其对应的 BeanDefinition。
 
-###### ④ [BeanDefinitionsParserDelegate](https://juejin.cn/post/6844903694039793672#heading-4)
+（4）[BeanDefinitionsParserDelegate](https://juejin.cn/post/6844903694039793672#heading-4)
 
 用于解析 XML 文件：
 
-- 解析标签是否是 default namespace（`<import/>、<alias/>、<bean/>、<beans/>`）。
+- 解析标签是否是 default namespace（`<import>、<alias>、<bean>、<beans>`）。
 - 解析标签的属性和属性值。
 
-##### （5）资源接口
+#### 2、资源接口
 
-###### ① <font color="orange">Resource</font>
+（1）<font color="orange">Resource</font>
 
 普通的 URL 资源定位符只基于 HTTP、FTP、File 等协议的资源定位功能，Resource 在基于以上功能外，还提供在字节流、以文件形式、文件系统、Java 的 classpath 中的资源定位功能，并统一进行封装。
 
@@ -1246,115 +1262,206 @@ DefaultListableBeanFactory 实现了 BeanDefinitionRegistry，内部维护一个
 - UrlResource：内部委派 URL 类进行具体的资源操作。
 - InputStreamResource：对 InputStream 进行封装。
 
-###### ② <font color="orange">ResourceLoader</font>
+（2）ResourceLoader
 
-用于获取对应的 Resource 对象。
+用于获取对应的 Resource 对象。DefaultResourceLoader 是 ResourceLoader 的默认实现，通过 getResource()获取对应 Resource。
 
-- DefaultResourceLoader：ResourceLoader 的默认实现，通过 getResource()获取对应 Resource。
-- <font color="orange">ResourcePatternResolver</font>：返回 Resource 数组。
-
-###### ③ <font color="orange">MessageSource</font>
+（3）MessageSource
 
 国际化支持，配置不同国家语言，让 Spring 可以编译不同国家的配置文件。
 
-##### （6）事件监听发布接口
+#### 3、容器级生命周期接口
 
-![事件监听发布接口](E:/Onezilin/StudyNotes/Spring/事件监听发布接口.png)
+容器初始化 Bean 时，容器对外暴露的扩展点，可以进行动态修改。
 
-> 实际应用中，定义事件、事件监听器和事件发布器需要配置到配置文件，事件在事件发布器中被初始化使用。
+（1）[<font color="orange">BeanFactoryPostProcessor</font>](https://www.jianshu.com/p/b45efc018bcc)
 
-###### ① <font color="orange">EventObject</font>
+BeanFactoryPostProcessor 是 BeanFactory 的后置处理接口，提供 postProcessBeanFactory()方法，参数为 ConfigurableListableBeanFactory 类型。**可以在 BeanFactory 创建准备完成后，Bean 实例化之前，对 BeanFactory 进行操作。**例如：修改 BeanDefinition 属性。
 
-定义具体的事件。<font color="green">ApplicationEvent</font> 是 Spring 容器内自定义事件类型，继承自 EventObject，它是一个抽象类，需要根据情况提供相应的子类以区分不同情况。默认提供了三个实现：
+> 若不止一个 BeanFactoryPostProcessor 实现类，还需要实现 Order 接口，设置实现类的执行顺序。
 
-- ContextClosedEvent：ApplicationContext 即将关闭时定义的事件。
-- ContextRefreshedEvent：ApplicationContext 在初始化或者刷新时定义的事件。
-- RequestHandledEvent：Web 请求处理后定义的事件。
+（2）[<font color="orange">BeanPostProcessor</font>](https://www.jianshu.com/p/f80b77d65d39)
 
-###### ② <font color="orange">EventListener</font>
+**可以在 Bean 实例化、依赖注入之后、显式地初始化之前（即注册到 Spring 容器之前），对 Bean 进行操作，完成一些定制的初始化操作。**提供 postProcessBeforeInitialization()方法和 postProcessAfterInitialization()方法，分别对 Bean 进行前置/后置处理。
 
-接收并监听具体的事件，并提供相应的处理方法。
+InstantiationAwareBeanPostProcessor 也是一个重要的接口，继承 BeanPostProcessor 接口，额外提供三个方法：
 
-Spring 提供 <font color="orange">ApplicationListener</font> 接口，继承自 EventListener，ApplicationContext 内使用的自定义事件监听器接口。ApplicationContext 启动时，会自动识别并加载 EventListener 实现类，一旦容器内有事件发布，会通知这些注册到容器中的监听器。
+- postProcessBeforeInstantiation：在实例化之前执行，可以通过该方法自己创建并返回 Bean 实例（即返回值不为 null），跳过 Spring 系统的 Bean 实例化过程。
 
-###### ③ 事件发布接口
+- postProcessAfterInstantiation：在实例化之后、依赖注入之前执行，可以通过该方法自己对 Bean 实例进行操作，返回值表示是否继续执行依赖注入。
 
-a. <font color="orange">ApplicationEventPublisher</font>
+  > 注意：如果返回值为 false，表示跳过依赖注入，跳过后续 InstantiationAwareBeanPostProcessor 的 postProcessAfterInstantiation()方法，跳过之后所有的 postProcessProperties()方法，跳过 Spring 的依赖注入。
 
-调用发布器内部 publicEvent(ApplicationEvent)方法，将初始化完成的事件发布给监听器，并调用对应的监听方法。
+- postProcessProperties：在实例化之后、依赖注入（Spring 已经准备好了注入的属性值）之前执行，可以修改 Bean 的依赖注入值。
+
+![InstantiationAwareBeanPostProcessor作用](./InstantiationAwareBeanPostProcessor作用.png)
+
+#### 4、Bean 级生命周期接口
+
+（1）<font color="orange">Aware</font>
+
+用于获取 Spring 容器提供的类的实例对象，提供以下接口：
+
+- BeanNameAware：内部提供 setBeanName()方法，获取当前 Bean 的 name（也就是配置文件中的 id 属性）。
+- BeanfactoryAware：内部提供 setBeanFactory()方法，获取当前容器的 BeanFactory。
+- BeanClassLoaderAware：内部提供 setBeanClassLoader()方法，获取当前容器的 ClassLoader。
+- ResourceLoaderAware：ApplicationContext 继承 ResourceLoader，可以获取到 ResourceLoader 类型的 ApplicationContext 实例。
+- ApplicationEventPublisherAware：ApplicationContext 继承 ApplicationEventPublisher，可以获取到 ApplicationEventPublisher 类型的 ApplicationContext 实例。
+- MessageSourceAware：ApplicationContext 继承 MessageSource，可以获取 MessageSource 类型的 ApplicationContext 实例。
+- <font color="orange">ApplicationContextAware</font>：获取到当前 ApplicationContext 实例。
+
+（2）<font color="orange">FactoryBean</font>
+
+FactoryBean 是 Spring 容器提供的一种可以扩展容器实例化逻辑的接口，其实现类本身就是作为 Bean，需要注册进 BeanFactory 中，**用来生产 Bean 实例**。在实例化 Bean 的过程中，FactoryBean 会作为 Bean 注册进 BeanFactory 中，最后会调用 getObject()返回自定义的实例。
+
+以下面例子为例：
+
+```java
+@Component
+public class MyFactoryBean implements FactoryBean {
+
+
+    @Override
+    public Object getObject() throws Exception {
+        return new A();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return A.class;
+    }
+}
+
+class A {}
+```
+
+首先会在 Spring 容器中注册 MyFactoryBean 类型的 Bean，beanName 为 **&myFactoryBean**；然后调用 getObject()方法，在 Spring 容器中注册 A 类型的 Bean，beanName 为 myFactoryBean。
+
+> 注意：beanName 对应的 Bean 类型为 getObject() 的返回类型；FactoryBean 的 beanName 为【& + beanName】。
+
+（3）[<font color="orange">InitializingBean</font>](https://blog.csdn.net/nrsc272420199/article/details/95033223)
+
+在 BeanPostProcessor 的 before 和 after 方法之间执行，先执行 InitializingBean 的 afterPropertiesSet()方法，后执行配置文件中的 init-method 方法。
+
+> @PostConstruct 是 Java 定义的注解，使用在成员方法上，和 init-method 起类似作用。
+>
+> 三者之间执行顺序为：@PostConstruct、InitializingBean、init-method。
+
+（4）[<font color="orange">DisposableBean</font>](https://zhuanlan.zhihu.com/p/54215879)
+
+在执行完上面操作后，会将 DisposableBean 的实现类注册到 BeanFactory 中，不会马上执行。只有当对象实例不再被使用的时候才会执行相关的自定义销毁逻辑，也就是 Spring 容器关闭的时候执行，后执行配置文件中的 destory-method 方法。
+
+本来 BeanFactory 和 ApplicationContext 不会自动调用 destory-method 方法，需要在合适的时机手动调用 destroySingletons()，但是 AbstractApplicationContext 中的钩子方法，实现了自动调用 destory-method 方法。
+
+> @PreDestory 是 Java 定义的注解，使用在成员方法上，和 destory-method 起到类似的作用。
+>
+> 三者之间执行顺序为：@PreDestroy、DisposableBean、destroy-method。
+
+#### 5、事件监听发布接口
+
+![事件监听发布接口](./事件监听发布接口.png)
+
+（1）<font color="orange">EventObject</font>
+
+表示监听事件。ApplicationEvent 是 Spring 容器内自定义事件类型，继承自 EventObject，它是一个抽象类，需要根据情况提供相应的子类以区分不同情况。
+
+（2）<font color="orange">EventListener</font>
+
+接收并监听具体的事件，并提供相应的处理方法。Spring 提供 ApplicationListener 接口，继承自 EventListener，ApplicationContext 内使用的自定义事件监听器接口。
+
+（3）事件发布接口
+
+① <font color="orange">ApplicationEventPublisher</font>
+
+ApplicationEventPublisher 通过调用 publicEvent(ApplicationEvent)方法，**通知监听对应事件的监听器**，从而调用执行监听器的 onApplicationEvent()方法。
 
 ApplicationContext 继承自 ApplicationEventPublisher，但是它不会亲自去实现事件的发布和事件监听器的注册，而是内部维护一个 ApplicationEventMulticaster 实现类，由此接口的实现类去实现相应的功能。
 
 > 内部维持一个监听器容器，对监听器进行注册管理。
 
-b. <font color="orange">ApplicationEventMulticaster</font>
+② <font color="orange">ApplicationEventMulticaster</font>
 
-ApplicationEventMulticaster 实现类用于实现事件的发布和事件监听器的注册。
+ApplicationEventMulticaster 实现类用于实现**事件的发布**和**事件监听器的注册**。
 
-<font color="green">AbstractApplicationEventMulticaster</font> 是该接口的抽象实现类，实现事件监听器的管理功能。出于灵活性和扩展性的考虑，事件的发布功能委托给子类实现，Spring 提供了以下默认子类：
+AbstractApplicationEventMulticaster 是该接口的抽象实现类，实现事件监听器的管理功能。出于灵活性和扩展性的考虑，事件的发布功能委托给子类实现，Spring 提供 SimpleApplicationEventMulticaster 默认实现类。
 
-- SimpleApplicationEventMulticaster：
-  - 容器启动时便会检查是否有自定义的 ApplicationEventMulticaster 的实现类，若有则使用自定义的实现类；若没有则使用默认的实现类。
-  - 该实现类添加了事件发布功能的实现，不过其默认使用了 SyncTaskExecutor 进行事件的发布，可以让事件同步顺序发布，但是也会造成性能问题。因此，可以提供其他类型的 TaskExecutor 提高性能。
+### （四）[三级缓存解决循环依赖](https://www.cnblogs.com/lifullmoon/p/14422101.html#28-beanfactory-%E6%98%AF%E5%A6%82%E4%BD%95%E5%A4%84%E7%90%86%E5%BE%AA%E7%8E%AF%E4%BE%9D%E8%B5%96)
 
-#### 2、[ApplicationContext 中 Bean 实例化前的准备](https://juejin.cn/post/6844903694039793672#heading-5)
+Spring 依赖有两种：
 
-（1）清除事件和事件监听器
+#### 1、depends-on 依赖
 
-（2）[初始化 BeanFactory 及其配置](https://segmentfault.com/a/1190000020379200)
+depends-on 属性的依赖是一种隐式的依赖，保证当前 Bean 类 depends-on 的 Bean 类**先于自己实例化，并不存在强关联关系**。在 doGetBean()中，用递归判断是否循环 depends-on 依赖，如果出现循环依赖，则抛出异常。
 
-- 清除原有 BeanFactory 和单例的 bean，初始化 BeanFactory 及其配置。
+![depends-on循环依赖解决方式](./depends-on循环依赖解决方式.png)
 
-- 初始化 BeanDefinitionReader，读取 Resource 类，将 Resource 封装后的配置文件转化为 Document 类。使用 BeanDefinitionDocumentReader 对 Document 下的每个节点 Element 进行读取后，使用 BeanDefinitionParserDelegate 进行解析。
+#### 2、注入依赖
 
-- 使用 BeanDefinitionParserDelegate 将 Element 解析成 BeanDefinition，并封装成 BeanDefinitionHolder（id，BeanDefinition，aliasesArray）。将其注册到 DefaultListableBeanFactory 容器的 Map 中，并发送注册事件。
+注入依赖是显式的声明某种依赖关系，Spring 中提供三级缓存解决注入时循环依赖的问题：
 
-  > 以上两步主要是提取 XML 中 Bean 对应的 `<bean/>` 标签及属性信息，将其存储到 BeanDefinition 中，并将 BeanDefinition 注册到 Spring 容器中。
+- singletonObjects（一级缓存）：存储所有已经初始化（已实例化、已注入依赖）的**单例 Bean**。
+- earlySingletonObjects（二级缓存）：存储从三级缓存中获取到的正在初始化（已实例化、正在进行依赖注入）的 Bean。
+- singletonFactories（三级缓存）：存储正在初始化的 Bean 对应的 ObjectFactory 实现类。
 
-（3）[配置 DefaultListableBeanFactor](https://www.cnblogs.com/warehouse/p/9387668.html)
+> 注意：注意：Spring 只对 singleton 的属性注入的循环依赖提供了三级缓存解决方法；**对于构造注入和 prototype 没有提供解决方法，会抛异常**。
 
-对 BeanFactoy 进行配置，对一些特殊的 Bean 进行处理。
+A 和 B 发生循环依赖时，执行步骤如下：
 
-- 添加 SPEL 语言支持。
-- 注册 Spring 自带的属性编辑器 CustomDateEditor。
-- 添加 ApplicationContextAwareProcessor（实现 BeanPostProcessor，重写后置增强方法，让部分获取 BeanFactory 资源有关的 Aware 子接口的 Bean 类可以获取对应资源）。
-- [设置忽略依赖](https://www.jianshu.com/p/3c7e0608ff1f)（让部分实现 Aware 子接口的 Bean 类，在配置文件中的依赖注入失效，也就是不让用户自己注入对应资源，而是获取 ApplicationContext 的对应资源）。
-- 设置依赖注入（若某些类的属性为 BeanFactory 等特定的类型，可以自动注入对应的实例依赖）。
-- 添加 ApplicationListenerDetector（实现 BeanPostProcessor，重写后置增强方法，将 ApplicationListener 的实现 Bean 类注册到容器中）。
-- 默认注册一些有用的 bean，也可以进行覆盖。
+![三级缓存解决Bean的循环依赖问题](E:/Onezilin/StudyNotes/Spring/三级缓存解决Bean的循环依赖问题.png)
 
-（4）[实例化类型为 BeanFactoryPostProcessor 的 Bean 类](https://juejin.im/post/5d69e26bf265da03d871d50f)，执行 postProcessBeanFactory()方法。
+1. 尝试按顺序从一、二、三级缓存中获取 A 实例，若任一缓存获取得到 A 实例则返回；否则继续。
+2. A 初始化前，生成一个 ObjectFactory 实现类存入三级缓存中，同时调用 ObjectFactory.getObject()方法进行初始化。
+3. **A 进行初始化时，发现依赖 B 未初始化，此时执行 B 的初始化流程**，和步骤 1、2 一样。
+4. **B 进行初始化时，发现依赖 A，**先按顺序去一、二、三级缓存中获取 A 实例，发现三级缓存中有 A 对应的 ObjectFactory，则调用 ObjectFactory.getObject()方法**获取步骤 3 中正在初始化的 A 实例，并将其存入二级缓存**，删除三级缓存中的 A 对应的 ObjectFactory。
+5. **B 初始化完成**，存入一级缓存，删除二、三级缓存中 B 对应的缓存，**将实例注入 A 实例**。
+6. **A 初始化完成**，删除二、三级缓存中 A 对应的缓存。
 
-（5）[注册 BeanPostProcessor 处理器的 Bean 类到容器中](https://segmentfault.com/a/1190000020379200#item-2-3)
+> 要理解下面两个问题，先看 doCreateBean()方法中的这段代码：
+>
+> ![getEarlyBeanReference方法的作用](./getEarlyBeanReference方法的作用.png)
+>
+> 在上面步骤 2 中，三级缓存中存储着 A 对应的 ObjectFactory；步骤 3 中 A 进行初始化时，会调用 addSingletonFactory()方法，**将原本的 ObjectFactory 替换成新的 ObjectFactory**（即 `() -> getEarlyBeanReference(beanName, mbd, bean)`；**步骤 4 中 B 调用 ObjectFactory.getObject()方法其实是新的 ObjectFactory**。
+>
+> getEarlyBeanReference() 方法主要作用是：当某个类进行 AOP 增强时，就会去生成此类的代理实例；否则，返回正常实例。
+>
+> > 注意：此步骤中的 Bean 在实例化后、依赖注入前。
+>
+> **（1）为什么需要二级缓存？**
+>
+> 例如：假如没有二级缓存，在循环依赖中一个 Bean 可能被多个 Bean 依赖，A → B（B 也依赖 A）→ C → A，根据上面的执行流程，会调用两次 A 的 ObjectFactory.getObject()方法，会重复代理，可能出现问题。
+>
+> 而且直接从二级缓存中获取初始化中的 A 实例，性能也会更好。
+>
+> **（2）[为什么不直接调用这个 ObjectFactory.getObject()方法放入二级缓存中，而是需要三级缓存？](https://juejin.cn/post/7099745254743474212)**
+>
+> 先了解 Spring 的一个设计原则：**AOP 代理的对象最好是成熟态（即实例化后、依赖注入后）**。
+>
+> **三级缓存的目的是为了延迟代理对象的创建**，正常情况下，Spring 会在依赖注入之后进行代理；发生循环依赖时，才会提前（实例化后、依赖注入前）生成代理实例。如果没有三级缓存，不管有没有发生循环依赖，A 每次都必须生成代理实例。
+>
+> > 也就是说：**有了三级缓存：正常情况下遵循设计原则，发生循环依赖时，不得不违背设计原则；没有三级缓存，任何时候都违背设计原则。**
 
-（6）[初始化事件发布器 ApplicationEventMulticaster](https://blog.csdn.net/StrawberryMuMu/article/details/103088555)，将 ApplicationListener 注册到事件发布器，事件发布器发布早期事件。
+### （五）Bean 的生命周期
 
-#### 3、[Bean 的生命周期](https://juejin.im/entry/5b11043ee51d4506c95eaacf)
+在 Bean 实例化、依赖注入之后，会执行以下 Bean 生命周期方法，从而扩展 Bean 实例：
 
-![Bean的生命周期](E:/Onezilin/StudyNotes/Spring/Bean的生命周期.png)
+![Bean的生命周期](./Bean的生命周期.png)
 
-（1）初始化自定义 Bean 类前的准备
+（1）执行 BeanFactory 准备阶段添加的 ApplicationContextAwareProcessor，它会检查 Aware 相关 Bean 实例并调用 setter 方法。
 
-- 初始化 ConversionService、LoadTimeWeaverAware 等类型的 bean；冻结 BeanFactory，停止 Bean 定义、解析、加载和注册。
-- 遍历所有的 beanName，合并有 parent 的 bean（也就是配置了 parent 属性的 bean，将其父属性设置到子默认属性中），初始化 FactoryBean 的实现 Bean 类。
+（2）执行 BeanPostProcessor 的 postProcessBeforeInitialization()前置处理方法。
 
-（2）从 BeanDefinition 到 Bean 实例的过程和生命周期
+（3）检查 Bean 是否是 InitializingBean 类型，如果是，则调用 afterPropertiesSet()方法。
 
-![从BeanDefinition到bean实例的过程和生命周期](E:/Onezilin/StudyNotes/Spring/从BeanDefinition到bean实例的过程和生命周期.png)
+（4）检查是否配置 init-method 方法，如果有，则执行。
 
-（3）获取或创建 Bean 类实例
+（5）执行 BeanPostProcessor 的 postProcessAfterInitialization()后置处理方法。
 
-通过 getBean()，显示的获取或创建 Bean 类实例。
+（6）在 Bean 实例化阶段会注册 Destruction 相关回调接口，当 ApplicationContext 关闭/销毁时，会通过钩子函数调用这些销毁方法。
 
-（4）销毁 Bean 类
+- 检查 Bean 是否是 DisposableBean 类型，如果是，则调用 destroySingletons()方法。
+- 检查是否配置 destroy-method，如果有，则执行。
 
-当 ApplicationContext 销毁的时候，通过钩子函数调用 DisposableBean 的回调和 destroy-method。
-
-#### 4、ApplicationContext 中 Bean 实例后的调用
-
-ApplicationContext 完成上面启动过程后，调用事件发布器发布事件。
-
-### （三）获取 Bean 的不同实例
+### （六）获取 Bean 的不同实例
 
 由于 Bean 被 Spring 容器拥有并创建实例，当 Bean 为单例时，若我们仍想获取非单例的 Bean 时，有以下几种方式：
 
@@ -1364,7 +1471,7 @@ ApplicationContext 完成上面启动过程后，调用事件发布器发布事�
 
 Spring 提供一个工厂类来实例化具体的接口实现类，也是依赖注入的另外一种方式。
 
-##### （1）静态工厂方法属性 factory-method
+（1）静态工厂方法属性 factory-method
 
 工厂类的获取实例化对象的方法为静态方法，factory-method 属性指定静态方法
 
@@ -1389,7 +1496,7 @@ public class StaticBarInterfaceFactory {
 </bean>
 ```
 
-##### （2）实例工厂方法属性 factory-bean 和 factory-method
+（2）实例工厂方法属性 factory-bean 和 factory-method
 
 工厂类的获取实例对象的方法为非静态方法，需要先实例化工厂类，再使用指定的非静态方法，需要另外的 `<bean factory-bean="工厂类 Bean 的 id"` 指定工厂类实例。
 
@@ -1439,7 +1546,7 @@ public class MockNewsPersister implements IFXNewsPersister {
         return newsBean;
     }
 
-    // 由于依赖注入的 Bean 一直被持有，不会被销毁，BeanFactory 也不会生产新的 Bean 实例注入
+    // 由于依赖注入的 Bean 一直被持有，不会被销毁，BeanFactory 也不会生产新的 Bean 实例
     public void setNewsBean(FXNewsBean newsBean) {
         this.newsBean = newsBean;
     }
@@ -1561,39 +1668,35 @@ Java 自定义的注解需要手动配置到配置文件中才能使用：
 - `<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>`。
 - `<context:annotation-config/>` 激活注解的相关功能。
 
-### （四）[Spring 怎么解决循环依赖的问题？](https://cloud.tencent.com/developer/article/1497692)
-
-Spring 依赖有两种：
-
-1、`<bean/>` 的 depends-on 属性的依赖
-
-depends-on 属性的依赖是一种隐示的依赖，保证当前 Bean 类 depends-on 的 Bean 类先于自己实例化，并不存在强关联关系（depends-on 的 Bean 不是 `<bean/>` 指定类的属性）。在 doGetBean()中，用递归判断是否循环 depends-on。
-
-2、注入依赖
-
-注入依赖显示的声明某种依赖关系。
-
-![三级缓存解决Bean的循环依赖问题](./三级缓存解决Bean的循环依赖问题.png)
-
-- 尝试按顺序从一、二、三级缓存中获取 A 实例，若任一缓存获取得到 A 实例则返回；否则继续。
-- A 进行实例化时，重新生成一个匿名 ObjectFactory 存入三级缓存中，匿名 ObjectFactory 中存储着 A 未初始化的实例。
-- A 进行初始化，发现依赖 B 未实例化，此时执行 B 的实例化流程，和步骤 1、2 类似。
-- B 进行初始化，发现依赖 A，先按顺序去一、二、三级缓存中获取 A 实例，发现三级缓存可以获取，则将获取到的已实例化、未初始化的 A 存入二级缓存，删除三级缓存中的 ObjectFactory。
-- B 初始化完成，存入一级缓存，删除二、三级缓存的实例(如果有就会删除)和 ObjectFactory，将实例注入 A 实例。
-- A 初始化完成，删除二、三级缓存的实例和 ObjectFactory。
-
-> 注意：Spring 只对 singleton 的属性注入的循环依赖提供了三级缓存解决方法；对于构造注入和 prototype 没有提供解决方法，会抛异常。
-
-### （五）二级缓存 earlySingletonObjects 有什么用
-
-earlySingletonObjects 是二级缓存，用于存储未设置属性的 beanInstance，其最主要作用在 getEarlyBeanReference() 方法（也就是从三级缓存获取未设置属性的 beanInstance 注册到二级缓存时）。
-
-> [getEarlyBeanRefrence()主要执行](https://blog.csdn.net/qq32933432/article/details/107561984)：当某个类进行 AOP 增强时，就会去生成此类的代理实例；若没有进行代理，则正常返回实例。
-
-### （六）[动态代理中类为什么需要实现接口](https://www.javazhiyin.com/31257.html)
+### （四）[动态代理中类为什么需要实现接口](https://www.javazhiyin.com/31257.html)
 
 动态代理过程中会生成当前类的代理类$Proxy，继承Proxy。若需要代理类与被代理类相关联，需要继承同一父类或实现同一接口，而代理类$Proxy 已继承 Proxy，只能实现同一接口。因此被代理类需要实现接口，运行期生成$Proxy过程中，会让$Proxy 自动实现同一接口。
 
-### （七）[为什么 CGLIB 使用 invoke 会栈溢出](https://juejin.im/post/6844904054779281415)
+### （五）[为什么 CGLIB 使用 invoke 会栈溢出](https://juejin.im/post/6844904054779281415)
 
 简单总结是，调用 invoke 方法会调用 CGLIB 生成的子类的方法，子类方法又会再一次调用本身的这个方法，循环调用此方法发生栈溢出；调用 invokeSuper 调用原始类的方法。
+
+### （六） 通过 @Bean 注解定义在方法上面注入一个 Spring Bean，每次调用该方法所属的 Bean 的这个方法，得到的是同一个对象吗？
+
+```java
+@Configuration
+public class MyConfiguration {
+
+    @Bean
+    public A a() {
+        return new A();
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("MyConfiguration init");
+        A a1 = a();
+        A a2 = a();
+        System.out.println("a1 == a2: " + (a1 == a2)); // true
+    }
+}
+```
+
+上面调用两次 a()方法，按照传统观念来说，应该 new 两次，生成两个 A 对象，但是却从结果发现 **a1 == a2**。
+
+其实 @Configuration 注解的类被 CGLIB 增强，会设置一个拦截器专门对 @Bean 方法进行拦截处理，通过依赖查找的方式从 IoC 容器中获取 Bean 对象，**如果是单例 Bean，那么每次都是返回同一个对象**。

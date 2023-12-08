@@ -1,0 +1,94 @@
+<mxfile host="Electron" modified="2023-12-07T16:15:49.287Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="XzBlVnaLuvh3vDlbveV8" version="22.1.2" type="device">
+  <diagram name="第 1 页" id="jYwGCEvQf6twObVrGjzc">
+    <mxGraphModel dx="1877" dy="629" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-4" target="kvmA-6QQelvoHXBIJT2B-8">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-21" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-4" target="kvmA-6QQelvoHXBIJT2B-18">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="160" y="120" />
+              <mxPoint x="160" y="500" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-4" value="postProcessBeforeInstantiation&lt;br style=&quot;border-color: var(--border-color);&quot;&gt;返回值是否为 null" style="rhombus;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;align=center;strokeWidth=1;spacing=6;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="280" y="80" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-7" value="是" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="400" y="158" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-8" target="kvmA-6QQelvoHXBIJT2B-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-24" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-8" target="kvmA-6QQelvoHXBIJT2B-17">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="640" y="240" />
+              <mxPoint x="640" y="420" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-8" value="postProcessAfterInstantiation&lt;br&gt;返回值是否为 true" style="rhombus;whiteSpace=wrap;html=1;shadow=0;fontFamily=Helvetica;fontSize=12;align=center;strokeWidth=1;spacing=6;spacingTop=-4;" vertex="1" parent="1">
+          <mxGeometry x="280" y="200" width="240" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-14" target="kvmA-6QQelvoHXBIJT2B-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-29" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-14" target="kvmA-6QQelvoHXBIJT2B-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-14" value="postProcessProperties" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="320" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-16" value="是" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="405" y="280" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="kvmA-6QQelvoHXBIJT2B-17" target="kvmA-6QQelvoHXBIJT2B-18">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-17" value="postProcessBeforeInitialization" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="400" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-18" value="postProcessAfterInitialization" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;glass=0;strokeWidth=1;shadow=0;" vertex="1" parent="1">
+          <mxGeometry x="280" y="480" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-22" value="否" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="240" y="120" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-23" value="也就是自己创建 Bean 实例，&lt;br&gt;跳过 Spring 系统创建的步骤" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="180" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-25" value="否" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="520" y="240" width="40" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-26" value="也就是跳过依赖注入" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
+          <mxGeometry x="520" y="210" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-30" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#FF0000;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="45" y="380" as="sourcePoint" />
+            <mxPoint x="805" y="380" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-31" value="实例化之前" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#FF0000;" vertex="1" parent="1">
+          <mxGeometry x="-40" y="160" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-32" value="" style="endArrow=none;html=1;rounded=0;strokeColor=#FF0000;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="45" y="177.5" as="sourcePoint" />
+            <mxPoint x="805" y="177.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="kvmA-6QQelvoHXBIJT2B-33" value="依赖注入之前" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontColor=#FF0000;" vertex="1" parent="1">
+          <mxGeometry x="-50" y="360" width="100" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

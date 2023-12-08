@@ -601,7 +601,7 @@ public class FilterConfig {
 
 #### 2、@ComponentScan
 
-用于扫描指定包下的 @Component（包括 @Service、@Controller 等） 注解所在的类，将其注入到 Spring 容器内成为 Bean 类。
+用于扫描指定包下的 @Component（包括 @Service、@Controller 等） 注解所在的类，将其注册进 Spring 容器内成为 Bean 类。
 
 #### 3、@EnableAutoConfiguration
 
@@ -609,11 +609,11 @@ public class FilterConfig {
 
 ##### （1）@AutoConfigurationPackage
 
-@AutoConfigurationPackage 是 SpringBoot 提供的注解，它上面添加了 @Import(AutoConfigurationPackages.Registrar.class)，它主要是将注解所在类的 package 包，映射成一个 Bean 类注入到 Spring 容器中。
+@AutoConfigurationPackage 是 SpringBoot 提供的注解，它上面添加了 @Import(AutoConfigurationPackages.Registrar.class)，它主要是将注解所在类的 package 包，映射成一个 Bean 类注册进 Spring 容器中。
 
 ##### （2）@Import(AutoConfigurationImportSelector.class)
 
-@Import(AutoConfigurationImportSelector.class) 注解会将 AutoConfigurationImportSelector 类注入 Spring 容器，[AutoConfigurationImportSelector](https://www.cnblogs.com/zfcq/p/16751351.html) 执行以下操作：
+@Import(AutoConfigurationImportSelector.class) 注解会将 AutoConfigurationImportSelector 类注册进 Spring 容器，[AutoConfigurationImportSelector](https://www.cnblogs.com/zfcq/p/16751351.html) 执行以下操作：
 
 - 通过 ClassLoader.getResources() 查找 classpath 以及依赖中的 `META-INF/spring.factories` 文件，获取 key 为 `org.springframework.boot.autoconfigure.EnableAutoConfiguration` 对应的 value 值，即众多**自动配置类的类名**。
 - 根据 @EnableAutoConfiguration 注解中的 exclude 和 excludeName 属性值，**过滤掉指定的自动配置类**。
@@ -755,7 +755,7 @@ public class OrderMain80 {
 
 [原理](https://andyboke.blog.csdn.net/article/details/86680622)：
 
-- 当程序启动时，@EnableFeignClients 会初始化配置，同时进行包扫描，扫描所有 @FeignClients 的注解的接口，并将这些信息注入 Spring 容器中。
+- 当程序启动时，@EnableFeignClients 会初始化配置，同时进行包扫描，扫描所有 @FeignClients 的注解的接口，并将这些信息注册进 Spring 容器中。
 - 通过动态代理的方式为这些接口生成代理类，对接口中的方法进行增强。
 - 调用 @FeignClients 注解接口的方法时，进行以下操作：
   - 创建一个 RequetTemplate 对象，该对象封装了 HTTP 请求需要的全部信息，例如：请求参数名、请求方法等信息。
@@ -874,7 +874,7 @@ public interface PaymentFeignService {
 }
 ```
 
-默认情况下 OpenFeign 会为 @FeignClient 注解的接口动态代理生成代理类，此时该 PaymentFeignService 接口只有一个实现类，正常注入 Spring 容器。然而当我们使用 fallback 属性时，需要一个处理类，该处理类会实现 PaymentFeignService 接口，并注入 Spring 容器：
+默认情况下 OpenFeign 会为 @FeignClient 注解的接口动态代理生成代理类，此时该 PaymentFeignService 接口只有一个实现类，正常注册进 Spring 容器。然而当我们使用 fallback 属性时，需要一个处理类，该处理类会实现 PaymentFeignService 接口，并注册进 Spring 容器：
 
 ```java
 @Component

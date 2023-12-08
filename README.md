@@ -25,3 +25,4 @@
 - [x] Config
 - [x] Sentinel
 - [x] Linux
+- [x] Sleuth
