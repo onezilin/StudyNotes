@@ -2,6 +2,7 @@
 
 - [x] Spring
   - [x] SpringFrameworkAnnotation
+- [x] SpringBoot
 - [x] MyBatis
 - [x] Vue
 - [x] Git

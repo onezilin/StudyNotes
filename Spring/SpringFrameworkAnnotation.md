@@ -618,7 +618,9 @@ public class FilterConfig {
 - 通过 ClassLoader.getResources() 查找 classpath 以及依赖中的 `META-INF/spring.factories` 文件，获取 key 为 `org.springframework.boot.autoconfigure.EnableAutoConfiguration` 对应的 value 值，即众多**自动配置类的类名**。
 - 根据 @EnableAutoConfiguration 注解中的 exclude 和 excludeName 属性值，**过滤掉指定的自动配置类**。
 - 根据 @Conditional 相关注解，**过滤掉不满足 @Conditional 条件的自动配置类**。
-- 最后存储这些自动配置类的类名，以供之后的操作。
+- 最后存储这些自动配置类的类名并进行封装，以供之后的操作。
+
+> SpringBoot 之后会将这些自动配置类作为 Bean 尝试注册进 Spring 容器中，注入的时候 Spring 会通过 @Conditional 注解判断是否符合条件，因为并不是所有的自动配置类都满足条件。
 
 ## 四、SpringCloud
 
