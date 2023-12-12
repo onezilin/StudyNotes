@@ -459,3 +459,24 @@ spring:
 ```
 
 在加载 application.yml 配置文件后，也会加载 application-dev.yml 中的配置，并且 `spring.profile.active` 指定的配置文件优先级更高。
+
+### （二）`${}`
+
+在 yml 配置文件中，可以通过 `${}` 的方式获取指定配置值（从配置文件或 args 参数中）：
+
+```yml
+user:
+  home: /root
+
+logging:
+  file:
+    path: ${user.home}/logs # 相当于 /root/logs
+```
+
+另外还有一种特殊的写法 `${key:value}`，获取 key 配置对应的配置值，如果 key 配置不存在，则默认取 value 值：
+
+```yml
+logging:
+  file:
+    path: ${user.home:/root}/logs # 相当于 /root/logs
+```
