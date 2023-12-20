@@ -2183,9 +2183,7 @@ commit;
 - 在容易发生死锁的地方，先使用 `select ... for update` 尝试获取独占锁。
 - 设置超时时间（innodb_lock_wait_time），在锁超时候会报错。
 
-## 十一、
-
-## 疑问
+## 十一、疑问
 
 ### （一）[既然 varchar 长度可变，那能不能定到最大？](https://blog.csdn.net/qq_39390545/article/details/109379218)
 
