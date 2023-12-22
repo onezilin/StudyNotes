@@ -66,9 +66,10 @@ Nacos 可以服务注册发现中心使用。
     <version>2021.1</version>
 </dependency>
 
+<!-- nacos 2021.1 以后没有自带 Ribbon，手动引入 ribbon 负载均衡依赖 -->
 <dependency>
     <groupId>org.springframework.cloud</groupId>
-    <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+    <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
 </dependency>
 ```
 
