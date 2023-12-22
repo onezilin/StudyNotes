@@ -962,6 +962,44 @@ public class ConfigController {
 }
 ```
 
+### （十二）@EnableAutoDataSourceProxy
+
+Seata 通过 [DataSourceProxy](https://www.cnblogs.com/crazymakercircle/p/15313951.html#autoid-h2-5-13-0) 代理原本的 DataSource，通过对 SQL 进行解析，实现生成 before image、after image 存入 undo_log 表的功能。
+
+```java
+/**
+ * Description: 使用 Seata 对数据源进行代理
+ */
+@Configuration
+public class DataSourceProxyConfig {
+
+    @Value("${mybatis.mapper-locations}")
+    private String mapperLocations;
+
+    @Bean
+    @ConfigurationProperties(prefix = "spring.datasource")
+    public DataSource druidDataSource() {
+        return new DruidDataSource();
+    }
+
+    @Bean
+    public DataSourceProxy dataSourceProxy(DataSource dataSource) {
+        return new DataSourceProxy(dataSource);
+    }
+
+    @Bean
+    public SqlSessionFactory sqlSessionFactoryBean(DataSourceProxy dataSourceProxy) throws Exception {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setDataSource(dataSourceProxy);
+        sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver().getResources(mapperLocations));
+        sqlSessionFactoryBean.setTransactionFactory(new SpringManagedTransactionFactory());
+        return sqlSessionFactoryBean.getObject();
+    }
+}
+```
+
+在 Seata 1.1.0 之后，Seata 提供@EnableAutoDataSourceProxy 注解，用来显式地开启数据源自动代理功能。
+
 ## 五、Lombok 注解
 
 ### （一）[@EqualsAndHashCode](https://www.cnblogs.com/xxl910/p/12877776.html)
