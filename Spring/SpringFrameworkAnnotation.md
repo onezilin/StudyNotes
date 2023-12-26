@@ -804,7 +804,7 @@ public interface PaymentFeignService2 {
 
 value 值相同表示我们想让两个接口都向 CLOUD-PAYMENT-SERVICE 服务进行请求，然而这**会造成项目启动失败**：
 
-![@FeignClient注解name相同时的报错](E:\onezilin\新建文件夹\OpenFeign@FeignClient注解name相同时的报错.png)
+![@FeignClient注解name相同时的报错](./@FeignClient注解name相同时的报错.png)
 
 因为底层会使用 `name值 + ".FeignClientSpecification"` 作为 Bean 名称，Spring 容器不允许相同的 Bean 名称存在，因此启动失败。@FeignClient 提供 contextId 属性，底层就会使用 `contextId值 + ".FeignClientSpecification` 作为 Bean 名称，从而避免冲突。
 
@@ -891,7 +891,7 @@ public class PaymentFeigonServiceFallBack implements PaymentFeignService {
 
 此时就会有一个问题 PaymentFeignService 有两个实现类，Spring 无法知道我们想用该接口的哪个实现类实例，此时就会报错：
 
-![@FeignClient注解primary值为false的报错](E:\onezilin\新建文件夹\OpenFeign@FeignClient注解primary值为false的报错.png)
+![@FeignClient注解primary值为false的报错](./@FeignClient注解primary值为false的报错.png)
 
 primary 作用就相当于 @Primary 注解，为 true（默认值） 时赋予 PaymentFeignService 自动生成的代理类更高优先级，这样就不会报错。
 
@@ -964,7 +964,7 @@ public class ConfigController {
 
 ### （十二）@EnableAutoDataSourceProxy
 
-Seata 通过 [DataSourceProxy](https://www.cnblogs.com/crazymakercircle/p/15313951.html#autoid-h2-5-13-0) 代理原本的 DataSource，通过对 SQL 进行解析，实现生成 before image、after image 存入 undo_log 表的功能。
+Seata 通过 [DataSourceProxy](https://www.cnblogs.com/crazymakercircle/p/15313951.html#autoid-h2-5-13-0) 代理原本的 DataSource，对 SQL 进行解析，生成数据的 before image、after image 快照，存入 undo_log 表，实现 AT 模式；另外 Seata 1.2 以后还提供 DataSourceProxyXA 代理原本的 DataSource，实现 XA 模式。
 
 ```java
 /**
@@ -998,7 +998,63 @@ public class DataSourceProxyConfig {
 }
 ```
 
-在 Seata 1.1.0 之后，Seata 提供@EnableAutoDataSourceProxy 注解，用来显式地开启数据源自动代理功能。
+在 Seata 1.1.0 之后，Seata 提供 @EnableAutoDataSourceProxy 注解，用来显式地开启数据源自动代理功能。
+
+> 默认开启 DataSourceProxy 代理，即不用写 @EnableAutoDataSourceProxy 注解，高版本的 seata-spring-boot-starter 也可以通过 `seata.enableAutoDataSourceProxy=false` 关闭代理。
+
+@EnableAutoDataSourceProxy 中有 dataSourceProxyMode 属性，用于指定数据源代理模式，默认值为 AT。
+
+### （十三）@GlobalTransactional
+
+@GlobalTransactional 是 Seata 提供的注解，用于标识一个全局事务。
+
+> 带有 @GlobalTransactional 或 @GlobalLock 注解的方法会被代理，交给 GlobalTransactionalInterceptor 处理。
+
+注解上提供的属性：
+
+- timeoutMills：全局事务超时时间，TM 检测到分支事务超时或 TC 检测到 TM 未做二阶段上报超时后，发起对分支事务的回滚。
+- name：设置全局事务的名称，默认值为方法签名。
+- [rollbackFor](https://www.jianshu.com/p/c5988db897fc)：遇见指定异常时进行回滚，默认只在遇见 RuntimeException 和 Error 时回滚。
+- noRollbackFor：遇见指定异常时不仅回滚。
+- propagation：事务传播行为。
+- lockRetryTimes：获取全局锁失败后的重试次数。
+- lockRetryInterval：每次重试之间的间隔。
+
+### （十四）[@GlobalLock](https://blog.csdn.net/qq_37284798/article/details/134060903)
+
+@GlobalLock 是 Seata 提供的注解，**事务方法加上了@GlobalLock，在事务提交的时候就会尝试获取全局锁**，获取全局锁才能进行事务提交。
+
+> 有的方法它可能并不需要 @GlobalTransactional 的事务管理，但是我们又希望它对数据的修改能够加入到 Seata 机制当中，那么这时候就需要 @GlobalLock 了。
+
+注解上提供两个属性：
+
+- lockRetryTimes：获取全局锁失败后的重试次数。
+- lockRetryInterval：每次重试之间的间隔。
+
+```java
+@GlobalLock(lockRetryInternal = 100, lockRetryTimes = 100)
+@Transactional
+public Object GlobalLock() {
+    AccountTbl accountTbl = accountTblMapper.selectById(11111111);
+    AccountTbl accountTbl1 = accountTbl.setMoney(accountTbl.getMoney() - 1);
+    accountTblMapper.updateById(accountTbl1);
+    return "成功执行！！！";
+}
+```
+
+> 注意：查询方法需要添加**读隔离**（SELECT FOR UPDATE）：
+>
+> ```xml
+> <select id="selectById" parameterType="integer" resultType="com.hnmqet.demo01.entity.AccountTbl">
+>     SELECT id,user_id,money FROM account_tbl WHERE id=#{id} FOR UPDATE
+> </select>
+> ```
+>
+> 只有添加了 FOR UPDATE，Seata 才会进行创建重试的执行器，**这样事务失败时，会释放本地锁**，等待一定时间再重试。**如果不添加，则会一直占有本地锁**，如果全局事务回滚需要本地锁，则全局事务就只能等 @GlobalLock 事务超时失败才能拿到本地锁释放全局锁，造成 @GlobalLock 永远获取不到全局锁。
+
+### （十五）@SpiOrder
+
+@SpiOrder 是 Sentinel 提供的注解，**Sentinel 支持自定义 Slot 或 SlotChainBuilder**，通过 SPI 技术**将自定义的 Slot 添加到 Slot 责任链中**或**将 Sentinel 默认的 SlotChainBuilder 替换成自定义的**，自定义的 Slot 或 SlotChainBuilder 必须要添加 @SpiOrder 注册才会生效。提供 value 属性，值越小，优先级越高。
 
 ## 五、Lombok 注解
 
@@ -1120,7 +1176,7 @@ static List<Arguments> sumRange() {
 
 例如：@DisplayName("我的名称")
 
-![@DisplayName注解的效果](E:/Onezilin/StudyNotes/Spring/@DisplayName注解的效果.png)
+![@DisplayName注解的效果](./@DisplayName注解的效果.png)
 
 ### （七）@RunWith
 
