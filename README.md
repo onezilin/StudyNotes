@@ -27,3 +27,4 @@
 - [x] Sentinel
 - [x] Linux
 - [x] Sleuth
+- [x] Seata
