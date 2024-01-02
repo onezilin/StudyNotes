@@ -57,7 +57,7 @@ git config --global --unset user.email
 
 将文件添加到暂存区。
 
-![工作区和暂存区](https://onezilin.github.io/StudyNotes/Git/工作区和暂存区.png)
+![工作区和暂存区](./工作区和暂存区.png)
 
 #### 3、git commit -m "提交说明"
 
@@ -205,7 +205,7 @@ git config --global --unset user.email
 
 #### 2、git revert [-n] 版本号
 
-![revert前后版本示例](https://onezilin.github.io/StudyNotes/Git/revert前后版本示例.png)
+![revert前后版本示例](./revert前后版本示例.png)
 
 用于回滚指定版本号的 commit 内容，也可以使用例如 `git revert HEAD^3..HEAD` 回滚前三个版本到当前版本区间的 commit 内容。
 
@@ -303,7 +303,7 @@ git config --global --unset user.email
 
 `git fetch` 是将远程主机的最新内容拉到本地，用户在检查了以后决定是否合并到工作本机分支中。而 `git pull` 则是将远程主机的最新内容拉下来后直接合并，相当于 `git fetc + git merge`，这样可能会产生冲突，需要手动解决。
 
-![fetch命令示意图](https://onezilin.github.io/StudyNotes/Git/fetch命令示意图.png)
+![fetch命令示意图](./fetch命令示意图.png)
 
 ---
 

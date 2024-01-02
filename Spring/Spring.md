@@ -1407,7 +1407,7 @@ depends-on 属性的依赖是一种隐式的依赖，保证当前 Bean 类 depen
 
 A 和 B 发生循环依赖时，执行步骤如下：
 
-![三级缓存解决Bean的循环依赖问题](E:/Onezilin/StudyNotes/Spring/三级缓存解决Bean的循环依赖问题.png)
+![三级缓存解决Bean的循环依赖问题](./三级缓存解决Bean的循环依赖问题.png)
 
 1. 尝试按顺序从一、二、三级缓存中获取 A 实例，若任一缓存获取得到 A 实例则返回；否则继续。
 2. A 初始化前，生成一个 ObjectFactory 实现类存入三级缓存中，同时调用 ObjectFactory.getObject()方法进行初始化。
