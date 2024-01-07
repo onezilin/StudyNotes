@@ -442,6 +442,55 @@ public class Demo09_EventListenerTest implements ApplicationContextAware {
 }
 ```
 
+### （十二）[@Scheduled](https://juejin.cn/post/6844903924936212494)
+
+@Scheduled 是 Spring 提供的注解，内部是通过 ScheduledThreadPoolExecutor 实现定时任务功能。
+
+@Scheduled 提供如下属性：
+
+- initialDelay：表示延迟指定时间执行。
+- fixedDelay：**任务的间隔**按照指定的 fixedDelay 参数执行。fixedDelay 是指此次任务距上次**任务执行完成**的时间间隔。
+- fixedRate：**任务的速率**按照指定的 fixedRate 参数执行。fixedRate 是指此次任务距上次**任务开始执行**的时间间隔，如果任务执行时间大于 fixedRate，执行任务期间错过了几次任务，会立马连续执行错过的这几次任务。
+- [cron](https://blog.csdn.net/qq_35860138/article/details/82738215)：按照 cron 表达式执行任务。如果任务执行时间过长，执行任务期间错过几次任务，也**不会执行错过的这几次任务**。
+
+> 注意：必须添加 @EnableScheduling 注解，用于开启定时任务功能。
+
+```java
+@Slf4j
+@Component
+public class Demo {
+    @Scheduled(fixedDelay = 10000)
+    void fixedDelay() {
+        log.info("任务 {} 第 {} 次执行", "fixedDelay", ++count);
+        try {
+            if (count == 2)
+                Thread.sleep(21000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log.info("执行完了");
+    }
+}
+```
+
+在内部 ScheduledThreadPoolExecutor 是通过 `Executors.newSingleThreadScheduledExecutor()` 创建，即 corePoolSize 为 1，如果想自定义 ScheduledThreadPoolExecutor：
+
+```java
+@Configuration
+// 开启定时任务功能
+@EnableScheduling
+public class MyConfig {
+
+    /**
+     * Description: 配置 ScheduledThreadPoolExecutor，设置核心线程数为 16
+     */
+    @Bean
+    public ScheduledThreadPoolExecutor scheduledThreadPoolExecutor() {
+        return new ScheduledThreadPoolExecutor(16);
+    }
+}
+```
+
 ## 二、SpringWeb 注解
 
 ### （一）@RequsetMapping
