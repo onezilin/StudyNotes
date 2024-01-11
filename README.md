@@ -29,3 +29,5 @@
 - [x] Linux
 - [x] Sleuth
 - [x] Seata
+- [x] Maven
+- [x] Quartz
