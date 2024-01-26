@@ -491,11 +491,11 @@ public class MyConfig {
 }
 ```
 
-## 二、SpringWeb 注解
+## 二、SpringMVC 注解
 
 ### （一）@RequsetMapping
 
-用于将 url 请求映射到特定的处理请求的方法，可以同时作用在类和方法上。内有 value 属性，设置请求路径。
+@RequestMapping 是 SpringMVC 提供的注解，用于将 URL请求映射到特定的处理请求的方法，可以同时作用在类和方法上。内有 value 属性，设置请求路径。
 
 - 作用在类上时，请求时要在方法级别的前加上类的 requestMapping。
 - 默认情况下，RequestMapping 可以接收 GET 和 POST 请求。
@@ -512,7 +512,7 @@ public class MyConfig {
 
 ### （二）@RequestParam
 
-用于将 GET 请求的参数绑定到方法中的参数上，作用在方法的形参上。内有 value 属性，表示请求的参数名。
+@RequestParam 是 SpringMVC 提供的注解，用于将 **URL 请求路径的参数**绑定到方法中的参数上，作用在方法的形参上。内有 value 属性，表示请求路径中的参数名。
 
 若方法中的形参和请求的参数同名时，则默认直接绑定；若方法中的形参和请求的参数不同名时，则使用@RequestParam 注解。
 
@@ -534,35 +534,71 @@ public String handlerRequest (@RequestParam(value = "name") String myName) {
 
 ### （三）[@PathVariable](http://www.360doc.com/content/19/1208/14/19913882_878267525.shtml)
 
-用于将请求路径中的参数绑定到方法中的参数上，作用在方法的形参上。内有 value 属性，表示要绑定的请求路径中的 url 变量
+@PathVariable 是 SpringMVC 提供的注解，用于将 **URL 请求路径**绑定到方法中的参数上，作用在方法的形参上。内有 value 属性，表示请求路径中的参数名。
 
-> 注意：和上面 @RequestParam 的区别是，@PathVariable 是将【请求路径中的参数】，非【请求的参数】，绑定给形参。例如：`/myTestUrl/myName`，将 name 放在请求路径中，而不是放在 `?` 后。
+> 注意：和上面 @RequestParam 的区别是，@PathVariable 是将 **URL 请求路径**（非 URL 请求路径的参数，即 `?` 后面的值）绑定给形参。
 
 ```java
-// @PathVariable 注解示例
-// 例如：【/myTestUrl/myName/29】
+// 例如：`/myTestUrl/zhangsan/29`，会将 zhangsan 作为实参传递给 myName，将 29 作为实参传递给 myAge
 @RequestMapping(value="/myTestUrl/{name}/{age}")
 public String handler(@PathVariable(value="name") String myName, @PathVariable(value="age") int myAge) {
+    log.info("name = " + name); // zhangsan
+    log.info("age = " + age); // 29
 
+    return "Hello World!";
 }
 ```
 
 ### （四）[@RequestBody](https://blog.csdn.net/justry_deng/article/details/80972817/)
 
-用于接收前端请求体中的 json 字符串或 XML 数据，作用在方法的形参上。将 json 字符串其赋值给字符串类型的形参，或封装到对象形参中。
+@RequestBody 是 SpringMVC 提供的注解，作用在方法的形参上。用于接收 body 请求体中的 JSON 字符串或 XML 数据，将其绑定给 String 或 POJO 类型的形参。
 
 > 注意：
 >
-> - GET 请求中，Spring MVC 会自动直接会将 url 中的数据封装给对象的对应键。数据不在请求体中，不能使用 @RequestBody 注解封装数据。
-> - 调用 POJO 类的 setter 方法，将对应键名赋值给类属性；若没有对应属性名，则不会赋值。
+> - GET 请求中，Spring MVC 会自动直接会将 URL 请求路径中的参数封装给对象的对应属性。数据不在请求体中，不能使用 @RequestBody 注解封装数据。
+> - 会调用 POJO 类的 setter 方法，将对应键名赋值给类属性；若没有对应属性名，则不会赋值。
 
 ### （五）@ResponseBody
 
-将 controller 的方法返回的对象通过适当的转换器转换为指定的格式之后，写入到 response 对象的 body 区，通常用来返回 JSON 数据或者是 XML 数据，作用在类或方法上。
+@ResponseBody 是 SpringMVC 提供的注解，作用在类或方法上。用于将方法返回的数据通过适当的转换器转换为指定的格式之后，写入到 Response 对象的 body 区，通常用来返回 JSON 数据或者是 XML 数据。
+
+```java
+@RequestMapping("/loginPage")
+@ResponseBody
+public String LoginPage(HttpServletRequest request){
+    request.setAttribute("name", "zhangsan");
+    
+    return "login"; // 返回 login 字符串给前端
+}
+```
 
 ### （六）@RestController
 
-相当于 @Controller + @ResponseBody，类中所有的方法返回值，转换为 json 或 XML 写入响应体中。作用在类上。
+相当于 @Controller + @ResponseBody，作用在类上。类中所有 @RequestMapping 注解方法返回值，转换为 JSON 或 XML 写入响应体中。
+
+### （七）@ControllerAdvice
+
+SpringMVC 提供 @ControllerAdvice 注解，作用于类上。对应 Controller 进行增强，用于对 Controller 做一些统一的操作，一般是用于全局的异常处理，和 @ExceptionHandler  注解搭配使用。
+
+SpringMVC 提供 @ExceptionHandler ，在 Controller 层抛出指定异常时执行对应的方法。
+
+```java
+@ControllerAdvice
+public class Demo03_HandlerExceptionResolver {
+
+    @ExceptionHandler(RuntimeException.class)
+    public String exceptionHandler(RuntimeException e) {
+        System.out.println("异常信息：" + e.getMessage());
+        return "error"; // 设置异常处理后跳转的页面
+    }
+}
+```
+
+exceptionHandler 本质上是个处理器，可以绑定 HttpServletRequest 和 HttpServletResponse 参数，另外 SpringMVC 也会将其返回值封装为 ModelAndView，需要添加 @ResponseBody 注解。
+
+#### 1、RestControllerAdvice
+
+相当于 @ControllerAdvice+ @ResponseBody，作用在类上。类中所有 @ExceptionHandler 注解方法返回值，转换为 JSON 或 XML 写入响应体中。
 
 ## 三、SpringBoot 注解
 
