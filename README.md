@@ -4,6 +4,7 @@
   - [x] SpringFrameworkAnnotation
   - [x] SpringBoot
   - [x] SpringCloud
+  - [x] SpringMVC
 - [x] MyBatis
 - [x] Vue
 - [x] Git

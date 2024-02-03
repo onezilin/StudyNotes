@@ -986,13 +986,13 @@ mvn install:install-file \
 -DgroudId=自定义该jar包的groupId \
 -DartifactId=自定义该jar包的artifactId \
 -Dversion=自定义该jar包的版本号 \
--Dpackage=jar
+-Dpackaging=jar
 ```
 
 例如将 outer.jar 添加到 Maven 仓库管理：
 
 ```shell
-mvn install:install-file -Dfile=E:\outer.jar -DgroudId=com.example.study -DartifactId=my-outer -Dversion=1 -Dpackage=jar
+mvn install:install-file -Dfile=E:\outer.jar -DgroudId=com.example.study -DartifactId=my-outer -Dversion=1 -Dpackaging=jar
 ```
 
 在 pom.xml 中使用：
