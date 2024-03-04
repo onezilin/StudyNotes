@@ -65,7 +65,7 @@ Java 堆**唯一目的就是存放对象实例**，几乎所有的对象实例�
 > [永久代也会发生垃圾回收](https://www.nowcoder.com/questionTerminal/8f393a761e0f4b67b1c442d092eb484d)，这区域的内存回收目标主要是针对常量池的回收和对类型的卸载，但是回收条件苛刻、回收效果差，有以下条件：
 >
 > - 该类的实例都被回收。
-> - 加载该类的 classLoader 已经被回收。
+> - 加载该类的 ClassLoader 已经被回收。
 > - 该类不能通过反射访问到其方法。
 >
 > 当满足上面三个条件时，可以进行回收，但会不会回收还得由 JVM 决定。
@@ -209,7 +209,7 @@ JDK8 以后 HotSpot 就移除了永久代的概念，元空间与永久代之间
 
 （1）对象头（Header）：对象头包括 Mark Word 和类型指针。
 
-Mark Word：用于存储对象自身运行时的数据，包括：HashCode、GC 分代年龄、锁状态标志、线程持有的锁、偏向锁 ID、偏向时间戳等，长度在 32 位和 64 位的虚拟机中分别为 32bit 和 64bit。Mark Word 在不同锁标志状态下存储不同信息：
+Mark Word：用于存储对象自身运行时的数据，包括：HashCode、GC 分代年龄、锁状态标志、持有偏向锁的线程 ID、偏向锁 ID、偏向时间戳等，长度在 32 位和 64 位的虚拟机中分别为 32bit 和 64bit。Mark Word 在不同锁标志状态下存储不同信息：
 
 ![HostSpot虚拟机对象头Mark_Word](./HostSpot虚拟机对象头Mark_Word.png)
 
@@ -233,7 +233,7 @@ HotSpot 使用直接指针访问对象，对象中需要储存指向方法区上
 
 （2）句柄访问
 
-果使用句柄访问的话，那么 Java 堆中将会划分出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息。
+如果使用句柄访问的话，那么 Java 堆中将会划分出一块内存来作为句柄池，reference 中存储的就是对象的句柄地址，而句柄中包含了对象实例数据与类型数据各自的具体地址信息。
 
 ![句柄访问对象](./句柄访问对象.png)
 
@@ -325,8 +325,8 @@ System.out.println(weakReference.get()); // null
 public static void main(String[] args) {
     List<byte[]> bytes = new ArrayList<>();
     new Thread(() -> {
-        for (int i = 0; i < 100;i++ ) {
-            bytes.add(new byte[1024 * 1024]); // 会触发 GC
+        for (int i = 0; i < 100; i++) {
+            bytes.add(new byte[1024 * 1024]);
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -335,12 +335,11 @@ public static void main(String[] args) {
         }
     }).start();
 
-    ReferenceQueue queue = new ReferenceQueue();
-    PhantomReference<Student> reference = new PhantomReference<Student>(new Student(), queue);
+    ReferenceQueue<Student> queue = new ReferenceQueue<>();
+    PhantomReference<Student> reference = new PhantomReference<>(new Student(), queue);
     new Thread(() -> {
         while (true) {
-            // 从引用队列中获取
-            Reference poll = queue.poll();
+            Reference<? extends Student> poll = queue.poll();
             if (poll != null) {
                 System.out.println("虚引用被回收了：" + poll);
             }
@@ -351,8 +350,8 @@ public static void main(String[] args) {
     scanner.hasNext();
 }
 
-class Student {
-    // 用于实例被垃圾回收器回收的时触发的操作
+static class Student {
+    // Java Object finalize() 方法用于实例被垃圾回收器回收的时触发的操作
     @Override
     protected void finalize() throws Throwable {
         System.out.println("Student 被回收了");
@@ -617,7 +616,7 @@ JVM 支持方法级的同步和方法内部一段指令序列的同步，这两�
 方法级的同步是隐式的，即无需通过字节码指令来控制，它实现在方法调用和返回操作中：
 
 - 线程执行方法时，先去查看方法是否为同步方法，有 ACC_SYNCHRONIZED 标志的就是同步方法。
-- 执行线程尝试获取同步方法对应的锁对象的 Monitor，获取成功则可以执行，其他线程不可以获取被只有的 Monitor，直到此 Monitor 被释放（方法执行完或抛异常后释放）。
+- 执行线程尝试获取同步方法对应的锁对象的 Monitor，获取成功则可以执行，其他线程不可以获取被持有的 Monitor，直到此 Monitor 被释放（方法执行完或抛异常后释放）。
 
 方法内部一段指令序列的同步通常是由 Java 语言中的 synchronized 语句块来表示，JVM 中的指令集中有 monitorenter 和 monitorexit 两条指令来支持 synchronized 关键字的语义：
 
@@ -700,7 +699,7 @@ public void test() throws Exception {
 - 扩展类加载器（Extension ClassLoader）：由 `sun.misc.Launcher$ExtClassLoader` 实现，间接继承抽象类 ClassLoader。
   - 负责加载 `<JAVA_HOME>\lib\ext` 目录中或者被 java.ext.dirs 系统变量所指定路径中的所有类库。开发者可以直接使用扩展类加载器。
 - 应用程序类加载器（Application ClassLoader）：由 `sun.misc.Launcher$AppClassLoader` 实现，间接继承抽象类 ClassLoader。
-  - 负责加载用户类路径（ClassPath）上所指定的类库。开发者可以直接使用这个类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。
+  - 负责加载用户类路径（classpath）上所指定的类库。开发者可以直接使用这个类加载器，如果应用程序中没有自定义过自己的类加载器，一般情况下这个就是程序中默认的类加载器。
 
 我们的应用程序都是由这三种类加载器相互配合进行加载的，也可以加入自己定义的类加载器。
 
@@ -731,7 +730,7 @@ public void test() throws Exception {
 
 为了解决这个问题，Java 设计团队只好引入了一个不太优雅的设计：线程上下文类加载器（Thread Context ClassLoader）。这个类加载器可以通过 java.lang.Thread 类的 setContextClassLoaser（）方法进行设置，如果创建线程时还未设置，它将会从父线程中继承一个，如果在应用程序的全局范围内都没有设置过的话，那这个类加载器默认就是系统类加载器（默认是 Application ClassLoader）。
 
-> [以 JDBC 为例](https://www.jianshu.com/p/66d23537e48f)：Bootstrap ClassLoader 去调用 [DriverManager](https://www.cnblogs.com/liuligang/p/10519771.html) 去加载个数据库厂商实的 Driver 实现类时，启动类加载器无法加载 ClassPath 下的代码，此时会让 Thread Context ClassLoader（实际上就是 Application ClassLoader）加载。这样的话就相当于父加载器委托子加载器进行类加载，破坏了双亲委派模型。
+> [以 JDBC 为例](https://www.jianshu.com/p/66d23537e48f)：Bootstrap ClassLoader 去调用 [DriverManager](https://www.cnblogs.com/liuligang/p/10519771.html) 去加载个数据库厂商实的 Driver 实现类时，启动类加载器无法加载 classPath 下的代码，此时会让 Thread Context ClassLoader（实际上就是 Application ClassLoader）加载。这样的话就相当于父加载器委托子加载器进行类加载，破坏了双亲委派模型。
 
 双亲委派模型的**第三次被破坏**是由于用户对程序动态性的追求而导致的。
 
@@ -767,7 +766,7 @@ static int value = 123; // 初始零值是 0
 
 #### 1、初始化条件
 
-JVM 并没有对执行加载操作进行强制约束，这点可以交给 JVM 的具体实现来自由把握。但是对于初始化阶段，虚拟机规范则是严格规定了**有且只有**5 种情况必须立即对类进行初始化:
+JVM 并没有对执行加载操作进行强制约束，这点可以交给 JVM 的具体实现来自由把握。但是对于初始化阶段，虚拟机规范则是严格规定了**有且只有  6 种情况**必须立即对类进行初始化：
 
 - 遇到 new、getstatic（获取一个类的静态字段，被 static final 修饰、已在编译期把结果放入常量池的静态字段除外）、putstatic（设置一个类的静态字段）、invokestatic（调用静态方法）这 4 条字节码指令时。
 - 使用 java.lang.reflect 包的方法对类进行反射调用时。
@@ -811,7 +810,7 @@ public class Constant {
     static{
         System.out.println("Constant clinit");
     }
-    public static final int value=33;
+    public static final int value = 33;
 }
 
 public class ConstantTest {
@@ -826,7 +825,7 @@ public class ConstantTest {
 ```java
 public class NotInit {
     public static void main(String[] args){
-        Parent[] sc=new Parent[10];
+        Parent[] sc = new Parent[10];
     }
 }
 ```
@@ -852,7 +851,7 @@ public class NotInit {
 
 `<clinit>()` 方法对于类或接口来说并不是必需的，如果一个类中没有静态语句块，也没有对变量的赋值操作，那么编译器可以不为这个类生成 `<clinit>()` 方法。
 
-接口中不能使用静态语句块，但仍然有变量初始化的赋值操作，因此接口与类一样都会生成＜ clinit ＞（）方法。但接口与类不同的是，执行接口的 `<clinit>()` 方法不需要先执行父接口的 `<clinit>()` 方法。只有当父接口中定义的变量使用时，父接口才会初始化。另外，接口的实现类在初始化时也一样不会执行接口的 `<clinit>()` 方法。
+接口中不能使用静态语句块，但仍然有变量初始化的赋值操作，因此接口与类一样都会生成 `<clinit>()` 方法。但接口与类不同的是，执行接口的 `<clinit>()` 方法不需要先执行父接口的 `<clinit>()` 方法。只有当父接口中定义的变量使用时，父接口才会初始化。另外，接口的实现类在初始化时也一样不会执行接口的 `<clinit>()` 方法。
 
 虚拟机会保证一个类的 `<clinit>()` 方法在多线程环境中被正确地加锁、同步，如果多个线程同时去初始化一个类，那么只会有一个线程去执行这个类的 `<clinit>()` 方法，其他线程都需要阻塞等待，直到活动线程执行 `<clinit>()` 方法完毕。如果在一个类的 `<clinit>()` 方法中有耗时很长的操作，就可能造成多个进程阻塞。
 
@@ -1395,7 +1394,7 @@ JVM 提供 `-XX:BiasedLockingDecayTime` 参数（默认 25000 ms），每隔 250
 
 ![ObjectMonitor结构](./ObjectMonitor结构.png)
 
-当有其他线程竞争重量级锁时，首先判断 ObjectMonitor 的 owner 是否是该线程，如果是，说明该线程已经拥有该锁，重入次数+1；否则，通过 CAS 操作更新 owner 为当前线程，如果更新成功，该线程就拥有该锁；如果更新失败，线程会进行自旋并继续 CAS 更新操作，达到一定次数后仍然没有获取该说，当前线程会阻塞并放入 entryList 阻塞队列。
+当有其他线程竞争重量级锁时，首先判断 ObjectMonitor 的 owner 是否是该线程，如果是，说明该线程已经拥有该锁，重入次数+1；否则，通过 CAS 操作更新 owner 为当前线程，如果更新成功，该线程就拥有该锁；如果更新失败，线程会进行自旋并继续 CAS 更新操作，达到一定次数后仍然没有获取该锁，当前线程会阻塞并放入 entryList 阻塞队列。
 
 重量级锁释放时首先会判断当前线程是否是锁的 owner，如果是，则释放锁（将锁的 owner 置为 null），并唤醒 entryList 中的队头线程去竞争锁。
 
@@ -1411,7 +1410,7 @@ JVM 提供 `-XX:BiasedLockingDecayTime` 参数（默认 25000 ms），每隔 250
 
 #### 1、[OopMap](https://zhuanlan.zhihu.com/p/441867302)
 
-在进行可达性分析过程中，需要对全局性的引用（例如：常量或类静态属性）与执行上下文（例如：栈帧中的本地变量表）进行扫描，并且扫描过程中需要暂停用户线程（保证对象的引用关系不变）。然而，若真的对整个 java 程序的栈进行扫描，显然很耗时间、影响性能，因此 HotSpot 采用空间换时间的方法，**使用 OopMap 来存储栈上的对象引用信息，每次 GC 时只需要变量 OopMap 就知道哪些对象可达**。
+在进行可达性分析过程中，需要对全局性的引用（例如：常量或类静态属性）与执行上下文（例如：栈帧中的本地变量表）进行扫描，并且扫描过程中需要暂停用户线程（保证对象的引用关系不变）。然而，若真的对整个 java 程序的栈进行扫描，显然很耗时间、影响性能，因此 HotSpot 采用空间换时间的方法，**使用 OopMap 来存储栈上的对象引用信息，每次 GC 时只需要遍历 OopMap 就知道哪些对象可达**。
 
 #### 2、安全点（Safepoint）
 

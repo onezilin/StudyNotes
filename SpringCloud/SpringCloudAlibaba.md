@@ -8,7 +8,7 @@
 
 通过 SpringCloud 章节我们可以发现，SpringCloud 中许多组件并不是 SpringCloud 本身开发的，例如：Eureka、Hystrix、Kafka 等，SpringCloud 只提供了一种兼容以及支持，将各种组件整合起来。
 
-但是随着 SpringCloud Netflix 项目和响应的 Starter 进入维护模式，意味着 SpringCloud 团队不会再向该模块添加新功能，只是修复 block 级别的 bug 以及安全问题，新功能就需要使用其他组件进行代替，SpringCloud Alibaba 此时便应运而生。
+但是随着 SpringCloud Netflix 项目和相应的 Starter 进入维护模式，意味着 SpringCloud 团队不会再向该模块添加新功能，只是修复 block 级别的 bug 以及安全问题，新功能就需要使用其他组件进行代替，SpringCloud Alibaba 此时便应运而生。
 
 2018-10-31，SpringCloud Alibaba 正式入驻了 SpringCloud 官方孵化器，并发布了 0.1.0（对应 SpringBoot 1.x）和 0.2.0（对应 SpringBoot 2.x）。
 
@@ -25,7 +25,7 @@ SpringCloud Alibaba 致力于**提供微服务开发的一站式解决方案**�
 - 分布式配置：使用 Nacos 作为数据存储。
 - 事件驱动：构建与 SpringCloud Stream RocketMQ Binder 连接的高度可扩展的事件驱动服务。
 - 消息总线：用 SpringCloud Bus RocketMQ 链接分布式系统中的节点。
-- 分布式事务：Seta 是支持高性能、易用的分布式事务解决方案。
+- 分布式事务：Seata 是支持高性能、易用的分布式事务解决方案。
 
 ## 二、Nacos
 

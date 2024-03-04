@@ -328,7 +328,7 @@ follower 副本为了与 leader 副本保持一致，会扮演消费者角色轮
 
 ![日志文件与topic和partition关系](./日志文件与topic和partition关系.png)
 
-一个分区副本对应一个日志(Log)。 为了防止 Log 过大，Ka 住 a 又引入了日志分段(LogSegment)的概念，将 Log 切分为多个 LogSegment, 相当于一个巨型文件被平均分配为多个相对较小的文件， 这样也便于消息的维护和清理。 事实上， Log 和 LogSegnient 也不是纯粹物理意义上的概念：Log 实际上是一个文件夹，命名形式为 `topic名-分区id`，例如：myTopic-0；LogSegment 对应一个日志文件和两个索引文件，具体如下：
+一个分区副本对应一个日志(Log)。 为了防止 Log 过大，Kafka 又引入了日志分段(LogSegment)的概念，将 Log 切分为多个 LogSegment, 相当于一个巨型文件被平均分配为多个相对较小的文件， 这样也便于消息的维护和清理。 事实上， Log 和 LogSegment 也不是纯粹物理意义上的概念：Log 实际上是一个文件夹，命名形式为 `topic名-分区id`，例如：myTopic-0；LogSegment 对应一个日志文件和两个索引文件，具体如下：
 
 ![分区日志和LogSegment](./分区日志和LogSegment.png)
 
@@ -857,7 +857,7 @@ public static void main(String[] args) {
 
 ## 六、消费者
 
-消费者主要用于向 Kafka 中拉取消息，通过 Kafka 提供的命令消费消息：
+消费者主要用于向 Kafka 中**拉取**消息，通过 Kafka 提供的命令消费消息：
 
 ```shell
 # --from-beginning 表示从主题分区头部开始消费

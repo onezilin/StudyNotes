@@ -179,7 +179,7 @@ CopyOnWirteArrayList 是 JUC 包下的线程安全的集合类，CopyOnWrite 是
 
 CopyOnWriteArrayList 底层是被 volatile 修饰的 Object 数组，保证了可见性，get 时线程都会获取最新的数据。
 
-CopyOnWriteArrayList 中有 ReentrantLock 属性，用于在写操作（增删改）时加锁，保证线程安全。同时在写操作时，都会调用 System.arraycopy(...)方法创建一份原数组数据的副本，在此副本上操作完后替换原数组。
+CopyOnWriteArrayList 中有 ReentrantLock 属性，用于在写操作（增删改）时加锁，保证线程安全。同时在写操作前，都会调用 System.arraycopy(...)方法创建一份原数组数据的副本，在此副本上操作完后替换原数组。
 
 COWIterator 是 CopyOnWriteArrayList 的内部类，是 Iterator 接口的实现类，会存储原数组数据作为 COWIterator 自己的成员变量进行遍历，所以看到的数据都是老的数据，无法实时的看到最新的数据，并且 COWIterator 不提供 add()和 remove()方法。
 
@@ -429,7 +429,7 @@ HashMap 在 JDK7 之前冲突链表是头插法，也就是新的 Node 节点放
 
 ### （二）LinkedHashMap
 
-LinkedHashMap 继承了 HashMap，。底层是在 HashMap 数据结构基础上加了双向链表的数据结构。LinkedHashMap 内部类 Entry 继承了 HashMap 的 Node 内部类，其中有 `Entry before`  和 `Entry after`  属性，用于记录前驱后驱节点，并且 LinkedHashMap 的 head 和 tail 分别指向双向链表的头尾。
+LinkedHashMap 继承了 HashMap，。底层是在 HashMap 数据结构基础上加了双向链表的数据结构。LinkedHashMap 内部类 Entry 继承了 HashMap 的 Node 内部类，其中有 `Entry before` 和 `Entry after` 属性，用于记录前驱后驱节点，并且 LinkedHashMap 的 head 和 tail 分别指向双向链表的头尾。
 
 ![LinkedHashMap原理](./LinkedHashMap原理.png)
 
@@ -579,7 +579,7 @@ public void testFailFast3() {
 
 容器类中基本都有一个实现 Iterator 接口的内部类，用于遍历容器中元素。Iterator 又遵循了 fail-fast 机制：fail-fast 机制是一种快速失败机制，当迭代器每次迭代时，都会监测当前集合有没有被外部修改或其他线程修改，如果被修改就会抛出异常。
 
-从源码上看，容器类中有一个 modCount 属性，每次进行增删改操作时，都会让 modCount++。而 Iterator 中也有一个 expectedModCount 属性，当创建 Iterator 对象时值和 modCount 相等。每次执行 `iterator.next()`  前，都会比较 expectedModCount 和 modCount 是否相等，若不相等，则表示外部更改过容器，此时抛出 ConcurrentModificationException 异常。
+从源码上看，容器类中有一个 modCount 属性，每次进行增删改操作时，都会让 modCount++。而 Iterator 中也有一个 expectedModCount 属性，当创建 Iterator 对象时值和 modCount 相等。每次执行 `iterator.next()` 前，都会比较 expectedModCount 和 modCount 是否相等，若不相等，则表示外部更改过容器，此时抛出 ConcurrentModificationException 异常。
 
 增强 for 循环其实是语法糖，其内部还是通过容器的 Iterator 迭代器实现类进行迭代遍历。从第三个例子可以看出，外部使用的是迭代器进行遍历，但是内部又是直接调用 `list.remove()` 进行删除，此时 expectedModCount 不等于 modCount，抛出异常。
 
@@ -597,7 +597,7 @@ size 大于 64 是防止初期 size 小时同一个链表长造成不必要的�
 
 ### （五）为什么要重写 equals() 和 hashCode()方法
 
-在 Map 实现类中，通过 hashCode()方法判断是否发生 hash 冲突，若发生 hash 冲突，则将通过 equals()方法判断是否已经存在，若已经存在，则覆盖掉旧值，也就是说——只有 hashCode() 和 equals() 相等时，才会判定 key 已经存在。
+在 Map 实现类中，通过 key 的 hashCode()方法判断是否发生 hash 冲突，若发生 hash 冲突，则将通过 key 的 equals()方法判断是否已经存在，若已经存在，则覆盖掉旧值，也就是说——只有 hashCode() 和 equals() 相等时，才会判定 key 已经存在。
 
 hashCode()方法用于计算键值对放在 hash 表中的位置，好的 hashCode 可以减少冲突。
 

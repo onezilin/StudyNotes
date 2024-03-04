@@ -8,7 +8,7 @@
 
 数据库是指长期存储在计算机内的、有组织、可共享的数据集合。
 
-关系型数据库是指采用了关系模型来组织数据的数据库。关系模型可以简单理解为二维表格模型，而一个关系型数据库就是由二维表及其之间的连续所组成的一个数据组织
+关系型数据库是指采用了关系模型来组织数据的数据库。关系模型可以简单理解为二维表格模型，而一个关系型数据库就是由二维表及其之间的联系所组成的一个数据组织
 
 数据库管理系统是位于用户和操作系统之间的数据管理软件，主要功能包括：数据定义、数据操作、数据库的运行管理、数据库的建立、使用和维护等功能。常见的数据库管理系统有：MySQL、Oracle、SQL Server 等，我们常说的 MySQL 数据库，其实就是 MySQL 数据库管理系统的简称。
 
@@ -127,6 +127,9 @@ MySQL 是一种开放源代码的关系型数据库管理系统，由瑞典 MySQ
 
 - 取值范围为 `1970-01-01 00:00:00 到 2038-01-19 03:14:07`，有可能是长度决定的。
 - 值存入时，客户端插入的时间从当前时区转化为 UTC（世界标准时间）的时间戳进行存储。查询时，将其转化为客户端当前时区进行返回。
+
+  - 例如：我们以北京时间（UTC+8）写入 `2024-01-01 08:00:00` 时间戳字段，MySQL 会以 `2024-01-01T00:00:00Z` UTC+0 的形式存储，读取时再转化为当前时区输出，例如将 MySQL 数据库的当前时区改为东京时间（UTC+9），则最终结果展示为 `2024-01-01 09:00:00`
+
 - 可以为 timestamp 类型字段添加 `DEFAULT CURRENT_TIMESTAMP UPDATE CURRENT_TIMESTAMP`，表示插入时默认值设为当前时间，更新时默认值设为当前时间。MySQL5.6.5 之后，也可以为 datetime 类型字段添加上面的配置。
 
 ### （四）字符串类型
@@ -187,7 +190,7 @@ SQL 是一种数据库查询和程序设计语言，用于存取数据以及查�
     - 默认将数据库名、表名与表的别名都转为小写后存储，查询时也会进行转化，因此大小写不敏感。
     - 关键字、函数名、列名与列的别名在所有的情况下均是忽略大小写。
     - 字段值默认字符集情况下是大小写不敏感的，因此在查询时条件值也是不区分大小写的，以下区分大小写：
-      - 在定义字符串列时，在后面加关键字 `binary`。例如：`name varchar(10) binarary`。
+      - 在定义字符串列时，在后面加关键字 `binary`。例如：`name varchar(10) binary`。
       - 在查询时添加关键字 `binary`。例如：`where binary name = 'zhangsan'`。
       - 设置或修改数据库、表或字段的校对规则。例如：`alter table my_table modify name varchar(10) collate utf8_bin null;`
 
@@ -285,12 +288,12 @@ alter table 表名 [修改选项]
 
   ```sql
   add column 列定义 [ { before | after } 表中列名 ]
-
+  
   # 修改列名称，也可以修改列定义
   change column 旧列名 新列名 列定义
   # 修改列定义
   modify column 列名 列定义
-
+  
   drop column 列名
   ```
 
@@ -344,7 +347,7 @@ alter table 表名 [修改选项]
 
 ###### ② 主键自增长（auto_increment）
 
-被主键自增长约束的列，用户可以不用再输入数据（要输入也可以），当插入一条数据时，会自动增长值。有以下特性：
+被主键自增长约束的列，用户可以不用再输入数据（要输入也可以），当插入一条数据并且不指定自增长列值时，会自动增长值。有以下特性：
 
 - 自动增长约束的列只能是整数类型。
 - 若自增长到达该列类型的最大值，则 auto_increment 失效，会报例如 "Duplicate entry '127' for key 'PRIMARY'" 的异常。
@@ -366,7 +369,7 @@ alter table 表名 [修改选项]
   ```sql
   # 添加自增长
   alter table 表名 modify column 列名 类型 auto_increment
-
+  
   # 删除自增长
   alter table 表名 modify column 列名 类型
   ```
@@ -377,7 +380,7 @@ alter table 表名 [修改选项]
 
 - 子表的外键必须是父表的主键或联合主键（联合组建的全部列）。
 - 外键中列的数据类型必须和父表的主键数据类型相同。
-- 外键可以为空，表示这条数据和父表没有关联。
+- 外键可以为空，表示这条数据和父表没有关联；如果外键字段不为空，则必须对应父表的中某条已存在数据的主键；删除父表的数据前，需要先删除子表中对应外键值的数据。
 
 **设置外键约束**：
 
@@ -587,7 +590,7 @@ limit 偏移量, 行数
 
 #### 1、distinct
 
-distinct 是去重的作用，例如【select distinct name, age from test_table】中，若两条数据的 name 和 age 都相同，则只查出一条。
+distinct 是去重的作用，例如 `select distinct name, age from test_table` 中，若两条数据的 name 和 age 都相同，则只查出一条。
 
 #### 2、[函数式](http://c.biancheng.net/mysql/function/)
 
@@ -615,7 +618,7 @@ select * from 表名1, 表名2 [ , 表名3 …… ]
 
 内连接和交叉连接的性能差不多。若不加 on 条件，则和交叉连接结果一样；若加 on 条件，则和交叉连接加上 where 连接条件结果一样。
 
-> 交叉连接中是先连接两表，再 where 条件；内连接中是先 on 条件，再连接两表，内连接也会让两表产生笛卡尔积。
+> 交叉连接中是先连接两表，再 where 条件；内连接中是先 on 条件，再连接两表，内连接不加 on 条件时也会让两表产生笛卡尔积。
 
 ```sql
 select * from 表名1 [ inner ] join 表名2 [ on 条件 ]
@@ -718,7 +721,7 @@ xor          逻辑异或
 select age, name from test_table group by age;
 
 # group_concat() 可以将 age 分组后，name 列的所有值拼接起来
-select age, name from test_table group by age;
+select age, group_concat(name) from test_table group by age;
 ```
 
 > 注意：MySQL 5.8 之后的版本要求 group by 后的分组列名，必须写在 select 中
@@ -1709,7 +1712,7 @@ MySQL 中 data 目录下的日志文件记录了影响 MySQL 数据库的各种�
 
 ```sql
 # 查看error_log文件的存放位置
-show variables like 'log_err'
+show variables like 'log_error'
 ```
 
 ### （二）slow log
@@ -2032,7 +2035,7 @@ InnoDB 支持**多颗粒度锁**，它允许行级锁与表级锁共存。意向
 
 #### 3、临键锁（Next-key Lock）
 
-临键锁是结合了间隙锁和记录锁的一种锁，会锁定一个范围，并且锁定记录本身，InnoDB 对行的查询都是采用 Next-key Lock。
+临键锁是结合了间隙锁和记录锁的一种锁，根据不同情况，可以锁定一个范围，也可以锁定记录本身，InnoDB 对行的查询都是采用 Next-key Lock。
 
 > 由于临键锁的存在，在 rr 模式下就解决了幻读的问题。
 
@@ -2075,7 +2078,7 @@ commit;
 ```sql
 begin;
 
-# 事务1，查询 id = 8 的数据并加锁，此时临键锁升级为临键锁，锁住 id 的 (7, 11) 区间
+# 事务1，查询 id = 8 的数据并加锁，此时临键锁升级为间隙锁，锁住 id 的 (7, 11) 区间
 select * from my_table where id = 8 for update;
 
 # 事务2，插入 id = 9 的数据
@@ -2090,14 +2093,14 @@ update my_table set account = 'zls' where id = 11; # 正常执行
 commit;
 ```
 
-若对**一条不存在的记录的唯一索引**添加写锁时，InnoDB 存储引擎会对 Next-key Lock 升级为 Next-Key Lock。
+若对**一条不存在的记录的唯一索引**添加写锁时，InnoDB 存储引擎会将 Next-Key Lock 升级为 Gap Lock。
 
 ③ 产生临键锁
 
 ```sql
 begin;
 
-# 事务1，查询 id 在 [5, 9] 区间的数据并加锁，此时临键锁升级为临键锁，锁住 id 为 [5]，(5, 7]，(7, 11) 区间
+# 事务1，查询 id 在 [5, 9] 区间的数据并加锁，此时升级为临键锁，锁住 id 为 [5]，(5, 7]，(7, 11) 区间
 select * from transaction_test where id between 5 and 9 for update;
 
 # 事务2，插入 id = 4 的数据
@@ -2112,7 +2115,7 @@ update transaction_test set account = 'wws' where id = 7; # 阻塞
 commit;
 ```
 
-若对**一段区间的记录的唯一索引**添加写锁时，InnoDB 存储引擎会对 Next-key Lock 升级为 Next-Key Lock。
+若对**一段区间的记录的唯一索引**添加写锁时，InnoDB 存储引擎会将 Next-Key Lock 升级为 Gap Lock。
 
 ##### （2）普通索引
 
@@ -2123,7 +2126,7 @@ commit;
 ```sql
 begin;
 
-# 事务1，查询 money = 4 的数据并加锁，此时临键锁升级为临键锁，锁住 money 的 (1, 6) 区间
+# 事务1，查询 money = 4 的数据并加锁，此时升级为临键锁，锁住 money 的 (1, 6) 区间
 select * from transaction_test where money = 4 for update;
 
 # 事务2，插入 money = 4 的数据
@@ -2135,14 +2138,14 @@ insert into my_table values (8, 'test8', 8); # 正常执行
 commit;
 ```
 
-若对**一条不存在的记录的普通索引**添加写锁时，InnoDB 存储引擎会对 Next-key Lock 升级为 Next-Key Lock。
+若对**一条不存在的记录的普通索引**添加写锁时，InnoDB 存储引擎会将 Next-Key Lock 升级为 Gap Lock。
 
 ② 产生临键锁
 
 ```sql
 begin;
 
-# 事务1，查询 money = 6 的数据并加锁，此时临键锁升级为临键锁，锁住 money 的 (1, 6] 和 (6, 9) 区间
+# 事务1，查询 money = 6 的数据并加锁，此时升级为临键锁，锁住 money 的 (1, 6] 和 (6, 9) 区间
 select * from transaction_test where money = 6 for update;
 
 # 事务2，插入 money = 4 的数据
@@ -2154,7 +2157,7 @@ insert into my_table values (8, 'test8', 8); # 阻塞
 commit;
 ```
 
-若对**一条存在的记录的普通索引**添加写锁时，InnoDB 存储引擎会对 Next-key Lock 升级为 Next-Key Lock。
+若对**一条存在的记录的普通索引**添加写锁时，InnoDB 存储引擎会添加 Next-Key Lock。
 
 > 注意：对于普通索引，此时不仅会锁定值为 6 时所在的区间 (1, 6]，也会锁定下一个键值所在的区间 (6, 9)。
 

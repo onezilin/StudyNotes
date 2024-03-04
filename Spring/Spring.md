@@ -462,7 +462,7 @@ AOP 对识别业务类，并能织入逻辑代码进行的地方（也就是业�
 
 格式为 `execution([修饰符] 返回值类型 包名.类名.方法名(参数))`：
 
-> 例如：`pointcut="execution(public \* com.itheima.demo3.CustomerDaoImpl.save(..))"/`，当此类符合规则的 save 方法被调用时，进行代码织入。
+> 例如：`pointcut="execution(public * com.itheima.demo3.CustomerDaoImpl.save(..))"`，当此类符合规则的 save 方法被调用时，进行代码织入。
 
 - 修饰符可以省略不写，不是必须要出现的。
 - 返回值类型是不能省略不写的：根据你的方法来编写返回值；可以使用 `*` 代替。
@@ -701,7 +701,7 @@ Spring AOP 集成 AspectJ（使用 AspectJ 的类库进行 Pointcut 解析和匹
   // 匹配被 @RedisLockAnnotation 的方法
   @Pointcut("@annotation(com.annotation.RedisLockAnnotation)")
   public void test() {}
-
+  
   // 将注解作为参数传入，可以获取注解的属性值
   @Before("test() && @annotation(abcdef)")
   public Object before(RedisLockAnnotation abcdef) {
@@ -815,7 +815,7 @@ public void doSomething(Throwable ex){
 
   - TransactionDefinition.PROPAGATION_SUPPORTS：如果当前存在事务，则加入该事务；如果当前没有事务，则以非事务的方式继续运行。
 
-  - TransactionDefinition.PROPAGATION_MANDATORY：如果当前存在事务，则加入改事务；如果当前没有事务，则抛出异常。
+  - TransactionDefinition.PROPAGATION_MANDATORY：如果当前存在事务，则加入该事务；如果当前没有事务，则抛出异常。
 
 - 不支持当前事务的情况：
 
@@ -1186,7 +1186,7 @@ ApplicationContext 启动的大部分工作都是由 AbstractApplicationContext.
 
 - 对 BeansFactory 进行一些后置处理，例如：添加 BeanPostProcessor，**扩展点**。
 - **实例化 BeanFactoryPostProcessor 类型的 Bean（即后面的 Bean 实例化过程）**，调用 postProcessBeanFactory() 方法，可以操作 BeansFactory。例如：BeanDefinitionRegistryPostProcessor 解析 @Bean 等注解定义的 Bean。
-- **实例化 BeanFactoryPostProcessor 类型的 Bean（即后面的 Bean 实例化过程）**，添加到 BeanFactory 中。
+- **实例化 BeanPostProcessor 类型的 Bean（即后面的 Bean 实例化过程）**，添加到 BeanFactory 中。
 - 初始化 MessageSource 国际化支持。
 - 初始化 ApplicationEventMulticaster（默认为 SimpleApplicationEventMulticaster）事件广播器。
 - onRefresh()方法在 AbstractApplicationContext 是空实现，**扩展点**。

@@ -110,7 +110,7 @@ class Plugin1 implements Runnable {
 
 #### 6、[interrupt()](https://stackoverflow.com/questions/3590000/what-does-java-lang-thread-interrupt-do)
 
-interrupt()方法会将调用线程的中断标志位 InterruptStatus 设置为 true，并且会打断等待状态线程后抛出 InterruptedException 异常。
+interrupt()方法会将调用线程的中断标志位 InterruptStatus 设置为 true，并且中断等待状态线程并抛出 InterruptedException 异常。
 
 > 处于等待状态的线程也会轮询 InterruptStatus 标志位。
 
@@ -272,7 +272,7 @@ synchronized 是 Java 的关键字，可以将方法 / 代码锁起来，实现�
 
 **分类**：
 
-- 类锁：以当前类的 class 对象作为锁，一个类和一个类加载器只会生成一个类的 class 对象。
+- 类锁：以当前类的 Class 对象作为锁，一个类和一个类加载器只会生成一个类的 Class 对象。
 - 对象锁：以当前调用的对象作为锁。
 
 **用法**：
@@ -857,7 +857,7 @@ AQS 中维护一个 Node 类型的**同步队列**（Node 是 AQS 的一个内�
   - `static final Node SHARED = new Node()` 表示当前 Node 是共享模式。
   - `static final Node EXCLUSIVE = null` 表示当前 Node 是独占模式。
 - waitStatus：当前 Node 的状态，为 0 表示初始状态，其余值如下：
-  - `static final int CANCELLED  1` 为结束状态。例如：当执行 `reentrantLock.lockInterruptibly()` 方法时，线程突然被中断，AQS 会将此 Node 置为 CANCELLED 状态并将该节点从同步队列中移除。
+  - `static final int CANCELLED = 1` 为结束状态。例如：当执行 `reentrantLock.lockInterruptibly()` 方法时，线程突然被中断，AQS 会将此 Node 置为 CANCELLED 状态并将该节点从同步队列中移除。
   - `static final int SIGNAL = -1` 为信号状态。当节点 acquire 获取锁失败时，为了防止竞争，会将前一个节点的状态置为 SIGNAL，然后 park 阻塞当前节点上的线程；前一个节点 release 释放锁时，会判断是否是 SIGNAL 状态，如果是，则唤醒后继节点。
   - `static final int CONDITION = -2` 为条件状态，表示 Node 处于条件队列中。当线程执行 `conditionObject.await()` 时，会将当前线程封装为 Node 放入条件队列。
   - `static final int PROPAGATE = -3` 为传播状态，与共享模式相关，在共享模式中，该状态标识结点的线程处于可运行状态。
@@ -1197,7 +1197,7 @@ ThreadLocalMap 是 ThreadLocal 的内部类，ThreadLocalMap 中又维护着一�
 
 #### 1、ThreadLocal 内存泄漏
 
-查看 Entry 的数据结构，会发现 Entry 的 key 是软引用，意味着当变量 threadLocal1 超出作用域时，其指向的 ThreadLocal 实例会被回收。但是因为 Thread 中的 threadLocals 仍然强引用着 ThreadLocalMap 实例，Entry 数组不会被回收，Entry 上的 value 超出作用域并且访问不到，造成内存泄漏。
+查看 Entry 的数据结构，会发现 Entry 的 key 是弱引用，意味着当变量 threadLocal1 超出作用域时，其指向的 ThreadLocal 实例会被回收。但是因为 Thread 中的 threadLocals 仍然强引用着 ThreadLocalMap 实例，Entry 数组不会被回收，Entry 上的 value 超出作用域并且访问不到，造成内存泄漏。
 
 为了避免内存泄漏的问题，应该在 threadLocal 超出作用域前调用 remove()方法，主动将此 Entry 删除。
 
@@ -1253,7 +1253,7 @@ Entry 继承 WeakRefrence 是为了将 key 设为弱引用，当 ThreadLocal 强
 
 （1）若 Entry 的 key 是强引用
 
-当 ThreadLocal 超出作用域后，Entry 的 key 仍然强引用着 ThreadLocal 实例，而 ThreadLocal 变量超出作用域，也访问不到此 Entry，造成 Entry、key、value 内存泄漏。
+当 ThreadLocal 超出作用域后，Entry 的 key 仍然强引用着 ThreadLocal 实例，造成 ThreadLocal 对象内存泄漏。
 
 （2）若 Entry 的 key 是弱引用
 

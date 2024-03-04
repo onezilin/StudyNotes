@@ -565,7 +565,7 @@ PFMERGE destination key [key ...]
 
 ### （七）Bitmap
 
-Bitmap 类型使用位（bit）存储信息，用 0 或 1 来表示某个元素的状态，Bitmap 最长为 2^32 位。若只是想记录摸个元素的状态，而不是元素本身，可以使用 Bitmap 节省空间。
+Bitmap 类型使用位（bit）存储信息，用 0 或 1 来表示某个元素的状态，Bitmap 最长为 2^32 位。若只是想记录某个元素的状态，而不是元素本身，可以使用 Bitmap 节省空间。
 
 ![bitmap结构](./bitmap结构.png)
 
