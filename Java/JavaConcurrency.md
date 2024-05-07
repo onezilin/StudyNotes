@@ -426,7 +426,7 @@ static class MyTask implements Runnable {
 - unit：keepAliveTime 的时间单位。
 - workQueue：任务队列，用于存放被添加到线程池中，但尚未被执行的任务。
 - threadFactory：线程工厂，线程池中通过 threadFactory 创建线程。默认值为 Executors.DefaultThreadFactory，创建的线程属于同一线程组，优先级相同，非守护线程。
-- handler：任务解决策略。当线程池达到最大线程数，并且阻塞队列也满了，线程池无法处理新的任务时，会执行解决策略。默认值为 AbortPolicy。
+- handler：任务解决策略。当线程池达到最大线程数，并且阻塞队列也满了，线程池无法处理新的任务时，会执行拒绝策略。默认值为 AbortPolicy。
 
 #### 2、[执行机制](https://tech.meituan.com/2020/04/02/java-pooling-pratice-in-meituan.html)
 
