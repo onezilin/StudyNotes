@@ -1,6 +1,8 @@
 # Vue
 
 > 基于[【官网】](https://cn.vuejs.org/)
+>
+> 以下版本为：Vue 2.x、Vue-router 3.x、Vuex 3.x、ES6、Node.js 12.13.1、Babel 7.x、Webpack 5
 
 ## 一、基本概念
 
@@ -16,9 +18,9 @@ Vue 是一套用于构建用户界面的渐进式 JavaScript 框架。
 > - React：它也有一定程度的主张，它的主张主要是函数式编程的理念，比如说：你需要知道什么是副作用、什么是纯函数、如何隔离副作用。它的侵入性看似没有 Angular 那么强，主要因为它是软性侵入。
 > - Vue：Vue 可能有些方面是不如 React，不如 Angular，但它是渐进的，没有强主张，你可以在原有大系统的上面，把一两个组件改用它实现，当 JQuery 用；也可以整个用它全家桶开发，当 Angular 用；还可以用它的视图，搭配你自己设计的整个下层用。你可以在底层数据逻辑的地方用 OO 和设计模式的那套理念，也可以函数式，都可以，它只是个轻量视图而已，只做了自己该做的事，没有做不该做的事，仅此而已。
 
-### （一）[MVVM 双向数据绑定](https://segmentfault.com/a/1190000006599500)
+### （一）[MVVM](https://segmentfault.com/a/1190000006599500)
 
-MVVM 把前端的视图层，分为了三部分：Model（保持的是每个页面中的单独数据），View（每个页面中 HTML 结构） ，VM ViewModel（View 和 Model 之间的调度者）。
+MVVM（Model-View-ViewMode、双向数据绑定）把前端的视图层，分为了三部分：Model（保持的是每个页面中的单独数据），View（每个页面中 HTML 结构） ，VM ViewModel（View 和 Model 之间的调度者）。
 
 双向数据绑定是指：把 Model 绑定到 View，当我们用 JavaScript 代码更新 Model 时，View 就会自动更新；如果更新了 View，Model 的数据也自动被更新。
 
@@ -26,7 +28,7 @@ Vue 的 MVVM 为了让开发更加方便，提供了数据的双向绑定的功�
 
 > 以前学 JS、JQ 的时候，在函数中需要经常书写代码获取到 DOM 对象并赋值，现在只需要用提供的 `{{ }}` 等指令就可以直接在页面上显示数据，简化开发。
 
-#### 1、双向数据绑定实现的方式
+#### 1、实现方式
 
 - 发布订阅模式（backbone.js）：通过 sub、pub 的方式实现数据和视图的绑定监听，更新数据的方式通常时 `vm.set('property', value)`。
 
@@ -46,7 +48,7 @@ Vue 的 MVVM 为了让开发更加方便，提供了数据的双向绑定的功�
 
   > [Object.defineProperty()](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty)介绍：此函数可以更加详细地设置对象的属性的描述（就像 mysql 中设置字段约束一样），例如：能否删除、能否修改、设置 setter/getter 函数（在每次设置属性值或获取属性值时调用）等。
 
-#### 2、双向数据绑定的主要流程
+#### 2、Vue 的 MVVM 实现原理
 
 ![MVVM双向绑定原理](./MVVM双向绑定原理.png)
 
@@ -78,7 +80,7 @@ MVVM 作为数据绑定的入口，整合 Observe、Compile 和 Watcher。通过
 
 ### （一）组件选项
 
-在 JS 中基本结构，其中传入 Vue 的对象参数叫做组件选项
+在 JavaScript 中的基本结构，其中传入 Vue 的对象参数叫做组件选项：
 
 ```js
 // 组件选项为 {el: '#app', data: {}, ......} 等
@@ -285,9 +287,9 @@ var vm = new Vue({
 > - 计算属性的求值结果会被缓存起来，只要使用到的数据未改变，计算属性调用的时候就是一直使用这个缓存起来的值。
 > - 计算属性中只有 Date.now()这个值时不会更新，因为 Date.now()不是响应式依赖：
 
-一般来说计算属性调用的时候不能当作方法去调用，而是当作普通的 data 中的数据去调用。但是若想给计算属性传参，可以当作方法去调用，不过需要使用 JS 闭包的概念。
+一般来说计算属性调用的时候不能当作方法去调用，而是当作普通的 data 中的数据去调用。但是若想给计算属性传参，可以当作方法去调用，不过需要使用 JavaScript 闭包的概念。
 
-> [JS 闭包](https://blog.csdn.net/cauchy6317/article/details/81167572)：闭包是指有权访问另一个函数作用域中的变量的函数。在一个函数里面嵌套另一个函数，内部函数对其外部函数是私有的，内部函数可以访问所有外部函数变量，此时内部函数就是一个闭包。
+> [JavaScript 闭包](https://blog.csdn.net/cauchy6317/article/details/81167572)：闭包是指有权访问另一个函数作用域中的变量的函数。在一个函数里面嵌套另一个函数，内部函数对其外部函数是私有的，内部函数可以访问所有外部函数变量，此时内部函数就是一个闭包。
 
 ```vue
 <div id="app">
@@ -319,7 +321,7 @@ var vm = new Vue({
 
 ##### （1）自定义全局组件
 
-###### ① 使用 `Vue.extend()` 配合 `Vue.component()` 方法
+① 使用 `Vue.extend()` 配合 `Vue.component()` 方法：
 
 ```vue
 <script>
@@ -332,7 +334,7 @@ Vue.component("login", login);
 </script>
 ```
 
-###### ② 使用 `Vue.component()` 方法
+② 使用 `Vue.component()` 方法：
 
 ```vue
 Vue.component('register', { template: '
@@ -340,7 +342,7 @@ Vue.component('register', { template: '
 ' });
 ```
 
-###### ③ 将模板标签定义到 script 标签外
+③ 将模板标签定义到 script 标签外：
 
 ```vue
 <template id="tmpl">
@@ -386,7 +388,7 @@ var app = new Vue({
 
 ##### （3）组件切换
 
-通过切换组件实现使用不同的组件效果
+通过 transition 切换组件可以实现使用不同的组件切换时的动画效果：
 
 ```vue
 <!-- transition 标签的 mode 属性控制组件切换顺序 -->
@@ -400,7 +402,7 @@ var app = new Vue({
 
 components 属性相当于 vue 下的一个子组件，默认无法访问到父组件中的 data 上的数据和 methods 中的方法。
 
-###### ① 传递数据
+① 三种传递数据方式：
 
 - 子组件通过 prop 属性获取父组件值
 
@@ -433,7 +435,7 @@ var app = new Vue({
 - `this.$refs.子组件ref名称` 来获取子组件 DOM，可以直接获取组件的 data 数据和 methods 方法；子组件可以通过 `this.$parent` 获取父组件的 DOM。
 - 通过 localStorage 本地缓存存储数据，父子组件都可以把数据放在里面，进行传递。
 
-###### ② 传递方法
+② 传递方法：
 
 ```vue
 <div id="app">
@@ -516,7 +518,7 @@ var myVue = new vue(){
 
 钩子函数是指由系统消息触发的函数。
 
-###### ① 钩子函数
+① 有以下钩子函数：
 
 - bind：只调用一次，指令第一次绑定到元素时调用，用这个钩子函数可以定义一个在绑定时执行一次的初始化动作，但是元素还没有重新插入到 DOM 中，和行为相关的操作不会生效。
 - inserted：只调用一次，被绑定元素插入父节点时调用（父节点存在即可调用，不必存在于 document 中）。
@@ -524,7 +526,7 @@ var myVue = new vue(){
 - componentUpdated：被绑定元素所在模板完成一次更新周期时调用。
 - unbind：只调用一次， 指令与元素解绑时调用（也就是绑定的 DOM 销毁时调用，例如：`v-if="false"时销毁`）。
 
-###### ② 钩子函数参数
+② 钩子函数参数有：
 
 - el: 指令所绑定的元素，可以用来直接操作 DOM 。
 - binding: 一个对象，包含以下属性：
@@ -583,7 +585,7 @@ var myVue = new vue(){
 
 > 在 2.2.0 及更高版本中，activated()和 deactivated()会在 `<keep-alive>` 树内所有的嵌套组件中触发。
 
-#### 5、Vue 生命周期中各函数的执行顺序
+#### 5、执行顺序
 
 执行顺序：beforeCreated、watch（immediate 时）、created、beforeMount、mounted、activated、beforeUpdate、updated、deactivated/（beforeDestory、destroyed）。
 
@@ -628,13 +630,13 @@ var myVue = new vue(){
 
 #### 1、使用 class 批量样式
 
-##### （1）数组
+（1）数组：
 
 ```vue
 <h1 :class="['red', 'thin', italic]">这是一个邪恶的H1</h1>
 ```
 
-##### （2）数组中使用三元表达式
+（2）数组中使用三元表达式：
 
 ```vue
 <h1
@@ -642,13 +644,13 @@ var myVue = new vue(){
 >这是一个邪恶的H1</h1>
 ```
 
-##### （3）数组中嵌套对象
+（3）数组中嵌套对象：
 
 ```vue
 <h1 :class="['red', 'thin', { active: isactive }]">这是一个邪恶的H1</h1>
 ```
 
-##### （4）直接使用对象
+（4）直接使用对象：
 
 ```vue
 <h1 :class="{"red": true, "italic": true, "active": true, "thin": true}">这是一个邪恶的H1</h1>
@@ -656,13 +658,13 @@ var myVue = new vue(){
 
 #### 2、使用内联样式
 
-##### （1）直接使用对象
+（1）直接使用对象：
 
 ```vue
 <h1 :style="{ color: 'red', 'font-size': '40px' }">这是一个善良的H1</h1>
 ```
 
-##### （2）在 data 上定义
+（2）在 data 上定义：
 
 在元素中，通过属性绑定的形式，将样式对象应用到元素中。
 
@@ -679,7 +681,7 @@ var myVue = new vue(){
 <h1 :style="h1StyleObj">这是一个善良的H1</h1>
 ```
 
-##### （3）数组方式引用
+（3）数组方式引用：
 
 在元素中，通过属性绑定的形式，将样式对象应用到元素中。
 
@@ -708,7 +710,7 @@ var myVue = new vue(){
 
 #### 1、普通标签的三种过渡方式
 
-##### （1）过渡类名
+（1）过渡类名：
 
 ```vue
 //HTML结构
@@ -754,7 +756,7 @@ var vm = new Vue({
 </style>
 ```
 
-##### （2）使用第三方 CSS 动画库
+（2）使用第三方 CSS 动画库：
 
 ```vue
 //导入动画类库：
@@ -766,7 +768,7 @@ var vm = new Vue({
 </transition>
 ```
 
-##### （3）使用动画钩子函数
+（3）使用动画钩子函数：
 
 ```vue
 //定义 transition 组件以及三个钩子函数：
@@ -816,7 +818,7 @@ var vm = new Vue({
 > 注意：
 >
 > - 可以在 `<transition>` 标签中增加 name 属性自定义进场和出场标签类名称。
-> - 如果只想实现半场动画（只想进场或者出场），使用 JS 的进场和出场钩子函数。
+> - 如果只想实现半场动画（只想进场或者出场），使用 JavaScript 的进场和出场钩子函数。
 
 #### 2、`v-for` 的列表过渡
 
@@ -1025,7 +1027,7 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 </template>
 ```
 
-### （七）[provide / inject 依赖注入](https://cn.vuejs.org/guide/components/provide-inject.html)
+### （七）[provide / inject](https://cn.vuejs.org/guide/components/provide-inject.html)
 
 #### 1、prop 逐级透传问题
 
@@ -1268,7 +1270,7 @@ Vue 组件挂载时会发生以下几件事：
 
 #### 3、模板和渲染函数
 
-Vue 模板（也就是 template）会被预编译成虚拟 DOM 渲染函数（render()函数）。Vue 也提供 render()函数使我们不用模板编译，直接手写渲染函数。**在处理高动态的逻辑时，渲染函数相比于模板更加灵活，因此可以完全地使用 JS 来构建想要的 vnode**。区别：
+Vue 模板（也就是 template）会被预编译成虚拟 DOM 渲染函数（render()函数）。Vue 也提供 render()函数使我们不用模板编译，直接手写渲染函数。**在处理高动态的逻辑时，渲染函数相比于模板更加灵活，因此可以完全地使用 JavaScript 来构建想要的 vnode**。区别：
 
 - 模板（template）：
   - 模板更贴近实际的 HTML。这使得我们能够更方便地重用一些已有的 HTML 代码片段，能够带来更好的可访问性体验、能更方便地使用 CSS 应用样式，并且更容易使设计师理解和修改。
@@ -1321,7 +1323,7 @@ export default {
 const vnode = <div id={dynamicId}>hello, {userName}</div>;
 ```
 
-JSX 是 JS 的一个类似 XML 的扩展，可以像写 HTML 一样创建 vnode，可读性更好。虽然最早由 React 引入，但实际上 JSX 语法并没有定义运行时语义，并且能被编译成各种不同的输出形式。
+JSX 是 JavaScript 的一个类似 XML 的扩展，可以像写 HTML 一样创建 vnode，可读性更好。虽然最早由 React 引入，但实际上 JSX 语法并没有定义运行时语义，并且能被编译成各种不同的输出形式。
 
 > 注意：
 >
@@ -1384,7 +1386,7 @@ h() 是 hyperscript 的简称——意思是**能生成 HTML 的 JavaScript**。
 > }
 > ```
 
-##### （3）createVnode()函数参数
+##### （3）createVnode() 函数参数
 
 createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h()函数）有三个参数：
 
@@ -1525,7 +1527,7 @@ let son = new Vue({
 
 ![slot组件实例输出结果解析](./slot组件实例输出结果解析.png)
 
-**a. 在 createVnode()函数中使用插槽**
+a. 在 createVnode()函数中使用插槽
 
 言归正传，我们想为某个子组件 vnode 定义 slot 插槽，可以使用以下方式：
 
@@ -1569,7 +1571,7 @@ function render(h) {
 }
 ```
 
-**b. 在 JSX 中使用插槽**
+b. 在 JSX 中使用插槽
 
 在 JSX 中定义插槽就简单一点：
 
@@ -2748,7 +2750,7 @@ const store = createStore({
 })
 ```
 
-###### ① 带命名空间的模块访问全局内容
+① 带命名空间的模块访问全局内容
 
 若想访问全局（也就是根节点）的 state 和 getters，可以直接使用 rootState 和 rootGetters，但是若需要在模块内分发全局命名空间的 actions 或提交 mutations，将 `{root: true}` 作为第三参数传给 actions 或提交 mutations 的方法。
 
@@ -2788,7 +2790,7 @@ modules: {
 }
 ```
 
-###### ② 带命名空间的模块注册全局 actions
+② 带命名空间的模块注册全局 actions
 
 当模块 `namespaced: true` 时，actions 必须添加当前命名空间前缀才可以访问，可以在 actions 中使用 `root: true` 属性，将 actions 注册到根节点上。
 
@@ -2814,7 +2816,7 @@ modules: {
 }
 ```
 
-###### ③ 带命名空间的绑定函数
+③ 带命名空间的绑定函数
 
 当使用 mapSate、mapGetters、mapActions 和 mapMutations 这些函数来绑定带命名空间的模块时，会很繁琐：
 
@@ -2915,7 +2917,7 @@ store.hasModule("myModule");
 
 ## 五、[Axios](http://www.axios-js.com/zh-cn/docs/)
 
-Axios 是一个基于 Promise 的 HTTP 库，可以用在浏览器和 node.js 中。
+Axios 是一个基于 Promise 的 HTTP 库，可以用在浏览器和 Node.js 中。
 
 其他的异步请求：
 
@@ -2924,37 +2926,15 @@ Axios 是一个基于 Promise 的 HTTP 库，可以用在浏览器和 node.js �
 - [Fetch](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API/Using_Fetch)：Fetch 不同于使用 XMLHttpRequest 实现的 Ajax，Fetch 是更理想的异步请求实现方式。
 - [Vue-Resource](https://www.cnblogs.com/chenhuichao/p/9261645.html)：Vue-Resource 在 Vue2.0 后不再更新，建议使用 Axios。
 
-## 六、Vue 进阶
-
-### （一）npm
-
-npm（ Node Package Manager）是 JavaScript 世界的包管理工具，并且是 Node.js 平台的默认包管理工具，通过 npm 可以安装、共享、分发代码，管理项目依赖关系。
-
-### （二）webpack
-
-webpack 是前端的一个项目构建工具，它是基于 Node.js 开发出来的一个前端工具。
-
-> 传统的网页中引入的静态资源（.js，.css，.jpg 等文件），导致网页加载速度慢， 因为我们要发起很多的二次请求；并且要处理错综复杂的依赖关系。
->
-> 借助于 webpack 这个前端自动化构建工具，可以完美实现资源的合并、打包、压缩、混淆等诸多功能。
-
-### （三）babel
-
-在 webpack 中，默认只能处理一部分 ES6 的语法，一些高级的语法或者 ES7 的语法 webpack 处理不了，需要第三方的 loader 来帮助实现 webpack 将高级的语法转化为低级的语法，并会把结果交给 webpack 打包到 bundle.js，这时候就需要通过 babel 将高级语法转化为低级的语法。
-
-### （四）[Vue-Cli](https://cli.vuejs.org/zh/guide/index.html)
-
-Vue-Cli 是 Vue 的脚手架，用于自动生成 vue.js+webpack 的项目模板。
-
-## 七、JS
+## 六、JavaScript
 
 ### （一）[原型和原型链](https://blog.csdn.net/weixin_42614080/article/details/93413476)
 
 #### 1、原型
 
-JS 使用原型模式深克隆创建对象，创建的对象实例可以拥有原型实例的属性和方法。
+JavaScript 使用原型模式深克隆创建对象，创建的对象实例可以拥有原型实例的属性和方法。
 
-在 JS 中，每个对象类型（其实本质还是一个 function 函数）都有 prototype 属性，表示该对象类型的原型实例，new 出来的对象实例都是拷贝了这个原型实例。
+在 JavaScript 中，每个对象类型（其实本质还是一个 function 函数）都有 prototype 属性，表示该对象类型的原型实例，new 出来的对象实例都是拷贝了这个原型实例。
 
 ![原型关系图](./原型关系图.png)
 
@@ -2990,9 +2970,9 @@ Son.prototype.__proto__ = Father.prototype;
 
 ### （二）[event loop](https://www.jianshu.com/p/c7a0dc9fccd3)
 
-事件循环机制是 JS 身为单线程的函数执行机制，主要是为了解决异步函数造成的阻塞问题。
+事件循环机制是 JavaScript 身为单线程的函数执行机制，主要是为了解决异步函数造成的阻塞问题。
 
-> JS 是单线程的，意味着只有一个主线程来处理所有的任务。所以，所有任务都需要排队执行，上一个任务结束，才会执行下一个。如果上一个任务耗时很长，那么下一个任务也要一直等着。
+> JavaScript 是单线程的，意味着只有一个主线程来处理所有的任务。所以，所有任务都需要排队执行，上一个任务结束，才会执行下一个。如果上一个任务耗时很长，那么下一个任务也要一直等着。
 
 任务可以分为两种：
 
@@ -3005,7 +2985,7 @@ Son.prototype.__proto__ = Father.prototype;
 
 执行顺序：
 
-- 所有同步任务都在 JS 线程上执行，形成一个执行栈。
+- 所有同步任务都在 JavaScript 线程上执行，形成一个执行栈。
 
 - 当遇到一个异步任务时，JS 线程并不会等待执行结果，而是将异步任务交由浏览器线程执行并等待结果，并将异步任务回调函数放入任务队列中。
 
@@ -3013,15 +2993,37 @@ Son.prototype.__proto__ = Father.prototype;
 
   > 其中任务队列分为微任务队列和宏任务队列。执行栈执行完后，会先将微任务队列中回调函数执行完（重复步骤 1）；再执行宏任务队列。
 
-## 八、[ES6](https://es6.ruanyifeng.com/#docs/intro)
+### （三）[全局对象](https://developer.mozilla.org/en-US/docs/Glossary/Global_object)
 
-ES6（ECMAScript6）是 JS 的标准，在 2015 年已经发布，提供以下新特性：
+在 JavaScript 中，默认会定义一个全局对象，该全局对象是一个永远存在于**全局作用域**的对象。根据不同的 JavaScript 环境，全局对象的变量名也不一样：
+
+- 在 Web 浏览器中，使用 window 作为全局对象，大部分 Web 上的 JavaScript 代码都使用 [window](https://developer.mozilla.org/en-US/docs/Web/API/Window) 变量名。
+- 在 Node.js 下运行的 JavaScript 使用 global 作为全局变量。
+
+> 无论当前环境如何，globalThis 全局属性都可以访问全局对象。
+
+可以将数据绑定在全局对象上，实现全局可用的功能；也可以通过全局对象获取 innerHeight、console、setTimeout() 等属性或方法。
+
+> 获取全局对象的属性或方法时，可以省略不写全局变量，例如 `window.innerHeight` 和 `innerHeight` 效果一样。
+
+window 全局对象有以下重要的属性：
+
+- window：在 JavaScript 中，全局变量始终保留对自身的应用，例如 `window.widow === window`。
+- navigator：navigator 表示浏览器对象，用于存储浏览器的属性。navigator 的信息可以很容易地被用户修改，所以 JavaScript 读取的值不一定是正确的。
+- screen：screen 表示屏幕（整个电脑屏幕，而不是浏览器）对象，用于存储屏幕信息。
+- location：location 表示当前页面的 URL 对象，用于存储 URL 信息。使用 `location.href` 可以获取 URL 路径，调用 `location.reload()` 重新加载页面。
+- document：document 表示当前页面的对象，由于 HTML 在浏览器中以 DOM 形式表示为树形结构，`document`对象就是整个 DOM 树的根节点。
+- history：history 表示当前页面的浏览历史，JavaScript 可以调用 history 对象的 `back()` 或 `forward()`，相当于用户点击了浏览器的后退或前进按钮。history 属于历史遗留对象，不推荐使用。
+
+## 七、[ES6](https://es6.ruanyifeng.com/#docs/intro)
+
+ES6（ECMAScript6）是 JavaScript 语言的标准，JavaScript 语言是对 ECMAScript 标准的一种实现，在 2015 年已经发布，提供以下新特性：
 
 ### （一）变量声明
 
 #### 1、var
 
-var 是 JS 中声明变量的关键字，有以下特性：
+var 是 JavaScript 中声明变量的关键字，有以下特性：
 
 - 使用 var 声明的变量，无论在函数中的哪里声明，都被视为声明在函数的顶部。此时又可延伸出两种特性：
 
@@ -3201,7 +3203,7 @@ const obj = {
 };
 
 // 正确
-// 虽然这种简写法和上面效果一致，但是只有对象方法的简写法可以让 JS 引擎确认，定义的是对象的方法。
+// 虽然这种简写法和上面效果一致，但是只有对象方法的简写法可以让 JavaScript 引擎确认，定义的是对象的方法。
 const obj = {
   foo() {
     return super.foo;
@@ -3326,7 +3328,7 @@ mySet.size;
 
 #### 2、Map
 
-JS 的 Object 对象本质上是键值对的集合，但是只能使用字符串作为键，Map 可以使用各种数据类型作为键。
+JavaScript 的 Object 对象本质上是键值对的集合，但是只能使用字符串作为键，Map 可以使用各种数据类型作为键。
 
 ```js
 // 传入数组初始化 Set
@@ -3545,7 +3547,7 @@ Object.getPrototypeOf(ColorPoint) === Point; // true
 
 一个模块就是一个独立的文件，该文件内部的所有变量外部无法直接获取。若外部能够读取模块内部的某个变量，必须先输出该变量，外部再获取该变量。
 
-JS 的两种模块加载方案：
+JavaScript 的两种模块加载方案：
 
 #### 1、ESM
 
@@ -4220,6 +4222,574 @@ foo();
 - return await 相当于两个步骤：先 await 获取异步结果后再 return，若 await 后的 Promise 对象变为 rejected 状态，catch 可以捕捉到异常；return 是直接返回当前 Promise 对象，不会等待异步结果，若 await 后的 Promise 对象变为 rejected 状态，需要由外部调用者去 catch 异常。
 - return await 只有放在 `try...catch...` 才能看出效果；若不在，且使用了 eslint 规则，反而会报警告。
 
+## 八、Vue 进阶
+
+以下简略的学习一下搭建 Vue 项目时所需的知识点：
+
+### （一）Node.js
+
+Node.js 是一个基于 Chrome V8 引擎和 JavaScript 语言的开源 Web 服务器项目，**用于构建高性能、可扩展的网络应用程序**。
+
+传统的方式运行 JavaScript，我们必须在 HTML 页面中引入 JavaScript，由浏览器加载该 HTML 页面，才可以运行 JavaScript 代码：
+
+```html
+<html>
+  <head>
+    <script>
+      alert("Hello, world");
+    </script>
+  </head>
+  <body>
+    ...
+  </body>
+</html>
+```
+
+现在我们在服务器上安装配置了 Node.js 环境后，就可以在 Node.js 环境中运行 JavaScript 代码：
+
+```js
+"use strict";
+
+console.log("Hello, world.");
+```
+
+```shell
+[root@www ~]# node hello.js
+Hello, world.
+```
+
+Node.js 的出现极大地推动了 JavaScript 的发展，使开发人员能够使用 JavaScript 在服务器上构建完整的应用程序（例如：[Node.js 连接 MySQL](https://www.runoob.com/nodejs/nodejs-mysql.html)），将其从仅限于浏览器端的脚本语言扩展到了服务器端开发领域。
+
+#### 1、[npm](https://docs.npmjs.com/cli/v10)
+
+**npm（ Node Package Manager） 是 Node.js 平台的默认包管理工具，用于管理（安装、卸载、发布）项目依赖。**
+
+> 在 Node.js 上开发时，会引用很多别人写的 JavaScript 代码，如果我们要使用别人写的某个包，每次都要去官网下载、解压，有时候这个包还有其他依赖，我们还需要下载对应依赖，非常繁琐冗余。于是一个集中管理的工具应运而生，大家都把自己开发的模块打包后放到 npm 官网上，如果要使用，直接通过 npm 安装就可以直接用，不用管代码存在哪，应该从哪下载。
+
+npm 常见的使用场景有以下几种：
+
+- 允许用户从 npm 服务器下载别人编写的第三方包到本地使用。
+- 允许用户从 npm 服务器下载并安装别人编写的命令行程序到本地使用。
+- 允许用户将自己编写的包或命令行程序上传到 npm 服务器供别人使用。
+
+##### （1）[npm 命令](https://docs.npmjs.com/cli/v10/commands/npm)
+
+npm 提供许多命令用于管理依赖包：
+
+- npm init：用于创建 package.json 配置文件。
+- npm install：用于安装 package.json 中指定的依赖包。
+- npm ci：与用户清理并重新下载所有的依赖包。
+- npm run <脚本名>：运行在 package.json 的 scripts 脚本属性中定义的脚本。
+- npm <命令>：可以调用并执行本地或远程 npm 包提供的命令。
+
+##### （2）[package.json](https://docs.npmjs.com/cli/v10/configuring-npm/package-json)
+
+package.json 是位于 Web 项目根目录下的配置文件，类似于 Maven 的 pom.xml，作用是记录项目有关的配置信息（版本号、依赖等），同时它也是 npm 命令的入口文件。
+
+> [package-lock.json](https://dev.nodejs.cn/learn/the-package-lock-json-file/) 在 npm 下载依赖包时自动生成，记录着 package.json 内依赖的更详细信息，包括：具体版本号、包下载地址、依赖的其他包及具体版本号等。该文件旨在跟踪被安装的每个软件包的确切版本，以便产品可以以相同的方式被 100％ 复制。因为按照上面版本号的书写规则（例如 `>= 1.0.0`），如果我们的项目是开源的，其他拉取开源代码的人在安装依赖包时，并不知道你本地依赖的实际版本，可能导致启动失败，通过 package-lock.json 就可以知道你实际使用的依赖包版本。
+
+package.json 中有以下重要属性：
+
+① version
+
+version 用于设置项目的版本号，package.json 中的 version 版本号属性设置规范为 `x.y.z`：
+
+- 第一个数字是主版本。
+- 第二个数字是次版本。
+- 第三个数字是补丁版本。
+
+当发布新的版本时，不仅仅是随心所欲地增加数字，还要遵循以下规则：
+
+- 当进行不兼容的 API 更改时，则升级主版本。
+- 当以向后兼容的方式添加功能时，则升级次版本。
+- 当进行向后兼容的缺陷修复时，则升级补丁版本。
+
+每个 npm 软件包都必须遵守该约定，因为 npm 设置了一些书写规则，可用于在 package.json 文件中选择要将软件包更新（`npm update`）到的版本，规则如下：
+
+- `^`： 只会**执行不更改最左边非零数字的更新**。例如：如果写入的是 `^0.13.0`，则当执行 `npm update` 更新依赖时，可以更新到 `0.13.1`、`0.13.2` 等，但不能更新到 `0.14.0` 或更高版本；如果写入的是 `^1.13.0`，则更新依赖时，可以更新到 `1.13.1`、`1.14.0` 等，但不能更新到 `2.0.0` 或更高版本。
+- `~`：只会执行补丁版本的更新。例如：如果写入的是 `^0.13.0`，则更新依赖时，可以更新到 `0.13.1`、`0.13.2` 等，但不能更新到 `0.14.0` 或更高版本。
+- `=`：只接受指定版本，`=` 也可以省略。
+- `>`：接收高于指定版本的任何版本。
+- `>`、`>=`、`<`、`<=` 与上面同理。
+- `-`：接收指定范围内的版本。例如 `2.1.0 - 2.6.2`。
+- `||`：组合集合。例如 `1.0.0 || >=1.1.0 <1.2.0`，即使用 1.0.0 或从 1.1.0 开始但低于 1.2.0 的版本。
+- `latest`：使用可用的最新版本。
+
+② dependencies 和 devDependencies
+
+当执行 `npm install` 时，npm 默认会根据 package.json 的这两个属性下载依赖包。
+
+devDependencies 就相当于 Maven 中 dependency 的 optional 属性，只在本地开发环境中使用，当打成包部署到线上环境时，便不会带入 devDependencies 内的依赖。
+
+> 有些自动构建工程 build 脚本会加上 --production 参数的时候，不会拉取 devDependencies 的包，导致 build 流程异常，这时候建议放在 dependencies 中。
+
+##### （3）[.npmrc](https://juejin.cn/post/6983522411647860766)
+
+.npmrc（npm running configuration）是 npm 运行时配置文件，用于设置下载依赖包的仓库地址、依赖包的本地存储路径等。
+
+```properties
+# 设置 Registry 包仓库下载地址
+registry=https://registry.npmmirror.com
+# 项目的包默认存储在项目根目录下的 node_modules 文件夹中
+prefix=node_modules
+```
+
+npm 按照优先级从高到低（优先级高的配置覆盖优先级低的），依次使用以下 .npmrc 配置文件中的配置：
+
+- 项目根目录下的 .npmrc 文件。
+- 用户家目录下的 .npmrc 文件。
+- 全局配置文件 `$PREFIX/etc/npmrc`，使用 `npm config get prefix` 获取 `$PREFIX` 值。
+
+#### 2、[全局对象](https://nodejs.org/api/globals.html#globals_global)
+
+在 Node.js 下运行的 JavaScript 使用 global 作为全局变量。global 有以下重要属性：
+
+- global：在 JavaScript 中，全局变量始终保留对自身的应用，例如 `global.global=== global`。新版本的 Node.js 废弃了 global 属性，使用 [globalThis](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/globalThis) 属性。
+- [process](https://nodejs.org/api/process.html#process)：process 对象提供有关当前 Node.js 进程的信息和控制。process 又提供 env 属性，用于表示当前进程的用户环境。
+
+#### 3、[path](https://nodejs.org/docs/latest/api/path.html)
+
+path 是 Node.js 提供用于处理文件和目录路径的 API，需要手动引入 `const path = require('node:path')`，提供以下函数：
+
+##### （1）resolve()
+
+`path.resolve([...paths])` 方法接收一组路径片段作为参数，并尝试将它们解析为一个绝对路径。
+
+```js
+const path = require("path");
+
+// path.resolve() 用于返回绝对路径，可以有多个参数
+console.log(path.resolve(__dirname, "../"));
+/* 相当于 
+ cd $__dirname
+ cd ../
+ pwd
+ */
+```
+
+解析过程遵循以下规则：
+
+- 如果参数列表中的第一个路径片段不是以 `/` 开始的绝对路径，那么当前工作目录（`process.cwd()`）会被作为起始路径。
+- 后续的路径片段按照从左到右的顺序进行拼接。如果某个片段以 `/` 开始，那么它会被视为相对于根目录的路径，前面所有片段将被忽略。
+- 最终返回的路径是规范化后的绝对路径，其中包含适当的斜杠分隔符（`/`），且没有多余的`.` 或 `..` 符号。
+
+##### （2）join()
+
+`path.join([...paths])` 接收一组路径片段作为参数，但它不关心路径的绝对性，仅负责将这些片段使用适当的斜杠分隔符拼接成一个路径字符串。
+
+```js
+const path = require("path");
+
+console.log(path.join("assets", "images", "logo.png"));
+// assets/images/logo.png
+```
+
+拼接过程遵守以下规则：
+
+- 会添加额外的分隔符，即使输入的路径片段以 `/` 结尾或开始。
+- 会自动使用当前操作系统所对应的路径分隔符（Windows 上是 `\`，Unix-like 系统上是 `/`），确保跨平台代码的一致性。
+- 不会处理路径中的 `.` 或 `..` 符号，只是简单地拼接。
+
+##### （3）posix.join()
+
+`path.posix.join([...paths])` 是专门为遵循 POSIX 规范的路径操作设计的方法，它与 `path.join([...paths])` 功能类似，也是将路径片段拼接成一个字符串，但始终使用正斜杠 `/` 作为分隔符，无论运行环境为何。
+
+#### 4、child_process
+
+child_process 是 Node.js 提供用于创建子进程的 API。Node.js 由于是单线程模型，child_process 可以创建多进程，主进程可以与这些子进程进行通信，等到子进程运行结束以后，主进程再用回调函数读取子进程的运行结果。
+
+##### （1）execSync()
+
+以同步的形式执行 shell 命令或者跟软件交互。
+
+```js
+// 获取当前目录
+console.log(execSync("pwd").toString().trim());
+```
+
+### （二）[Babel](https://www.jiangruitao.com/babel/)
+
+ES6 是 2015 年发布的下一代 JavaScript 语言标准，它引入新的语法和 API，但这些新特性只被最新版本的浏览器支持，为了让 ES6 的代码能在低版本的浏览器中运行，就需要将这些新特性转化为浏览器能识别的低级语法，此时 Babel 便应运而生。**Babel 是一个工具集，主要用于将 ES6 版本的 JavaScript 代码转为 ES5 等向后兼容的 JavaScript 代码，从而可以运行在低版本浏览器或其它环境中。**
+
+#### 1、[配置文件](https://babeljs.io/docs/config-files#apiversion)
+
+Babel 在执行编译转化过程中，会从配置文件中读取配置，Babel 的配置文件有两类命名方式：
+
+- 项目维度（Project-wide）的配置文件：项目维度的配置文件一般命名为 `babel.config.js`。当通过 Babel 进行代码转换时，会搜索当前执行命令所在目录中是否有 `babel.config.js` 配置文件，如果有，则将其作为全局配置，作用在所有的文件。
+- 相对文件（File-relative）的配置文件：相对文件的配置文件一般命名为 `.babelrc`。当通过 Babel 进行代码转换时，会搜索当前执行命令所在目录及上级目录（直到遇到 `babel.config.js` 停止搜索）中最近的一个 `.babelrc` 配置文件（合并且覆盖 `babel.config.js` 配置），作用在执行命令所在目录及子目录下的 JS 文件。例如：`.babelrc` 位于 /a/aa 目录中，在 /a/aa 目录中执行 Babel 转化命令，只会转换 /a/aa 目录及子目录下的文件，假如引用了 /a/ab 目录下的文件，`/a/aa/.babelrc` 配置并不能作用到 /a/ab 目录下的 JS 文件。
+
+Babel 的配置文件中有两个重要的属性：plugins（插件）和 presets（预设）：
+
+##### （1）plugins
+
+plugins 告诉 Babel 要使用哪些插件，这些插件可以控制 Babel 如何转化代码。
+
+例如：使用 `@babel/plugin-transform-arrow-functions` 插件将箭头函数转化为普通函数：
+
+```json
+{
+  "plugins": ["@babel/plugin-transform-arrow-functions"]
+}
+```
+
+转化前后的代码对比：
+
+```js
+// test.js
+const fn = () => {};
+
+// test-compiled.js
+("use strict");
+const fn = function () {};
+```
+
+然而每个版本的 ES 都带来许多新特性，为每个新特性分别引入对应的插件会让配置文件显得极其臃肿，因此 Babel 提供 presets 属性。
+
+##### （2）presets
+
+preset 预设是一组插件或预设的集合，Babel 官方已经对常用的环境做了一些预设包，例如：
+
+- babel-preset-es2015：包含 `@babel/plugin-transform-arrow-functions` 等插件，可以将 ES6 的代码转化成 ES5 语法。
+- babel-preset-es2016：可以将 ES7 的代码编译为 ES6。
+- babel-preset-es2017：可以将 ES8 的代码编译为 ES7。
+- babel-preset-latest：支持现有所有 ECMAScript 版本的新特性。
+- babel-preset-env：支持现有所有 ECMAScript 版本的新特性。babel-preset-env 的优点在于，**它会根据目标环境选择不支持的新特性来转译**，例如：大部分现代浏览器已经支持 ES6 的 generators 函数，但如果你使用 babel-preset-es2015，generator 函数还是会被转译成复杂的 ES5 代码。
+
+> 注意：
+>
+> - Babel 6 和 Babel 7 之间 npm 包名称不同，例如：Babel 6 中 babel-core 包在 Babel 7 中名称为 @babel/core，本质上还是同一个包。
+> - babel-preset-latest、[@babel/preset-es2017](https://babeljs.io/docs/babel-preset-es2017) 这些预设已经废弃，建议使用 @babel/preset-env。
+
+---
+
+如果使用的 plugin 或 preset 名称中带有 `babel-plugin-`、`babel-preset-`、`@babel/plugin-`、`@babel/preset-` 前缀，可以省略前缀：
+
+```json
+{
+  "presets": [
+    // 等同于 @babel/preset-env
+    [
+      "env",
+      {
+        "modules": false,
+        "targets": {
+          "browsers": ["> 1%", "last 2 versions", "not ie <= 8"]
+        }
+      }
+    ]
+  ],
+  // 等同于 babel-plugin-transform-decorators-legacy
+  "plugins": ["transform-decorators-legacy"]
+}
+```
+
+plugins 插件数组和 presets 预设数组是有顺序要求的，如果两个插件或预设都要处理同一个代码片段，那么会根据插件和预设的顺序来执行，规则如下：
+
+- 插件比预设先执行。
+- 插件执行顺序是插件数组从前向后执行。
+- 预设执行顺序是预设数组从后向前执行。
+
+#### 2、[@babel/preset-env](https://babeljs.io/docs/babel-preset-env)
+
+由于 @babel/preset-env 预设功能强大，现在基本上都使用该预设，@babel/preset-env 提供以下重要属性：
+
+（1）targets
+
+设置 @babel/preset-env 的目标环境，@babel/preset-env 根据目标环境选择不支持的新特性来转译。
+
+例如设置目标环境是 Chrome 60：
+
+```json
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": ["chrome 60"]
+        }
+      }
+    ]
+  ]
+}
+```
+
+转化前后的代码对比，会发现并没有变化，因为 Chrome 60 已经实现了箭头函数语法，所以不会转换成 ES5 的函数定义语法：
+
+```js
+// test.js
+var fn = (num) => num + 2;
+
+// test-compiled.js
+("use strict");
+var fn = (num) => num + 2;
+```
+
+把 `chrome 60` 改为 `chrome 38`，会发现转换后的代码是 ES5 的函数定义语法，因为 Chrome 38 不支持箭头函数语法：
+
+```js
+// test.js
+var fn = (num) => num + 2;
+
+("use strict");
+var fn = function fn(num) {
+  return num + 2;
+};
+```
+
+[browserlist](https://cloud.tencent.com/developer/tools/blog-entry?target=https%3A%2F%2Fgithub.com%2Fbrowserslist%2Fbrowserslist&source=article&objectId=1612197) 是具体的可配置列表，可以根据你自己项目的兼容性要求来配置。
+
+（2）useBuiltIns
+
+@babel/preset-env 只会转换语法，例如：将箭头函数转化为普通函数、将 const 转化为 var，如果想要转化新的 API，例如 Map、Set，则需要引入 polyfill 相关包，polyfill 相关包会在目标环境中补齐缺失的 API。
+
+> 从 Babel 7.4 开始，官方不推荐再使用 @babel/polyfill 了，因为 @babel/polyfill 本身其实就是两个 npm 包的集合：core-js 与 regenerator-runtime，官方推荐直接使用这两个 npm 包。
+
+useBuiltIns 属性就是控制 @babel/preset-env 使用何种方式帮我们导入 polyfill，有以下值：
+
+- false：默认值，不引入 polyfill。
+- entry：@babel/preset-env 会在打包后，按照你所设置的 targets 目标环境在入口处引入所有 polyfill 包，不管需不需要。这种方式引入更多包，覆盖面积更广，但是打包体积更大。
+- useage：参考 targets 目标环境和代码中所使用到的 API 来按需加入 polyfill 包。这种方式打包后的体积更小，但是打包忽略 node_modules 时，如果第三方包未转译则会出现兼容问题。
+
+（3）corejs
+
+当 useBuiltIns 属性值为 entry 或 usage 时生效，设置使用的 core-js 版本，默认值为 2.0：
+
+```json
+"useBuiltIns": "entry",
+"corejs": {
+  "version": "3", // 使用core-js@3
+  "proposals": true // 引入提案版本
+}
+```
+
+（4）modules
+
+设置是否把 ES6 的模块化语法改成其它模块化语法，值有 amd、umd、systemjs、commonjs、cjs、auto（默认值）、false。
+
+我们常见的模块化语法有两种：
+
+- ES6 的模块法语法用的是 import 与 export；
+- CommonJS 模块化语法是 require 与 module.exports。
+
+当值为 auto 的时候，会发现我们代码里的 import 都被转化成 require 了，设置为 false 就不会转化了。ES6 模块化语法的好处是：在使用 Webpack 一类的打包工具，可以进行静态分析，从而可以做 tree shaking 等优化措施。
+
+#### 3、[@babel/plugin-transform-runtime](https://www.jiangruitao.com/babel/transform-runtime/)
+
+@babel/plugin-transform-runtime 有三大作用：
+
+- 自动移除语法转换后内联的辅助函数（inline Babel helpers），使用 @babel/runtime/helpers 里的辅助函数来替代，这样就减少了我们手动引入的麻烦。
+- 当代码里使用了 core-js 的 API，自动引入 @babel/runtime-corejs3/core-js-stable/，以此来替代全局引入的 core-js/stable。
+- 当代码里使用了 Generator/async 函数，自动引入 @babel/runtime/regenerator，以此来替代全局引入的 regenerator-runtime/runtime。
+
+（1）提供辅助函数并自动引入
+
+@babel/preset-env 在做语法转换的时候，默认会注入一些函数声明，以便语法转换后使用：
+
+```js
+class Person {
+  sayname() {
+    return "name";
+  }
+}
+var john = new Person();
+console.log(john);
+```
+
+```js
+"use strict";
+function _classCallCheck(instance, Constructor) {
+  if (!(instance instanceof Constructor)) {
+    throw new TypeError("Cannot call a class as a function");
+  }
+}
+function _defineProperties(target, props) {
+  for (var i = 0; i < props.length; i++) {
+    var descriptor = props[i];
+    descriptor.enumerable = descriptor.enumerable || false;
+    descriptor.configurable = true;
+    if ("value" in descriptor) descriptor.writable = true;
+    Object.defineProperty(target, descriptor.key, descriptor);
+  }
+}
+function _createClass(Constructor, protoProps, staticProps) {
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+  if (staticProps) _defineProperties(Constructor, staticProps);
+  return Constructor;
+}
+var Person = /*#__PURE__*/ (function () {
+  function Person() {
+    _classCallCheck(this, Person);
+  }
+  _createClass(Person, [
+    {
+      key: "sayname",
+      value: function sayname() {
+        return "name";
+      },
+    },
+  ]);
+  return Person;
+})();
+var john = new Person();
+console.log(john);
+```
+
+但这样做存在一个问题：在我们正常的前端工程开发的时候，少则几十个 js 文件，多则上千个，如果每个文件里都使用了 class 类语法，那会导致每个转换后的文件上部都会注入这些相同的函数声明，这会导致我们用构建工具打包出来的包非常大。
+
+解决方式是：把这些函数声明都放在一个 npm 包里，需要使用的时候直接从这个包里引入到我们的文件里。这样即使上千个文件，也会从相同的包里引用这些函数。通过 Webpack 这一类的构建工具打包的时候，我们只会把使用到的 npm 包里的函数引入一次，这样就做到了复用，减少了体积。
+
+@babel/runtime 就是上面说的这个 npm 包，@babel/runtime 把所有语法转换会用到的辅助函数都集成在了一起。不过 @babel/runtime 只是提供了这些函数声明，@babel/preset-env 在做语法转换的时候并不会自动引入这些函数，Babel 插件 @babel/plugin-transform-runtime 就来帮我们解决这个问题。
+
+（2）避免全局污染
+
+polyfill 是通过向全局对象和内置对象的 prototype 上添加方法来实现的。比如运行环境中不支持 Array.prototype.find()方法，引入 polyfill， 我们就可以使用 ES6 方法来编写了，但是缺点就是会造成全局空间污染。
+
+可以引入 @babel/runtime-corejs3 和 @babel/plugin-transform-runtime 包，@babel/runtime-corejs3 除了包含 Babel 做语法转换的辅助函数，也包含了 core-js 的 API 转换函数，@babel/plugin-transform-runtime 会使用 @babel/runtime-corejs3 内的辅助函数和 API 转换函数，避免 polyfill 对全局空间的污染。
+
+> 其实，API 转换主要是给开发 JS 库或 npm 包等的人用的，我们的前端工程一般仍然使用 polyfill 补齐 API。
+>
+> 如果开发 JS 库的人使用 polyfill 补齐 API，我们前端工程也使用 polyfill 补齐 API，但 JS 库的 polyfill 版本或内容与我们前端工程的不一致，那么我们引入该 JS 库后很可能会导致我们的前端工程出问题。所以，开发 JS 库或 npm 包等的人会用到 API 转换功能。
+
+（3）相关配置
+
+```json
+{
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        // 是否要自动引入辅助函数包
+        "helpers": true,
+        // 是否做 API 转换以避免污染全局环境
+        "corejs": false,
+        "regenerator": true,
+        // 是否使用 ES6 的模块化用法
+        "useESModules": false,
+        "absoluteRuntime": false,
+        "version": "7.0.0-beta.0"
+      }
+    ]
+  ]
+}
+```
+
+### （三）[Webpack](https://www.jiangruitao.com/webpack/)
+
+开发时，我们会使用前端框架（React、Vue）、ES6 模块化语法、Less/Sass 等 CSS 预处理器等语法进行开发。这样的代码要想在浏览器运行，必须经过编译成浏览器能识别的 JS、CSS 等语法才能运行，因此需要打包工具进行这个编译过程。
+
+Webpack 是一个基于 Node.js 开发的模块打包器（bundler），用于对前端工程进行打包，除此之外，打包工具还能压缩代码、做兼容性处理、提升代码性能等。在 Webpack 看来，前端的所有资源文件（js、json、css、image......）都会作为模块处理，它将根据模块的依赖关系进行静态分析，找出模块之间的依赖关系，按照一定的规则把这些模块组织合并为一个 JS 文件。
+
+Webpack 有以下核心概念：
+
+- entry（入口）：entry 用于设置 Webpack 资源入口，指示 Webpack 是从哪个 JS 文件开始打包的，然后根据这个 JS 文件依赖的文件，把相关联的文件模块打包到一个 JS 文件。
+- output（出口）：output 用于设置打包后的文件输出目录及输出文件名称等信息。
+- loader（加载器）：Webpack 本身只能处理 js、json 等资源，其他资源 Webpack 需要借助各种 loader 才能解析。
+- plugin（插件）：plugin 用于扩展 Webpack 的功能。例如 CssMinimizerWebpackPlugin 用于压缩 CSS，可以减小打包后文件的体积。
+- mode（模式）：Webpack 提供两种模式：development（开发模式）、production（生产模式。默认值）。主要用于区分开发和生产模式下的配置，不同模式下使用不同配置，提高代码性能。此外，在 production 模式下，Webpack 默认会对 JS 代码进行压缩。
+
+使用 `npx Webpack` 命令进行打包时，Webpack 默认会读取当前目录下的 webpack.config.js 配置文件中的配置，有以下核心配置：
+
+#### 1、entry
+
+```js
+module.exports = {
+  context: path.resolve(__dirname),
+  entry: "./src/main.js",
+};
+```
+
+（1）context 是指上下文路径，默认值是执行命令时所在目录的绝对路径。
+
+（2）entry 用于设置 Webpack 资源入口，值是相对于 context 的路径。entry 有如下输入值：
+
+① 字符串：表示打包的入口 JS 文件。
+
+② 数组：它表示的含义是数组最后一个文件是资源的入口文件，数组其余文件会预先构建到入口文件。
+
+```js
+module.exports = {
+  entry: ["core-js/stable", "regenerator-runtime/runtime", "./a.js"],
+};
+
+// 相当于
+
+// a.js
+import "core-js/stable";
+import "regenerator-runtime/runtime";
+
+// webpack.config.js
+module.exports = {
+  entry: "./a.js",
+};
+```
+
+③ 对象：入口 entry 是对象形式的又称之为多入口配置。
+
+```js
+var path = require("path");
+module.exports = {
+  entry: {
+    app: ["core-js/stable", "regenerator-runtime/runtime", "./a.js"],
+    vendor: "./vendor",
+  },
+  output: {
+    path: path.resolve(__dirname, ""),
+    filename: "[name].js",
+  },
+  mode: "none",
+};
+```
+
+上方的配置分别从两个入口文件打包，每个入口文件各自寻找自己依赖的文件模块打包成一个 JS 文件，最终得到两个 JS 文件。
+
+④ 函数形式：Webpack 取函数返回值作为入口配置，返回值是上述三种之一即可。
+
+#### 2、output
+
+output 是打包后的资源出口配置项，有以下子属性：
+
+（1）path：打包后资源所在目录。
+
+（2）filename：打包后文件名，默认值为 bundle.js。filename 支持类似变量的方式生成动态文件名：
+
+① hash：是一串 hash 值。
+
+```js
+var path = require("path");
+module.exports = {
+  entry: "./a.js",
+  output: {
+    path: path.resolve(__dirname, ""),
+    filename: "[hash]-bundle.js",
+  },
+  mode: "none",
+};
+```
+
+输出文件名为 hash 值，例如 `eaf163aa8342f012d6ee-bundle.js`。
+
+② name：name 表示的是 chunk 的名称。chunk 简单理解的话就是打包过程中，一个资源入口代表一个 chunk，一个异步模块资源也代表一个 chunk。
+
+当 entry 值为字符串或数组时，name 值为 main：
+
+```js
+filename: "[name].js";
+// main.js
+```
+
+当 entry 值为对象时，会生成多个资源出口文件，name 值就是对象中对应的键名：
+
+```js
+filename: "[name].js";
+// app.js
+// vendor.js
+```
+
+### （四）[Vue-Cli](https://cli.vuejs.org/zh/guide/index.html)
+
+Vue CLI（Command Line Interface，命令行接口） 是 Vue 提供的用于快速构建 Vue 前端项目的脚手架，用于自动生成 Vue + Webpack 的项目模板。
+
 ## 九、疑问
 
 ### （一）MVC 和 MVVM 的关系
@@ -4229,11 +4799,11 @@ foo();
 - MVC：是后端分层的概念，Model 层、View 层和 Controller 层。
 - MVVM：是前端视图层的概念，主要关注于视图层分离。
 
-### （二）[为什么 JS 是单线程的](https://juejin.cn/post/6844903849837215758)？
+### （二）[为什么 JavaScript 是单线程的](https://juejin.cn/post/6844903849837215758)？
 
-JS 是作为浏览器的脚本语言，主要是实现用户与浏览器的交互，以及操作 DOM。这决定了它只能是单线程，否则会带来很复杂的并发问题。
+JavaScript 是作为浏览器的脚本语言，主要是实现用户与浏览器的交互，以及操作 DOM。这决定了它只能是单线程，否则会带来很复杂的并发问题。
 
-> 例如：如果 JS 被设计成多线程，此时 DOM 作为共享变量，一个线程要修改一个 DOM 元素，另一个线程要删除这个 DOM 元素，会造成并发安全问题。
+> 例如：如果 JavaScript 被设计成多线程，此时 DOM 作为共享变量，一个线程要修改一个 DOM 元素，另一个线程要删除这个 DOM 元素，会造成并发安全问题。
 
 ### （三）[为什么 assign、JSON.parse(JSON.stringify())克隆对象后，不能 watch 到对象内部属性变化](https://segmentfault.com/q/1010000009292870)
 
@@ -4246,3 +4816,10 @@ debounce 只会执行最后一次；throttle 是每隔一段时间执行一次�
 ### （五）[跨域请求](https://blog.csdn.net/ppxin/article/details/94717173)
 
 跨域请求表示当前域访问其他域的资源（跨域请求时可以发去的），但是浏览器检测到请求的结果和当前域名不一致后，会阻塞请求结果。使用`Access-Control-Allow-Origin`，表示服务器返回的资源可以被哪些域名所访问。
+
+### （六）Base64 编码是什么？
+
+Base64 编码是将资源（图片、文本等）转化为字符串替换到标签的 src 路径下，有以下优缺点：
+
+- 减少前端的请求次数，因为浏览器会自动解析字符串转化为图片，不需要再请求服务器。
+- 字符串可能会比图片占用空间大。因此一般只讲小图片转化为 base64，否则初次加载花费时间更长。
