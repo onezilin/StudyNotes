@@ -80,11 +80,16 @@ MVVM 作为数据绑定的入口，整合 Observe、Compile 和 Watcher。通过
 
 ### （一）组件选项
 
-在 JavaScript 中的基本结构，其中传入 Vue 的对象参数叫做组件选项：
+每个 Vue 应用都是通过 new 创建一个新的 Vue 应用实例，其中传入的**对象实参中的每个属性叫做组件选项**：
 
-```js
-// 组件选项为 {el: '#app', data: {}, ......} 等
-let myVue = new Vue({el: '#app', data: {}, ......})
+> Vue 3.x 通过 Vue.createApp ({}) 方式创建。
+
+```javascript
+// el、data 属性就称为组件选项，因为可以选择性添加
+let myVue = new Vue({
+  el: '#app',
+  data: {}, ......
+})
 ```
 
 #### 1、el
@@ -98,7 +103,7 @@ let myVue = new Vue({el: '#app', data: {}, ......})
 
 #### 2、data
 
-存储数据。Vue 会监听数据的改变，只要数据以发生改变，就会自动同步到页面，所以 data 中的数据总是最新的。
+存储当前 Vue 实例中的数据，通过 MVVM 实现 HTML 元素和 data 中数据的双向绑定。
 
 #### 3、methods
 
@@ -108,52 +113,69 @@ let myVue = new Vue({el: '#app', data: {}, ......})
 <!-- methods 中方法的两种调用方式 -->
 
 <!-- 传入参数，调用方法并获取返回值 -->
-<div @click="myMethods(myParam)" />
+<div @click="myMethods(name)" />
 
 <!-- 只调用方法，不获取返回值 -->
 <div @click="myMethods" />
+
+<script>
+  let myVue = new Vue({
+    el: '#app',
+    data: {
+      name: 'helloWorld'
+    },
+    methods: {
+      myMethods(myParam) {
+        console.log(myParam)
+      }
+    }
+  })
+</script>
 ```
 
 #### 4、filters
 
-过滤器是调用函数前先处理一遍数据再渲染到前端，可以链式编程。
+可以对 HTML 中绑定的数据添加 filter 过滤器，在渲染数据前会调用 filter 过滤器，处理完成后再渲染到页面中。
 
-> 注意：过滤器中不能使用 `this` 关键字，若需使用什么，需要通过自定义参数传入。
+> 注意：
+>
+> - 过滤器中不能使用 `this` 关键字，只能通过自定义参数传入所需的数据。
+> - filter 支持链式编程。
 
 ##### （1）全局过滤器
 
-所有被 Vue 实例挂载的目标都可以使用。
+全局过滤器添加到 Vue 中，所有被 Vue 实例挂载的目标都可以使用。
 
 ```vue
 <script>
-   //第一个参数是固定获取管道前的参数（这里是指name），后面的参数是自定义传入的参数
-Vue.fliter("过滤器名称"，function(data, .......){
+   // 第一个参数 data 是固定的，对应管道前的参数（即需要处理的数据），后面的参数是自定义传入的参数
+Vue.fliter("过滤器名称"，function (data, .......) {
   return  "对data进行操作，再返回";
 });
 
 var myVue = new vue({
   el:"#app",
   data:{
-    name = "名字"
+    name: "名字"
   }
 });
 </script>
 
 <div id="app">
-  <p>{{name | "过滤器名称（自定义传入的参数）"}}</p>
+  <p>{{ name | "过滤器名称(自定义传入的参数)" }}</p>
 </div>
 ```
 
 ##### （2）私有过滤器
 
-当私有过滤器和全局过滤器同名时，优先使用私有过滤器。
+组件选项中提供 filters 属性，用于设置私有过滤器。当私有过滤器和全局过滤器同名时，优先使用私有过滤器。
 
 ```vue
 <script>
 var myVue = new Vue(
   el: "#app",
   data: {
-    name = "名字"
+    name: "名字"
   },
   //定义私有过滤器
   filters: {
@@ -165,59 +187,62 @@ var myVue = new Vue(
 </script>
 
 <div id="app">
-  <p>{{name | "过滤器名称（自定义传入的参数）"}}</p>
+  <p>{{ name | "过滤器名称(自定义传入的参数)" }}</p>
 </div>
 ```
 
 ##### （3）默认过滤器
 
-Vue 有默认自带的过滤器。
+Vue 也提供一些默认自带的过滤器。
 
 ```vue
+<template>
+  <p>
+    <!-- 首字母大写：capitalize -->
+    {{ msg | capitalize }}
+    <!-- 全部大写：uppercase -->
+    {{ msg | uppercase }}
+    <!-- 全部小写：lowercase -->
+    {{ msg | lowercase }}
+  </p>
+</template>
+
 <script>
-new Vue({ el: "", data: { msg: "abc" } });
+new Vue({ el: '', data: { msg: 'abc' } })
 </script>
-<p>
-  //1.首字母大写: capitalize 
-  {{ msg | capitalize}}  
-  //2.全部大写: uppercase 
-  {{ msg | uppercase  }} 
-  //3.全部小写:lowercase 
-  {{ msg | lowercase  }} 
-</p>
 ```
 
 #### 5、watch
 
-可以监听到 data 中指定数据的变化，然后触发 watch 中对应的处理函数。
+当 data 中监听的数据发生变化时，触发 watch 中对应的处理函数。
 
 ```vue
 <script>
 var vm = new Vue({
-  el: "#app",
+  el: '#app',
   data: {
-    firstName: "jack",
-    lastName: "chen",
-    fullName: "jack - chen",
+    firstName: 'jack',
+    lastName: 'chen',
+    fullName: 'jack - chen'
   },
   watch: {
-    // 第一个参数是新数据，第二个参数是旧数据
+    // 第一个参数是变化后的数据，第二个参数是变化前的数据
     firstName: function (newVal, oldVal) {
-      this.fullName = newVal + " - " + this.lastName;
+      this.fullName = newVal + ' - ' + this.lastName
     },
     lastName: function (newVal, oldVal) {
-      this.fullName = this.firstName + " - " + newVal;
-    },
-  },
-});
+      this.fullName = this.firstName + ' - ' + newVal
+    }
+  }
+})
 </script>
 ```
 
-> 注意：watch 中对应的处理函数名称和 data 中要监听的数据键一致。
+> 注意：watch 中对应的处理函数名称和 data 中要监听的键名一致。
 
 监听属性中还提供两个属性：
 
-- immediate：刚初始化 Vue 实例时，便会执行监听属性函数。
+- immediate：刚初始化 Vue 实例时，便会执行监听属性函数（beforeCreated 之后、created 之前执行）。
 - deep：当监听属性对象中的属性修改时，也会执行监听属性函数。
 
 ```vue
@@ -252,38 +277,38 @@ var vm = new Vue({
 
 <script>
 var vm = new Vue({
-  el: "#app",
+  el: '#app',
   data: {
-    firstName: "jack",
-    lastName: "chen",
+    firstName: 'jack',
+    lastName: 'chen'
   },
   methods: {
     changeName() {
-      this.fullName = "TOM - chen2";
-    },
+      this.fullName = 'TOM - chen2'
+    }
   },
   computed: {
     fullName: {
-      // getter计算并返回结果
+      // getter：访问 fullName 值时，会触发 get 函数
       get: function () {
-        return this.firstName + " - " + this.lastName;
+        return this.firstName + ' - ' + this.lastName
       },
-      // setter也可以通过结果值改变去修改所用到的数据
+      // setter：fullName 值变化时，会触发 set 函数
       set: function (newVal) {
-        var parts = newVal.split(" - ");
-        this.firstName = parts[0];
-        this.lastName = parts[1];
-      },
-    },
-  },
-});
+        var parts = newVal.split(' - ')
+        this.firstName = parts[0]
+        this.lastName = parts[1]
+      }
+    }
+  }
+})
 </script>
 ```
 
 > 注意：
 >
 > - 计算属性调用的时候不能当作方法去调用，而是当作普通的 data 中的数据去调用。
-> - 只要计算属性这个方法中所用到的任何数据改变，就会重新计算属性方法的返回值。
+> - 只要计算属性这个方法中所用到的任何 data 数据改变，就会重新计算属性方法的返回值。
 > - 计算属性的求值结果会被缓存起来，只要使用到的数据未改变，计算属性调用的时候就是一直使用这个缓存起来的值。
 > - 计算属性中只有 Date.now()这个值时不会更新，因为 Date.now()不是响应式依赖：
 
@@ -321,28 +346,13 @@ var vm = new Vue({
 
 ##### （1）自定义全局组件
 
-① 使用 `Vue.extend()` 配合 `Vue.component()` 方法：
+① 使用 `Vue.component()` 方法：
 
-```vue
-<script>
-var login = Vue.extend({ template: "<h1>登录</h1>" });
-
-// 也可以使用这种写法
-// var login= { template: '<h1>登录</h1>' };
-
-Vue.component("login", login);
-</script>
+```javascript
+Vue.component('register', { template: '<h1>注册</h1>' })
 ```
 
-② 使用 `Vue.component()` 方法：
-
-```vue
-Vue.component('register', { template: '
-<h1>注册</h1>
-' });
-```
-
-③ 将模板标签定义到 script 标签外：
+② 将模板标签定义到 script 标签外：
 
 ```vue
 <template id="tmpl">
@@ -351,7 +361,7 @@ Vue.component('register', { template: '
 
 <script>
 //同时，需要使用 Vue.component() 来定义组件：
-Vue.component("account", { template: "#tmpl" });
+Vue.component('account', { template: '#tmpl' })
 </script>
 ```
 
@@ -360,75 +370,73 @@ Vue.component("account", { template: "#tmpl" });
 ```vue
 <script>
 var app = new Vue({
-  el: "#app",
+  el: '#app',
   components: {
-    "my-component": {
-      template: "<div>这是一个局部的自定义组件，只能在当前Vue实例中使用</div>",
+    'my-component': {
+      template: '<div>这是一个局部的自定义组件，只能在当前Vue实例中使用</div>',
       data: function () {
-        return {};
-      },
-    },
-  },
-});
+        return {}
+      }
+    }
+  }
+})
 </script>
 
 //调用方法
 <div id="app">
-  <mycomponent></mycomponent>
+  <myComponent></myComponent>
   <my-component></my-component>
 </div>
 ```
 
 > 注意：
 >
-> - 若组件命名的时候是驼峰的书写形式 `myLogin1`，在使用时可以写成 `<my-login1 />`。
+> - 若组件命名的时候是驼峰的书写形式 `myComponent`，在使用时可以写成 `<myComponent>` 或 `<my-component>`。
 > - `<template>` 中有且仅有一个根标签。
 > - 当 Vue 实例作为组件被多个页面共用时，data 属性也会被多个页面共用，若一个页面更改 data 中的数据，其他页面也可以看到更改后的 data。Vue 实例提供 `data()` 函数，获取 data()函数的返回值作为 data 存储数据，这样 Vue 实例被多个页面共用时，data()函数的返回值都是新的对象，就不会有数据共享问题。
 > - 使用 DOM 作为模版时 (例如，将 el 选项挂载到一个已存在的元素上)，你会受到 HTML 的一些限制，因为 Vue 只有在浏览器解析和标准化 HTML 后才能获取模板内容。尤其像这些元素 `<ul>、<ol>、<table>、<select>` 限制了能被它包裹的元素，而一些像 `<option>` 这样的元素只能出现在某些其它元素内部。所以使用受限制的元素时会导致一些问题，此时可以用限制元素的 `is` 属性,例如：`<tr is="my-component">` ，相当于用 `<tr>` 包裹这个组件。
 
 ##### （3）组件切换
 
-通过 transition 切换组件可以实现使用不同的组件切换时的动画效果：
+`<component>` 标签用于渲染组件，is 属性值表示需要渲染的组件名，`<component>` 会被 is 指定的组件替换，同时将该组件渲染到页面中。
 
-```vue
-<!-- transition 标签的 mode 属性控制组件切换顺序 -->
-<transition mode="in-out">  
-    <!-- 使用Vue的component标签 -->
-    <component :is="'组件名称的字符串'或者data中的键" />
-</transition>
+```html
+<component :is="'组件名称的字符串'或者data中的键" />
 ```
 
 ##### （4）父子组件
 
 components 属性相当于 vue 下的一个子组件，默认无法访问到父组件中的 data 上的数据和 methods 中的方法。
 
-① 三种传递数据方式：
+① 传递数据三种方式：
 
 - 子组件通过 prop 属性获取父组件值
 
 ```vue
-//要先在父组件vue区域中引用子组件
-<div id="app">
-   <my-com v-bind:子组件自定义的属性名称="父组件data的键" />
-</div>
+<template>
+  <!-- father 组件中引入 my-com 组件 -->
+  <div id="app">
+    <my-com v-bind:子组件自定义的属性名称="父组件data的键" />
+  </div>
+</template>
 
 <script>
 var app = new Vue({
-  el: "#app",
+  el: '#app',
   data: {},
   components: {
     myCom: {
-      template: "<div>{{ 子组件自定义的属性名称 }}</div>",
+      template: '<div>{{ 子组件自定义的属性名称 }}</div>',
       props: {
         子组件自定义的属性名称: {
-          type: "类型", // 也可以为数组 [类型1, 类型2],
-          default: "默认值", // 父组件不传时的默认值
-          required: true, // 是否必须要父组件传值
-        },
-      },
-    },
-  },
-});
+          type: '类型', // 也可以为数组 [类型1, 类型2],
+          default: '默认值', // 父组件不传时的默认值
+          required: true // 是否必须要父组件传值
+        }
+      }
+    }
+  }
+})
 </script>
 ```
 
@@ -461,9 +469,9 @@ var app = new Vue({
 </script>
 ```
 
-当父类给子类传递回调方法时，除了想获取子组件实参外，还想传入自己的参数。有[三种解决方式](https://github.com/vuejs/vue/issues/5735)：
+当子类调用传入的方法时，若父组件除了想获取子组件实参外，还想传入自己的参数。有[三种解决方式](https://github.com/vuejs/vue/issues/5735)：
 
-```vue
+```html
 <!-- 当子组件只传入一个参数时，使用$event表示子组件的参数 -->
 <my-com @sonMthods="parentMethod($enent, parentArgs......)" />
 
@@ -471,54 +479,64 @@ var app = new Vue({
 <my-com @sonMthods="parentMethod(arguments, parentArgs......)" />
 
 <!-- 使用箭头函数获取 -->
-<my-com
-  @sonMthods="(sonAtgs......) => parentMethod(sonAtgs......, parentArgs......)"
-/>
+<my-com @sonMthods="(sonAtgs......) => parentMethod(sonAtgs......, parentArgs......)" />
 ```
 
 #### 8、directive
 
-Vue 也允许注册自定义指令。
+除了使用 Vue 已经提供的指令外（例如 v-model），还可以自定义 Vue 指令。
 
-> 注意，在 Vue2.0 里面，代码复用的主要形式和抽象是组件，然而有的情况下，你仍然需要对纯 DOM 元素进行底层操作，这时候就会用到自定义指令。
+> 注意：在 Vue2.0 里面，代码复用的主要形式和抽象是组件，然而有的情况下，你仍然需要对纯 DOM 元素进行底层操作，这时候就会用到自定义指令。
 
 ##### （1）全局自定义指令
 
-```vue
-<script>
-//自定义v-focus指令
-Vue.directive("focus", {
-  // 钩子函数
-});
-</script>
+```javascript
+// 自定义防止双击的指令
+const debounce = {
+  install: Vue => {
+    Vue.directive('debounce', {
+      inserted(el, binding) {
+        el.addEventListener('click', e => {
+          if (!el.disabled) {
+            el.classList.add('is-disabled')
+            el.disabled = true
+            setTimeout(() => {
+              el.disabled = false
+              el.classList.remove('is-disabled')
+            }, binding.value || 1000)
+          }
+        })
+      }
+    })
+  }
+}
 
-<input v-focus />
+Vue.use(debounce)
 ```
 
 ##### （2）私有自定义指令
 
 ```vue
 <script>
-//自定义v-focus指令
 var myVue = new vue(){
-  el : ...,
-  data : ...,
-  directives : {
+  el: ...,
+  data: ...,
+  directives: {
+    // 自定义 v-focus 指令
     focus : {
-    // 钩子函数
+      // 钩子函数
     }
   }
 };
 </script>
 
+<!-- Vue 默认会在自定义的指令前添加 v- -->
 <input v-focus />
 ```
 
 ##### （3）自定义指令的钩子函数
 
-钩子函数是指由系统消息触发的函数。
-
-① 有以下钩子函数：
+Vue 自定义指令中，提供以下钩子函数：
 
 - bind：只调用一次，指令第一次绑定到元素时调用，用这个钩子函数可以定义一个在绑定时执行一次的初始化动作，但是元素还没有重新插入到 DOM 中，和行为相关的操作不会生效。
 - inserted：只调用一次，被绑定元素插入父节点时调用（父节点存在即可调用，不必存在于 document 中）。
@@ -526,18 +544,18 @@ var myVue = new vue(){
 - componentUpdated：被绑定元素所在模板完成一次更新周期时调用。
 - unbind：只调用一次， 指令与元素解绑时调用（也就是绑定的 DOM 销毁时调用，例如：`v-if="false"时销毁`）。
 
-② 钩子函数参数有：
+钩子函数参数有：
 
-- el: 指令所绑定的元素，可以用来直接操作 DOM 。
-- binding: 一个对象，包含以下属性：
+- el：指令所绑定的元素，可以用来直接操作 DOM 。
+- binding：一个对象，包含以下属性：
   - name: 指令名，不包括 v- 前缀。
-  - value: 指令的绑定值， 例如： v-my-directive=”1 + 1”, value 的值是 2。
+  - value: 指令的绑定值， 例如 `v-my-directive="1 + 1"`，value 的值是 2。
   - oldValue: 指令绑定的前一个值，仅在 update 和 componentUpdated 钩子中可用。无论值是否改变都可用。
-  - expression: 绑定值的字符串形式。 例如 v-my-directive=”1 + 1” ，expression 的值是 “1 + 1”。
-  - arg: 传给指令的参数。例如 v-my-directive:foo， arg 的值是 “foo”；v-my-directive:foo.bar，arg 的值是 “foo”。
+  - expression: 绑定值的字符串形式。 例如 `v-my-directive="1 + 1"`，expression 的值是 1 + 1。
+  - arg: 传给指令的参数。例如 `v-my-directive:foo`，arg 的值是 **foo**；`v-my-directive:foo.bar`，arg 的值是 **foo**。
   - modifiers: 一个包含修饰符的对象。 例如： v-my-directive.foo.bar, 修饰符对象 modifiers 的值是 { foo: true, bar: true }；v-my-directive:foo.bar，修饰符对象 modifiers 的值是 { bar: true }
-- vnode: Vue 编译生成的虚拟节点，查阅 VNode API 了解更多详情。
-- oldVnode: 上一个虚拟节点，仅在 update 和 componentUpdated 钩子中可用。
+- vnode：Vue 编译生成的虚拟节点，查阅 VNode API 了解更多详情。
+- oldVnode：上一个虚拟节点，仅在 update 和 componentUpdated 钩子中可用。
 
 > 注意：
 >
@@ -546,13 +564,15 @@ var myVue = new vue(){
 > - 定义的时候不需要加 `v-` 前缀，调用的时候需要。
 > - 和行为有关的操作，会在内存中保存一下，没有插入到 dom 中就会失效，应该使用 inserted 函数；和样式相关的操作，只要通过指令绑定给了元素，不管这个元素有没有被插入到页面中去，这个元素肯定有了一个内联的样式，将来元素肯定会显示到页面中，浏览器的渲染引擎必然会解析样式，应用给这个元素，所以可以使用 binding 钩子函数。
 
-### （二）[Vue 生命周期](https://segmentfault.com/a/1190000011381906?utm_source=tag-newest)
+#### 9、[Vue 生命周期函数](https://segmentfault.com/a/1190000011381906?utm_source=tag-newest)
 
 从 Vue 实例创建、运行、到销毁期间，总是伴随着各种各样的事件，这些事件，统称为生命周期。
 
 ![Vue生命周期](./Vue生命周期.png)
 
-#### 1、创建期间的函数
+Vue 提供以下生命周期函数作为组件选项：
+
+##### （1）创建期间的函数
 
 - beforeCreate：实例刚在内存中被创建出来，此时还没有初始化好 data 和 methods 属性。
 
@@ -564,12 +584,12 @@ var myVue = new vue(){
 
   > 只有在这之后才能操作 DOM 节点。
 
-#### 2、运行期间的函数
+##### （2）运行期间的函数
 
 - beforeUpdate：更新 template 的 vue 指令数据，并且保存在内存中。状态更新之前执行此函数， 此时 data 中的状态值是最新的，但是界面上显示的数据还是旧的，因为此时还没有开始重新渲染 DOM 节点。
 - updated：将内存中的 template 挂载到 html 页面的节点，此时 data 中的状态值和界面上显示的数据，都已经完成了更新，界面已经被重新渲染好。
 
-#### 3、销毁期间的函数
+##### （3）销毁期间的函数
 
 - beforeDestroy：实例销毁之前调用。
 
@@ -577,39 +597,56 @@ var myVue = new vue(){
 
 - destroyed：Vue 实例指示的所有东西都会解绑定，所有的事件监听器会被移除，所有的子实例也会被销毁。
 
-#### 4、`<keep-alive>`
+##### （4）`<keep-alive>`
 
-`<keep-alive>` 用于离开前组件，跳转到属于同一个 `<keep-alive>` 的另一个组件时，会缓存前组件而不销毁。
+keep-alive 是 Vue 中的内置组件，能在组件切换过程中将状态保留在内存中，防止重复渲染 DOM。`<keep-alive>` 包裹动态组件时，会缓存不活动的组件实例，而不是销毁它们，即由 A 组件切换到属于同一个 `<keep-alive>` 的 B 组件时，会缓存 A 组件而不销毁。
 
-跳转到属于同一个`<keep-alive>`的另一个组件，会执行 deactivated()函数；若又从另外一个组件跳回来，则执行 activated()函数；当组件销毁时，执行 destroyed()函数（所以这两个函数不能同时执行）。
+切换到 B 组件时，会执行 A 组件 deactivated()函数和 B 组件的 activated()函数；若从 B 组件切换到 A 组件时，会执行 B 组件 deactivated()函数和 A 组件的 activated()函数；当组件销毁时，执行 destroyed()函数（所以这两个函数不能同时执行）。
 
 > 在 2.2.0 及更高版本中，activated()和 deactivated()会在 `<keep-alive>` 树内所有的嵌套组件中触发。
 
-#### 5、执行顺序
+```html
+<keep-alive>
+  <component :is="componentName" />
+</keep-alive>
+```
+
+`<keep-alive>` 有以下属性：
+
+- include：字符串或正则表达式，只有名称匹配的组件会被缓存。
+- exclude：字符串或正则表达式，任何名称匹配的组件都不会被缓存。
+- max：数字，最多可以缓存多少组件实例。
+
+##### （5）执行顺序
 
 执行顺序：beforeCreated、watch（immediate 时）、created、beforeMount、mounted、activated、beforeUpdate、updated、deactivated/（beforeDestory、destroyed）。
 
 > 注意：computed 中的函数只有在被调用时才会执行，所以不管在生命周期中那里调用都会执行，不过要注意在 beforeCreated 中调用时，若使用了 data 的数据，则此时的数据还没有初始化。
 
-### （三）事件修饰符和键盘修饰符
+### （二）修饰符
+
+Vue 中提供 `v-on:事件名称` 将[事件](https://juejin.cn/post/7089351665660198949)绑定到指定元素上，当该元素上对应事件触发时，则会调用对应的事件函数。
+
+```html
+<div v-on:click="itemClick" />
+
+<!-- v-on 可以简写为 @ -->
+<div @click="itemClick" />
+```
 
 #### 1、事件修饰符
 
-用于修饰事件该如何进行，Vue 的事件修饰符可以链式编程。
+用于修饰事件该如何进行，Vue 的事件修饰符可以链式编程：
 
-- 事件.stop：可以阻止冒泡( 当一个元素接收到事件的时候 会把他接收到的事件传给自己的父级，一直到 window 。注意这里传递的仅仅是事件，并不传递所绑定的事件函数，所以如果父级没有绑定事件函数，就算传递了事件也不会有什么表现，但事件确实传递了，就算子中没有事件，但是对子进行事件操作的时候还是会触发父级的相关事件。）
-
+- 事件.stop：可以阻止冒泡。当一个元素接收到事件的时候，会把他接收到的事件传给自己的父级，直到 window，这就称为**冒泡**。（注意：这里传递的仅仅是事件，并不传递所绑定的事件函数，所以如果父级没有绑定事件函数，就算传递了事件也不会有什么表现，但事件确实传递了。）
 - 事件.prevent：阻止默认事件，也就是每个阻止每个事件的发生。
-
 - 事件.capture：添加事件监听器时使用事件捕获模式（由外向里触发事件）。
-
 - 事件.self：只当事件在该元素本身（不是子元素冒泡而来的事件）触发时触发回调。
-
 - 事件.once：事件只触发一次。
 
 #### 2、键盘修饰符
 
-修饰键盘敲击某个按键后触发的事件。
+修饰键盘敲击某个按键后触发的事件：
 
 ```vue
 <!--按下enter键后触发事件-->
@@ -626,269 +663,315 @@ var myVue = new vue(){
 
 [js 里面的键盘事件对应的键码](http://www.cnblogs.com/wuhua1/p/6686237.html)
 
-### （四）vue 中样式
+### （三）动态样式
 
-#### 1、使用 class 批量样式
+Vue 中支持动态设定元素的 class 属性或者 style 属性。
 
-（1）数组：
+#### 1、动态 class 类
 
-```vue
-<h1 :class="['red', 'thin', italic]">这是一个邪恶的H1</h1>
-```
+在元素的 class 属性中，Vue 提供 `:class` 的方式用于动态向元素设置 class 类，有以下设置方式：
 
-（2）数组中使用三元表达式：
+- 数组：
 
-```vue
-<h1
-  :class="['red', 'thin', isActive ? 'active' : 'deactive']"
->这是一个邪恶的H1</h1>
-```
+  ```html
+  <h1 :class="['red', 'thin', italic]">这是一个邪恶的H1</h1>
+  ```
 
-（3）数组中嵌套对象：
+- 数组中使用三元表达式：
 
-```vue
-<h1 :class="['red', 'thin', { active: isactive }]">这是一个邪恶的H1</h1>
-```
+  ```html
+  <h1 :class="['red', 'thin', isActive ? 'active' : 'deactive']">这是一个邪恶的H1</h1>
+  ```
 
-（4）直接使用对象：
+- 数组中嵌套对象：
 
-```vue
-<h1 :class="{"red": true, "italic": true, "active": true, "thin": true}">这是一个邪恶的H1</h1>
-```
+  ```html
+  <h1 :class="['red', 'thin', { active: isactive }]">这是一个邪恶的H1</h1>
+  ```
 
-#### 2、使用内联样式
+- 直接使用对象：
 
-（1）直接使用对象：
+  ```html
+  <h1 :class="{"red": true, "italic": true, "active": true, "thin": true}">这是一个邪恶的H1</h1>
+  ```
 
-```vue
-<h1 :style="{ color: 'red', 'font-size': '40px' }">这是一个善良的H1</h1>
-```
+#### 2、动态 style 内联样式
 
-（2）在 data 上定义：
+在元素的 style 属性中，Vue 提供 `:style` 的方式用于动态向元素设置 style 内联样式，有以下设置方式：
 
-在元素中，通过属性绑定的形式，将样式对象应用到元素中。
+- 直接使用对象：
 
-```vue
-<script>
-var myVue = new vue(){
-  el : ...,
-  data: {
-    h1StyleObj: { color: 'red', 'font-size': '40px', 'font-weight': '200' }
-  }
-};
-</script>
+  ```html
+  <h1 :style="{ color: 'red', 'font-size': '40px' }">这是一个善良的H1</h1>
+  ```
 
-<h1 :style="h1StyleObj">这是一个善良的H1</h1>
-```
+- 在 data 上定义，通过属性绑定的形式，将样式对象应用到元素中：
 
-（3）数组方式引用：
+  ```vue
+  <template>
+    <h1 :style="h1StyleObj">这是一个善良的H1</h1>
+  </template>
 
-在元素中，通过属性绑定的形式，将样式对象应用到元素中。
+  <script>
+  var myVue = new vue(){
+    el : ...,
+    data: {
+      h1StyleObj: { color: 'red', 'font-size': '40px', 'font-weight': '200' }
+    }
+  };
+  </script>
+  ```
 
-```vue
-<script>
-var myVue = new vue(){
-  el : ...,
-  data: {
-    h1StyleObj: { color: 'red', 'font-size': '40px', 'font-weight': '200' },
-    h1StyleObj2: { fontStyle: 'italic' }
-  }
-};
-</script>
+- 数组方式引用：
 
-<h1 :style="[h1StyleObj, h1StyleObj2]">这是一个善良的H1</h1>
-```
+  ```vue
+  <template>
+    <h1 :style="[h1StyleObj, h1StyleObj2]">这是一个善良的H1</h1>
+  </template>
 
-### （五）[Vue 的过渡和动画](https://cn.vuejs.org/v2/guide/transitions.html)
+  <script>
+  var myVue = new vue(){
+    el : ...,
+    data: {
+      h1StyleObj: { color: 'red', 'font-size': '40px', 'font-weight': '200' },
+      h1StyleObj2: { fontStyle: 'italic' }
+    }
+  };
+  </script>
+  ```
+
+### （四）[过渡和动画](https://cn.vuejs.org/v2/guide/transitions.html)
 
 动画能够提高用户的体验，帮助用户更好的理解页面中的功能。Vue 提供了 `transition` 的封装组件，在下列情形中，可以给任何元素和组件添加进入/离开过渡：
 
 - 条件渲染 (使用 `v-if`)
 - 条件展示 (使用 `v-show`)
-- 动态组件
-- 组件根节点
+- 动态组件 component 切换
+- 改变特殊的 key 属性
 
-#### 1、普通标签的三种过渡方式
+当插入或删除包含在 `transition` 组件中的元素时，Vue 将会做以下处理：
 
-（1）过渡类名：
+1. 自动嗅探目标元素是否应用了 CSS 过渡或动画，如果是，在恰当的时机添加/删除 CSS 类名。
+2. 如果过渡组件提供了 [JavaScript 钩子函数](https://v2.cn.vuejs.org/v2/guide/transitions.html#JavaScript-钩子)，这些钩子函数将在恰当的时机被调用。
+3. 如果没有找到 JavaScript 钩子并且也没有检测到 CSS 过渡/动画，DOM 操作（插入/删除）在下一帧中立即执行。（注意：此指浏览器逐帧动画机制，和 Vue 的 `nextTick` 概念不同）。
+
+#### 1、过渡的类名
+
+在进入/离开的过渡中，会有 6 个 class 类名切换，我们可以通过对这 6 个 class 添加对应的 CSS 动画样式，实现动画效果：
+
+- v-enter：进入过渡开始状态。在元素被插入之前生效，在元素被插入之后的下一帧移除。
+- v-enter-active：进入过渡生效时的状态，即动画进行中。这个类可以被用来定义进入过渡的过程时间，延迟和曲线函数。
+- v-enter-to：进入过渡的结束状态。在元素被插入之后下一帧生效 (与此同时 v-enter 被移除)，在过渡/动画完成之后移除。
+- v-leave：离开过渡的开始状态。在离开过渡被触发时立刻生效，下一帧被移除
+- v-leave-active：离开过渡生效时的状态，即动画进行中。这个类可以被用来定义离开过渡的过程时间，延迟和曲线函数。
+- v-leave-to：离开过渡的结束状态。在离开过渡被触发之后下一帧生效 (与此同时 v-leave 被删除)，在过渡/动画完成之后移除。
+
+transition 提供 name 属性，用于自定义类名前缀，动画效果的默认类名前缀是 `v-`：
 
 ```vue
-//HTML结构
-<div id="app">
-  <input type="button" value="动起来" @click="myAnimate">
-  <!-- 使用 transition 将需要过渡的元素包裹起来 -->
-  <transition name="fade">
-    <div v-show="isshow">动画哦</div>
-  </transition>
-</div>
+<template>
+  <transition name="fade-transform"> ...... </transition>
+</template>
 
-<script>
-//VM 实例
-var vm = new Vue({
-  el: '#app',
-  data: {
-    isshow: false
-  },
-  methods: {
-    myAnimate() {
-      this.isshow = !this.isshow;
-    }
-  }
-});
-</script>
-
-
-//定义两组类样式
-<style>
-/* 定义进入和离开时候的过渡状态 */
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s ease;
-  position: absolute;
-}
-
-/* 定义进入过渡的开始状态和离开过渡的结束状态 */
-.fade-enter,
-.fade-leave-to {
-  opacity: 0;
-  transform: translateX(100px);
+<style lang="scss" scoped>
+// v-enter 类名就变为
+.fade-transform-enter {
+  ......
 }
 </style>
 ```
 
-（2）使用第三方 CSS 动画库：
+#### 2、过渡的钩子函数
+
+Vue 也提供 class 类名对应的钩子函数，在对应过渡动作执行时调用：
 
 ```vue
-//导入动画类库：
-<link rel="stylesheet" type="text/css" href="./lib/animate.css">
+<template>
+  <div>
+    <transition
+      :css="false"
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @after-enter="afterEnter"
+      @enter-cancelled="enterCancelled"
+      @before-leave="beforeLeave"
+      @leave="leave"
+      @after-leave="afterLeave"
+      @leave-cancelled="leaveCancelled"
+    >
+      <p v-if="show">hello</p>
+    </transition>
+    <button @click="show = !show">切换</button>
+  </div>
+</template>
 
-//定义 transition 及属性：
-<transition enter-active-class="fadeInRight" leave-active-class="fadeOutRight" :duration="{ enter: 500, leave: 800 }">
-  <div class="animated" v-show="isshow">动画哦</div>
+<script>
+export default {
+  name: 'ItemTwo',
+  data() {
+    return { show: false }
+  },
+  methods: {
+    beforeEnter(el) {},
+    // el 就是标签对象，可对标签对象进行操作
+    // done()代表着完成时的回调，不执行这个 done 回调函数，那么它就不会执行下一个 afterEnter 钩子函数
+    // 当与 CSS 结合使用时，回调函数 done 是可选的
+    enter(el, done) {
+      el.style.color = 'green'
+    },
+    afterEnter(el) {},
+    // 取消过渡执行时调用
+    enterCancelled(el) {},
+    beforeLeave(el) {},
+    leave(el, done) {},
+    afterLeave(el) {},
+    leaveCancelled(el) {}
+  }
+}
+</script>
+```
+
+默认情况下，JS 钩子函数和 CSS 同时生效，transition 提供 css 属性，设置为 false 时，CSS 定义的动画不生效。
+
+> 一般使用 CSS 设置动画，如果只想实现半场动画（只想进场或者出场），使用 JavaScript 的进场和出场钩子函数。
+
+#### 3、过渡模式
+
+transition 提供 mode 属性，用于定义**进入的元素和离开的元素动画执行顺序**，有以下值：
+
+- `in-out`：新元素先进行过渡进入，完成之后当前元素过渡离开。
+- `out-in`：当前元素先进行过渡离开，完成之后新元素过渡进入。
+
+通常我们更多的会使用 out-in，让当前元素先离开，然后再进行新元素的进入。
+
+#### 4、过渡持续时间
+
+我们可以拥有一个精心编排的一系列过渡效果，其中**一些嵌套的内部元素**相比于过渡效果的根元素**有延迟的或更长的过渡效果**。
+
+transition 提供 duration 属性用于设置过渡的持续时间：
+
+```html
+<transition :duration="1000">...</transition>
+```
+
+也可以定制进入和移出的持续时间：
+
+```html
+<transition :duration="{ enter: 500, leave: 800 }">...</transition>
+```
+
+#### 5、初始渲染的过渡
+
+transition 提供 appear 属性，用于设置节点在初始渲染时的过渡：
+
+```html
+<transition appear>
+  <!-- ... -->
 </transition>
 ```
 
-（3）使用动画钩子函数：
+#### 6、`v-for` 列表过渡
+
+transition 只能对包裹的元素实现整体的 enter/leave 动画，如果想对 v-for 生成的列表中的某些元素执行 enter/leave 效果，需要使用 transition-group。transition-group 有以下特点：
+
+- 不同于 `<transition>`，`<transition-group>` 会以一个真实元素呈现，默认为一个 `<span>`，也可以通过 `tag` 属性更换为其他元素。
+- mode 属性不再生效，因为我们不再相互切换特有的元素。
+- 内部元素必须添加 key 属性。
+- **CSS 过渡的类将会应用在内部的元素中，而不是这个组/容器本身。**
 
 ```vue
-//定义 transition 组件以及三个钩子函数：
-<div id="app">
-  <input type="button" value="切换动画" @click="isshow = !isshow">
-  <transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
-    <div v-if="isshow" class="show">OK</div>
-  </transition>
-</div>
+<template>
+  <div id="list-demo" class="demo">
+    <button v-on:click="add">Add</button>
+    <button v-on:click="remove">Remove</button>
+    <transition-group name="list" tag="p">
+      <span v-for="item in items" v-bind:key="item" class="list-item">
+        {{ item }}
+      </span>
+    </transition-group>
+  </div>
+</template>
 
 <script>
-//VM 实例
-var vm = new Vue({
-  el: '#app',
+new Vue({
+  el: '#list-demo',
   data: {
-    isshow: false
+    items: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    nextNum: 10
   },
   methods: {
-    //定义三个 methods 钩子方法：
-    // 动画进入之前的回调
-    beforeEnter(el) {
-      el.style.transform = 'translateX(500px)';
+    randomIndex: function () {
+      return Math.floor(Math.random() * this.items.length)
     },
-    // 动画进入完成时候的回调
-    enter(el, done) {
-      el.offsetWidth;
-      el.style.transform = 'translateX(0px)';
-      done();
+    add: function () {
+      this.items.splice(this.randomIndex(), 0, this.nextNum++)
     },
-    // 动画进入完成之后的回调
-    afterEnter(el) {
-      this.isshow = !this.isshow;
+    remove: function () {
+      this.items.splice(this.randomIndex(), 1)
     }
   }
-});
+})
 </script>
 
-
-//定义动画过渡时长和样式：
-<style>
-.show{
-  transition: all 0.4s ease;
+<style lang="scss">
+.list-item {
+  display: inline-block;
+  margin-right: 10px;
 }
-</style>
-```
-
-> 注意：
->
-> - 可以在 `<transition>` 标签中增加 name 属性自定义进场和出场标签类名称。
-> - 如果只想实现半场动画（只想进场或者出场），使用 JavaScript 的进场和出场钩子函数。
-
-#### 2、`v-for` 的列表过渡
-
-```vue
-<style>
-// 定义过渡样式
-.list-enter,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
 .list-enter-active,
 .list-leave-active {
-  transition: all 0.3s ease;
+  transition: all 1s;
+}
+.list-enter, .list-leave-to
+/* .list-leave-active for below version 2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
 }
 </style>
-
-// 定义DOM结构，其中，需要使用 transition-group 组件把v-for循环的列表包裹起来：
-<div id="app">
-  <input type="text" v-model="txt" @keyup.enter="add">
-
-  <transition-group tag="ul" appear name="list">
-    <li v-for="(item, i) in list" :key="i">{{item}}</li>
-  </transition-group>
-</div>
-
-<script>
-var vm = new Vue({
-  el: "#app",
-  data: {
-    txt: "",
-    list: [1, 2, 3, 4],
-  },
-  methods: {
-    add() {
-      this.list.push(this.txt);
-      this.txt = "";
-    },
-  },
-});
-</script>
 ```
 
-> 注意：
->
-> - 实现列表动画的时候被 v-for 渲染的需要使用 `<transitionGroup>` 包裹。
->
-> - 如果要为 v-for 循环创建的元素设置动画，必须为每一个元素设置 ：key
->
-> - `<transition-group>` 中 tag 属性值让 `<transition>` 标签在 HTML 界面显示成某个标签，默认为 `<span>`，appear 属性让列表实现淡入。
+`<transition-group>` 组件还有一个特殊之处，不仅可以设置 enter/leave 动画，还提供 move 动画，它会在元素的改变定位的过程中应用。v-move 和 leave/active class 类名结合使用，**能够让列表的过渡更加平缓柔和**：
 
-`<transition-group>` 组件还有一个特殊之处。不仅可以进入和离开动画，还可以改变定位。要使用这个新功能只需了解 `v-move` 特性，它会在元素的改变定位的过程中应用。`v-move` 和 `v-leave-active` 结合使用，能够让列表的过渡更加平缓柔和：
+> 注意：使用 v-move 时，过渡的元素不能设置为 `display: inline`。作为替代方案，可以设置为 `display: inline-block` 或者放置于 flex 中。
 
 ```vue
-<style>
-.v-move {
-  transition: all 0.8s ease;
-}
-.v-leave-active {
-  position: absolute;
+<template>
+  <div id="flip-list-demo" class="demo">
+    <button v-on:click="shuffle">Shuffle</button>
+    <transition-group name="flip-list" tag="ul">
+      <li v-for="item in items" v-bind:key="item">
+        {{ item }}
+      </li>
+    </transition-group>
+  </div>
+</template>
+
+<script>
+new Vue({
+  el: '#flip-list-demo',
+  data: {
+    items: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  },
+  methods: {
+    shuffle: function () {
+      this.items = _.shuffle(this.items)
+    }
+  }
+})
+</script>
+
+<style lang="scss">
+.flip-list-move {
+  transition: transform 1s;
 }
 </style>
 ```
 
-### （六）[Slot 插槽](https://cn.vuejs.org/v2/guide/components-slots.html)
+### （五）[Slot 插槽](https://cn.vuejs.org/v2/guide/components-slots.html)
 
-Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于决定将所携带的内容，插入到指定的某个位置，从而使模板分块，具有模块化的特质和更大的重用性。
+Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于决定将所父组件携带的内容，插入到子组件指定的某个位置，从而使模板分块，具有模块化的特质和更大的重用性。
 
-> 插槽显不显示、怎样显示是由父组件来控制的，而插槽在哪里显示就由子组件来进行控制。
+> 插槽显不显示、显示什么是由父组件来控制的，而插槽在哪里显示就由子组件来进行控制。
 
 ```vue
 <!-- 父组件 -->
@@ -915,7 +998,7 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 
 #### 1、默认内容
 
-可以在子组件插槽中添加默认内容，父组件不使用子组件插槽时，会展示插槽中的默认内容。
+可以在子组件插槽中添加默认内容，父组件不使用子组件插槽时，也会展示插槽中的默认内容。
 
 ```vue
 <!-- 父组件 -->
@@ -938,13 +1021,13 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 
 #### 2、具名插槽
 
-有时候子组件需要多个插槽，此时就需要为插槽取名，未取名的插槽默认名字为 default。
+有时候子组件中有多个插槽，此时就需要为插槽取名，未取名的插槽默认名字为 default。
 
-父组件 `<template>` 包裹要传入子组件插槽的内容，使用 `slot=子组件插槽名字` 将内容放入相应具名插槽中。
+父组件 `<template>` 包裹要传入子组件插槽的内容，使用 `slot=子组件插槽名字` 属性将内容放入相应具名插槽中。
 
-> Vue2.6 提供 `v-slot:子组件插槽名字` 用于代替 `slot=子组件插槽名字`，不过 v-slot 只能放在 `<template>` 上，slot 可以放在任意标签上。`v-slot:子组件插槽名字` 可以缩写为 `#子组件插槽名字`。
+> Vue 2.6 提供 `v-slot:子组件插槽名字` 用于代替 `slot=子组件插槽名字`，不过 v-slot 只能放在 `<template>` 上，slot 可以放在任意标签上。`v-slot:子组件插槽名字` 可以缩写为 `#子组件插槽名字`。
 >
-> 推荐使用 `<template>` 包裹传入子组件插槽的内容，任何没有被包裹在带有 v-slot 的 `<template>` 中的内容都会被视为默认插槽的内容。
+> 推荐使用 `<template>` 包裹传入子组件插槽的内容，任何没有被包裹在 `<template v-slot="插槽名称">` 中的内容都会被视为默认插槽的内容。
 
 ```vue
 <!-- 父组件 -->
@@ -987,9 +1070,9 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 
 #### 3、作用域插槽
 
-可以将子组件中 data 数据作为 `<slot>` 元素的一个 attribute 绑定上去，绑定在 `<slot>` 元素上的 attribute 被称为插槽 prop，父组件传入子组件插槽的内容中可以使用此 prop，使用 `v-slot:子组件插槽名字="自定义prop名字"` 获取 prop。
+子组件可以将 data 中的数据作为一个属性绑定到 `<slot>` 标签上，绑定数据的 `<slot>` 插槽称为作用域插槽。父组件中可以使用绑定到插槽上的数据，使用 `v-slot:子组件插槽名字="自定义prop名字"` 获取绑定的数据。
 
-> Vue2.6 之前使用 slot-scope 获取 prop，不过已经废弃。`v-slot:子组件插槽名字="自定义prop名字"` 相当于 slot 和 slot-scope 两个属性的结合。
+> Vue 2.6 之前使用 slot-scope 获取 prop，不过已经废弃。`v-slot:子组件插槽名字="自定义prop名字"` 相当于 slot 和 slot-scope 两个属性的结合。
 
 ```vue
 <!-- 父组件 -->
@@ -1022,16 +1105,17 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 <!-- 子组件 -->
 <template>
   <div>
+    <!-- 生成一个 {myName, myAge, myData} 对象传递给父组件使用 -->
     <slot :myName="myName" :myAge="myAge" :myData="myData"></slot>
   </div>
 </template>
 ```
 
-### （七）[provide / inject](https://cn.vuejs.org/guide/components/provide-inject.html)
+### （六）[provide / inject](https://cn.vuejs.org/guide/components/provide-inject.html)
 
 #### 1、prop 逐级透传问题
 
-通常情况下，父组件向子组件传值时会使用 props 属性。但是有一些多层级嵌套的组件，形成了一颗巨大的组件树，而某个深层的子组件需要一个较远的祖先组件中的部分数据。在这种情况下，如果仅使用 props 则必须将其沿着组件链逐级传递下去，这会非常麻烦：
+通常情况下，父组件向子组件传值时会使用 props 属性，但是有一些多层级嵌套的组件，形成了一颗巨大的组件树，而某个深层的子组件需要一个较远的祖先组件中的部分数据。在这种情况下，如果仅使用 props 则必须将其沿着组件链逐级传递下去，这会非常麻烦：
 
 ![Prop逐级透传问题](./Prop逐级透传问题.png)
 
@@ -1045,8 +1129,8 @@ Slot 插槽是 Vue 提出来的一个概念，正如名字一样，插槽用于�
 
 对于 provide 上的每一个属性，后代组件会用**其键名为注入名**查找**期望注入的值**，属性的值就是要提供的数据。
 
-```js
-// 方式1
+```javascript
+// 方式 1：对象形式
 export default {
   provide: {
     // 这种形式访问不到 this
@@ -1055,7 +1139,7 @@ export default {
   }
 }
 
-// 方式2：
+// 方式2：函数形式
 export default {
   data() {
     return {
@@ -1075,56 +1159,56 @@ export default {
 
 除了在一个组件中提供依赖，我们还可以在整个应用层面（也就是 main.js 或 App.vue 中添加）提供依赖。
 
-```js
-import { createApp } from "vue";
+```javascript
+import { createApp } from 'vue'
 
-const app = createApp({});
+const app = createApp({})
 
-app.provide(/* 注入名 */ "message", /* 值 */ "hello!");
+app.provide(/* 注入名 */ 'message', /* 值 */ 'hello!')
 ```
 
 在应用级别提供的数据在该应用内的所有组件中都可以注入，当然也可以在组件中使用 provide()函数：
 
-```js
+```javascript
 // test.js 文件
-import { provide } from "vue";
+import { provide } from 'vue'
 
-provide("message", "hello");
+provide('message', 'hello')
 ```
 
 #### 3、inject 属性
 
 要注入上层组件 provide 提供的数据，需使用 inject 属性来声明：
 
-```js
+```javascript
 export default {
   // provide 中提供的 message 注入到 inject 的 message 中
-  inject: ["message"],
+  inject: ['message'],
   data() {
     return {
       // 注入会在组件自身的状态之前被解析，因此你可以在 data() 中访问到注入的属性
-      fullMessage: this.message,
-    };
-  },
-};
+      fullMessage: this.message
+    }
+  }
+}
 ```
 
 当以数组形式使用 `inject`，注入的属性会以同名的 key 暴露到组件实例上；当以对象形式使用 `inject`，可以为 `inject` 中的注入的属性提供别名和默认值。
 
-```js
+```javascript
 export default {
   // 当声明注入的默认值时，必须使用对象形式
   inject: {
     message: {
-      from: "message", // 当与原注入名同名时，这个属性是可选的
-      default: "default value",
+      from: 'message', // 当与原注入名同名时，这个属性是可选的
+      default: 'default value'
     },
     user: {
       // 需要独立数据的，请使用工厂函数
-      default: () => ({ name: "John" }),
-    },
-  },
-};
+      default: () => ({ name: 'John' })
+    }
+  }
+}
 ```
 
 > 注意：
@@ -1136,31 +1220,31 @@ export default {
 
 Vue 也提供函数的方式注入值：
 
-```js
-import { inject } from "vue";
-import { fooSymbol } from "./injectionSymbols";
+```javascript
+import { inject } from 'vue'
+import { fooSymbol } from './injectionSymbols'
 
 // 注入值的默认方式
-const foo = inject("foo");
+const foo = inject('foo')
 
 // 注入响应式的值
-const count = inject("count");
+const count = inject('count')
 
 // 注入一个值，若为空则使用提供的默认值
-const bar = inject("foo", "default value");
+const bar = inject('foo', 'default value')
 
 // 注入一个值，若为空则使用提供的工厂函数
-const baz = inject("foo", () => new Map());
+const baz = inject('foo', () => new Map())
 
 // 注入时为了表明提供的默认值是个函数，需要传入第三个参数
-const fn = inject("function", () => {}, false);
+const fn = inject('function', () => {}, false)
 ```
 
 #### 4、[非响应式](https://zhuanlan.zhihu.com/p/184967263)
 
 `provide`和`inject`绑定并不是可响应的。这是刻意为之的。然而，如果你传入了一个可监听的对象，那么其对象的 property 还是可响应的。
 
-```js
+```javascript
 // Father.js
 export default {
   components: {
@@ -1192,7 +1276,7 @@ export default {
 
 （1）把值转为箭头函数
 
-```js
+```javascript
 // Father.js
 provide() {
   return {
@@ -1217,7 +1301,7 @@ export default {
 
 更好一些的解决方案是把`provide`所在的 Vue 实例给传递下去：
 
-```js
+```javascript
 // Father.js
 provide() {
   return {
@@ -1236,7 +1320,7 @@ export default {
 }
 ```
 
-### （八）render 渲染
+### （七）render 渲染
 
 #### 1、虚拟 DOM
 
@@ -1244,19 +1328,19 @@ export default {
 
 虚拟 DOM 在 Vue 文件中通常以 `<template>`标签、template 属性等形式表现：
 
-```js
+```javascript
 const vnode = {
-  type: "div",
+  type: 'div',
   props: {
-    id: "hello",
+    id: 'hello'
   },
   children: [
     /* 更多 vnode */
-  ],
-};
+  ]
+}
 ```
 
-这里所说的 vnode 即一个纯 JavaScript 的对象 (一个虚拟节点)，它代表着一个 `<div>` 元素。它包含我们创建实际元素所需的所有信息。它还包含更多的子节点，这使它成为虚拟 DOM 树的根节点。
+这里所说的 vnode 即一个纯 JavaScript 的对象（一个虚拟节点），它代表着一个 `<div>` 元素。它包含我们创建实际元素所需的所有信息。它还包含更多的子节点，这使它成为虚拟 DOM 树的根节点。
 
 #### 2、[渲染过程](https://cn.vuejs.org/guide/extras/rendering-mechanism.html)
 
@@ -1284,7 +1368,7 @@ Vue 模板（也就是 template）会被预编译成虚拟 DOM 渲染函数（re
 
 Vue 提供 render() 来声明渲染函数，render 有一个 h()函数作为形参，返回值为字符串、vnode 或 vnode 数组：
 
-```js
+```javascript
 export default {
   data() {
     return {
@@ -1316,11 +1400,11 @@ export default {
 
 ##### （2）创建 vnode
 
-① [使用 JSX 来创建 vnode](https://github.com/vuejs/jsx-vue2)
+① 使用 [JSX](https://github.com/vuejs/jsx-vue2) 来创建 vnode
 
 ```jsx
 // 使用大括号 {} 来嵌入变量值
-const vnode = <div id={dynamicId}>hello, {userName}</div>;
+const vnode = <div id={dynamicId}>hello, {userName}</div>
 ```
 
 JSX 是 JavaScript 的一个类似 XML 的扩展，可以像写 HTML 一样创建 vnode，可读性更好。虽然最早由 React 引入，但实际上 JSX 语法并没有定义运行时语义，并且能被编译成各种不同的输出形式。
@@ -1330,59 +1414,59 @@ JSX 是 JavaScript 的一个类似 XML 的扩展，可以像写 HTML 一样创�
 > - Vue 的 JSX 编写代码方式与 React 中 JSX 的编写代码方式不同，因此不能在 Vue 应用中使用 React 的 JSX 代码。
 > - 在 TypeScript 中使用 JSX 时，需要在 tsconfig.json 中配置 `"jsx": "preserve"`。
 
-**在 JSX 中，可以正常地在标签中添加属性，也可以使用扩展运算符导入对象。**
+**在 JSX 中，可以正常地在标签中添加属性，也可以使用扩展运算符导入对象：**
 
 ```jsx
-const vnode = <input type="email" />;
+const vnode = <input type="email" />
 
 // 使用扩展运算符导入对象
 const obj = {
-  type: "email",
-  placeholder: "Enter your email",
-};
+  type: 'email',
+  placeholder: 'Enter your email'
+}
 // ... 三个点表示扩展运算符
-const vnode = <input {...{ attrs: obj }} />;
+const vnode = <input {...{ attrs: obj }} />
 ```
 
 ② Vue3 中提供一个 [h()函数](https://cn.vuejs.org/guide/extras/render-function.html#creating-vnodes)用于创建 vnode：
 
-```js
-import { h } from "vue";
+```javascript
+import { h } from 'vue'
 
 const vnode = h(
-  "div", // type
-  { id: "foo", class: "bar" }, // props
+  'div', // type
+  { id: 'foo', class: 'bar' }, // props
   [
     /* children */
   ]
-);
+)
 ```
 
 h() 是 hyperscript 的简称——意思是**能生成 HTML 的 JavaScript**。这个名字来源于许多虚拟 DOM 实现默认形成的约定。一个更准确的名称应该是 createVnode()，但当你需要多次使用渲染函数时，一个简短的名字会更省力。
 
 > 注意：vnode 对象必须唯一，也就是说一个 js 对象只能对应一个 vnode。
 >
-> ```js
+> ```javascript
 > function render() {
->   const p = h("p", "hi");
->   return h("div", [
+>   const p = h('p', 'hi')
+>   return h(
+>     'div',
 >     // 一个 js 变量对应两个 vnode 是无效的
->     p,
->     p,
->   ]);
+>     [p, p]
+>   )
 > }
 > ```
 >
 > 可以使用一个工厂函数来生成多个 vnode：
 >
-> ```js
+> ```javascript
 > function render() {
 >   return h(
->     "div",
+>     'div',
 >     Array.from({ length: 20 }).map(() => {
->       return h("p", "hi");
+>       return h('p', 'hi')
 >     })
->   );
+>   )
 > }
 > ```
 
@@ -1396,7 +1480,7 @@ createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h(
 
   - Object：是 Vue 对象的组件选项对象。
 
-    ```js
+    ```javascript
     render (h) {
       let myVue = {
         // 这里的 slot 是必需的
@@ -1407,7 +1491,7 @@ createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h(
       }
       return h(
         myVue,
-        {lass: { 'item-details': true }}
+        {class: { 'item-details': true }}
       )
     }
     ```
@@ -1416,7 +1500,7 @@ createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h(
 
 - 第二个参数（选填）：包括 HTML 的 attribute、JS 对象的 property 以及 Vue 的部分组件选项。
 
-  ```js
+  ```javascript
   {
     // 与 `v-bind:class` 的 API 相同，
     // 接受一个字符串、对象或字符串和对象组成的数组
@@ -1485,12 +1569,12 @@ createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h(
 
 - 第三个参数（选填）：表示子 vnode，可以为字符串或数组（包含字符串类型和 vnode 类型）。
 
-  ```js
-  import Foo from "./Foo.vue";
-  import Bar from "./Bar.jsx";
+  ```javascript
+  import Foo from './Foo.vue'
+  import Bar from './Bar.jsx'
 
   function render() {
-    return h("div", [h(Foo), h(Bar)]);
+    return h('div', null, [h(Foo), h(Bar)])
   }
   ```
 
@@ -1498,7 +1582,7 @@ createVnode()函数（一般写作 h()函数，简短省力，下面都写作 h(
 
 ###### ① slot 插槽
 
-Vue 提供一个称为 `$slots / $scopedSlots` 的组件实例，在子组件中，用于访问父组件传递给子组件的 slot 插槽或作用域插槽。
+Vue 实例中的 this 提供一个称为 `$slots / $scopedSlots` 的属性，在子组件中，用于访问父组件传递给子组件的 slot 插槽或作用域插槽。
 
 ```vue
 <!-- 父组件 Father.vue -->
@@ -1509,6 +1593,8 @@ Vue 提供一个称为 `$slots / $scopedSlots` 的组件实例，在子组件中
   </son>
 </div>
 
+<script>
+
 <!-- 子组件 Son.vue -->
 let son = new Vue({
   name: 'son',
@@ -1517,6 +1603,7 @@ let son = new Vue({
     console.log('我是子组件，下面输出父组件给我的 slot：', this.$slots)
   }
 })
+</script>
 ```
 
 从以下输出结果中可以看出两点信息：
@@ -1527,21 +1614,21 @@ let son = new Vue({
 
 ![slot组件实例输出结果解析](./slot组件实例输出结果解析.png)
 
-a. 在 createVnode()函数中使用插槽
+a. 在 createVnode()函数中定义插槽
 
 言归正传，我们想为某个子组件 vnode 定义 slot 插槽，可以使用以下方式：
 
 ```vue
 <script>
 function render(h) {
-  return h("div", [
+  return h('div', [
     // 定义普通插槽
     this.$slots.default,
     // 定义作用域插槽
     this.$scopedSlots.paramsSlot({
-      test: this.myTest,
-    }),
-  ]);
+      test: this.myTest
+    })
+  ])
 }
 </script>
 
@@ -1556,22 +1643,22 @@ function render(h) {
 
 当我们想在父组件中传递 slot 插槽给子组件，可以使用以下方式：
 
-```js
+```javascript
 function render(h) {
-  return h("Son", {
+  return h('Son', {
     scopedSlots: {
       default: function () {
-        return h("span", "default");
+        return h('span', 'default')
       },
       paramsSlot: function (props) {
-        return h("span", props.text);
-      },
-    },
-  });
+        return h('span', props.text)
+      }
+    }
+  })
 }
 ```
 
-b. 在 JSX 中使用插槽
+b. 在 JSX 中定义插槽
 
 在 JSX 中定义插槽就简单一点：
 
@@ -1589,7 +1676,6 @@ const vnode =
 在 JSX 中使用插槽也很方便：
 
 ```jsx
-let obj =
 const vnode =
 <son>
   // 具名插槽
@@ -1608,13 +1694,12 @@ const scopedSlots = {
 
 ## 三、[Vue-Router](https://router.vuejs.org/zh/introduction.html)
 
-网络原理中，路由指的是根据上一接口的数据包中的 IP 地址，查询路由表转发到另一个接口，它决定的是一个端到端的网络路径。
-使用 Vue 构建项目，Vue 本身就可以通过组合组件来组成应用程序，当引入 `Vue-Router` 后，我们需要处理的是将组件（components）映射到路径（routes），然后在需要的地方进行使用渲染。
+网络原理中，路由指的是根据上一接口的数据包中的 IP 地址，查询路由表转发到另一个接口，它决定的是一个端到端的网络路径。使用 Vue 构建项目，Vue 本身就可以通过组合组件来组成应用程序，当引入 `Vue-Router` 包后，我们需要处理的是将组件（components）映射到路径（routes），然后在需要的地方进行使用渲染。
 
 - 后端路由：对于普通的网站，所有的超链接都是 URL 地址，所有的 URL 地址都对应服务器上对应的资源，这个对应关系叫做路由。
-- 前端路由：对于单页面应用程序来说，主要通过[URL 中的 hash(#号)](http://www.cnblogs.com/joyho/articles/4430148.html)及之后的路径，来实现不同页面之间的切换。同时，hash 有一个特点：HTTP 请求中不会包含 hash 相关的内容；所以，单页面程序中的页面跳转主要用 hash 实现。
+- 前端路由：对于单页面应用程序来说，主要通过[URL 中的 hash(#号)](http://www.cnblogs.com/joyho/articles/4430148.html)及之后的路径，来实现不同页面之间的切换。同时 hash 有一个特点：HTTP 请求中不会包含 hash 相关的内容，所以单页面程序中的页面跳转主要用 hash 实现。
 
-> 以下使用的是 Vue3、Vue-Router4 版本。
+> 以下使用的是 Vue-Router3 版本。
 
 ### （一）路由基本写法
 
@@ -1632,145 +1717,60 @@ const scopedSlots = {
       <router-link to="/about">Go to About</router-link>
     </p>
 
-    <!-- url 匹配到的组件将渲染在这里 -->
+    <!-- URL 匹配到的组件将渲染在这里 -->
     <router-view></router-view>
   </div>
 </template>
 
 <script>
 // 1、定义路由组件
-const Home = { template: "<div>Home</div>" };
-const About = { template: "<div>About</div>" };
+const Home = { template: '<div>Home</div>' }
+const About = { template: '<div>About</div>' }
 
-// 2、定义一些路径对象，每个 url 都需要映射到一个组件。
+// 2、定义一些路径对象，每个 URL 都需要映射到一个组件。
 const routes = [
-  { path: "/", component: Home },
-  { path: "/about", component: About },
-];
+  { path: '/', component: Home },
+  { path: '/about', component: About }
+]
 
 // 3、创建路由实例并传递 `routes` 配置
-const router = VueRouter.createRouter({
-  // 内部提供了 history 模式的实现。为了简单起见，我们在这里使用 hash 模式（也就是上面提到的#号）
-  history: VueRouter.createWebHashHistory(),
-  routes,
-});
+const router = new Router({ routes })
 
 // 4、创建 Vue 实例
 var vm = new Vue({
-  el: "#app",
+  el: '#app',
   // 将路由对象，注册到 Vue 实例上
   router,
   data: {},
   computed: {
     username() {
-      return this.$route.params.username;
-    },
+      return this.$route.params.username
+    }
   },
   methods: {
     goToDashboard() {
       if (isAuthenticated) {
-        this.$router.push("/dashboard");
+        this.$router.push('/dashboard')
       } else {
-        this.$router.push("/login");
+        this.$router.push('/login')
       }
-    },
-  },
-});
+    }
+  }
+})
 </script>
 ```
 
-#### 1、`VueRouter.createRouter()`
+#### 1、`new Router()`
 
 用于创建路由实例，并配置 routes 数组（路由到组件的映射关系）。
 
-> Vue-Router3 中使用 `new VueRouter({......})` 或 `new Router({......})` 创建路由实例。
+> Vue-Router3 中使用 `new VueRouter({......})` 或 `new Router({......})` 创建路由实例；Vue-Router4 中使用 VueRouter.createRouter() 创建路由实例。
 
 一般将路由实例注册到全局 Vue 实例上，可以通过 `this.$router` 获取路由实例，通过 `this.$route` 获取 routes 数组中当前路由所在对象的信息。
 
-#### 2、scrollBehavior
-
-当切换到新路由时，想要页面滚到顶部，或者是保持原先的滚动位置，就像重新加载页面那样。 scrollBehavior 属性让你可以自定义路由切换时页面如何滚动，提供三个参数：
-
-- to：路径对象，即将进入的目标。
-- from：路径对象，即将离开的位置。
-- savedPosition：只有当这是一个 `popstate` 导航时才可用（由浏览器的后退/前进按钮触发）。
-
-```js
-const router = createRouter({
-  history: createWebHashHistory(),
-  routes: [...],
-  scrollBehavior (to, from, savedPosition) {
-    // return 期望滚动到哪个的位置
-  }
-})
-```
-
-滚动函数提供几种返回值：
-
-- 绝对位置
-
-```js
-const router = createRouter({
-  scrollBehavior(to, from, savedPosition) {
-    // 始终滚动到顶部
-    return { top: 0 };
-  },
-});
-```
-
-- 相对位置
-
-通过 `el` 传递一个 CSS 选择器或一个 DOM 元素。在这种情况下，`top` 和 `left` 将被视为该元素的相对偏移量。
-
-```js
-const router = createRouter({
-  scrollBehavior(to, from, savedPosition) {
-    // 始终在元素 #main 上方滚动 10px
-    return {
-      // 也可以这么写
-      // el: document.getElementById('main'),
-      el: "#main",
-      top: -10,
-    };
-  },
-});
-```
-
-- 锚点
-
-滚动到锚点。
-
-```js
-const router = createRouter({
-  scrollBehavior(to, from, savedPosition) {
-    if (to.hash) {
-      return {
-        el: to.hash,
-      };
-    }
-  },
-});
-```
-
-- 延迟滚动
-
-需要返回一个 Promise。
-
-```js
-const router = createRouter({
-  scrollBehavior(to, from, savedPosition) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve({ left: 0, top: 0 });
-      }, 500);
-    });
-  },
-});
-```
-
 #### 2、`<router-link>`
 
-使用 `<router-link>` 组件来导航，默认渲染为一个 `<a>`，效果和上面定义的 a 标签相同。to 属性表示跳转的链接。
+使用 `<router-link>` 组件来进行调整，`<router-link>` 标签默认被渲染为一个 `<a>` 标签，效果和上面定义的 a 标签相同。to 属性表示跳转的链接。
 
 ```vue
 <!-- Vue-Router4 使用 slot 渲染为其他标签 -->
@@ -1784,9 +1784,9 @@ const router = createRouter({
 
 #### 3、`<router-view>`
 
-用于显示与 url 对应的组件，可以放在任何地方，实现 `<frame>` 一样的的布局。
+用于显示与 URL 对应的组件，可以放在任何地方，实现 `<frame>` 一样的的布局。
 
-name 属性用于给 `<router-view>` 视图命名，默认值为 default。一个视图对应一个组件（component），多个视图需要对应多个组件（components）。
+name 属性用于给 `<router-view>` 视图命名，默认值为 default。一个视图对应一个组件（component），多个视图需要对应多个组件（components 命名视图）。
 
 ```vue
 <template>
@@ -1800,12 +1800,326 @@ name 属性用于给 `<router-view>` 视图命名，默认值为 default。一�
 <script>
 const routes = [
   // 需要使用 components 属性，键值对应视图的 name 名称
-  { path: "/", components: { LeftSidebar, default: Home, RightSidebar } },
-];
+  { path: '/', components: { LeftSidebar, default: Home, RightSidebar } }
+]
 </script>
 ```
 
-#### 4、路由样式
+### （二）路由选项
+
+和 Vue 组件选项一样，new 创建 Router 实例时，也需要向 Router 构建方法中传递一个对象，对象中的属性就称为路由选项。
+
+#### 1、routes 路径对象
+
+routes 属性值是一个 route 路径对象数组，路径对象用于设置 URL 和组件的映射关系：
+
+```javascript
+const RouteConfig = {
+  path: string,
+  component?: Component,
+  name?: string, // 命名路由
+  components?: { [name: string]: Component }, // 命名视图组件
+  redirect?: string | Location | Function,
+  props?: boolean | Object | Function,
+  alias?: string | Array<string>,
+  children?: Array<RouteConfig>, // 嵌套路由
+  beforeEnter?: (to: Route, from: Route, next: Function) => void,
+  meta?: any,
+
+  // 2.6.0+
+  caseSensitive?: boolean, // 匹配规则是否大小写敏感？(默认值：false)
+  pathToRegexpOptions?: Object // 编译正则的选项
+}
+```
+
+##### （1）path 路径
+
+path 用于设置路由路径，即当前路由对象匹配到指定路由路径时生效：
+
+```javascript
+const router = new Router({
+  routes: [
+    {
+      path: '/user', // `项目路径/#/user` 时，该路由对象生效，User 组件会挂载到父路由对应组件的 <router-view> 下
+      name: 'user',
+      component: User
+    }
+  ]
+})
+```
+
+##### （2）name 命名路由
+
+有时候，通过一个名称来标识一个路由显得更方便一些，特别是在链接一个路由，或者是执行一些跳转的时候， name 属性用于设置路由名称。
+
+> 注意：name 值必须唯一。
+
+name 命名路由有以下优点：
+
+- 没有硬编码的 URL。
+- params 的自动编码/解码（也就是说会将动态路由匹配的 params 属性，放入 URL 中）。
+- 防止你在 URL 中出现打字错误。
+- 绕过路径排序（如显示一个），例如展示一个匹配相同路径但排序较低的路由。
+
+```javascript
+const router = new Router({
+  routes: [
+    {
+      path: '/user/:userId',
+      name: 'user',
+      component: User
+    }
+  ]
+})
+
+// 通过编程式导航调整
+router.push({ name: 'user', params: { userId: 123 } })
+```
+
+##### （3）redirect 重定向
+
+redirect 属性用于设置重定向路径，当 URL 为该路径时，会跳转到重定向的路径，URL 也会变成重定向的路径。
+
+重定向的值可以是一个字符串，例如从 `/a` 重定向到 `/b`：
+
+```javascript
+const router = new Router({
+  routes: [{ path: '/a', redirect: '/b' }]
+})
+```
+
+重定向的值也可以是一个命名的路由：
+
+```javascript
+const router = new Router({
+  routes: [{ path: '/a', redirect: { name: 'foo' } }]
+})
+```
+
+也可以是一个函数：
+
+```javascript
+const router = new Router({
+  routes: [
+    {
+      path: '/a',
+      redirect: to => {
+        // 方法接收 目标路由 作为参数
+        // return 字符串路径或路径对象
+      }
+    }
+  ]
+})
+```
+
+> 注意：
+>
+> - 注意导航守卫并没有应用在跳转路由上，而仅仅应用在其目标上。在上面这个例子中，为 `/a` 路由添加一个 `beforeEnter` 守卫并不会有任何效果。
+> - 在写 redirect 的时候，可以省略 component 属性，因为它从来没有被直接访问过，所以没有组件要渲染。唯一的例外是嵌套路由：如果一个路径对象记录有 children 和 redirect 属性，它也应该有 component 属性。
+
+##### （4）[alias 别名](https://v3.router.vuejs.org/zh/guide/essentials/redirect-and-alias.html#%E5%88%AB%E5%90%8D)
+
+可以为该路径对象的路径设置一个别名：
+
+```js
+const router = new Router({
+  routes: [
+    {
+      path: '/home',
+      component: Home,
+      children: [
+        // 绝对路径（/foo）
+        { path: 'foo', component: Foo, alias: '/foo' },
+        // 相对路径（/home/bar-alias）
+        { path: 'bar', component: Bar, alias: 'bar-alias' },
+        // 多个路径
+        { path: 'baz', component: Baz, alias: ['/baz', 'baz-alias'] },
+        // 使用空字符串作为默认子路径
+        { path: 'default', component: Default, alias: '' },
+        // 当有 children 时，可以作为 children 的父路径别名（nested/foo 等于 nested-alias/foo）
+        { path: 'nested', component: Nested, alias: 'nested-alias', children: [{ path: 'foo', component: NestedFoo }] }
+      ]
+    }
+  ]
+})
+```
+
+##### （5）children 嵌套路由
+
+一些页面由多层嵌套组件组成，当一个路由跳转到另一个路由时，只想切换页面中的某些组件时，可以使用 children 属性声明嵌套路由，在**父路由对应组件中添加 `<router-view>` 作为子路由对应组件的挂载点**。
+
+![嵌套路由](./嵌套路由.png)
+
+```vue
+<template>
+  <!-- UserSettings.vue -->
+  <div>
+    <h1>User Settings</h1>
+    <NavBar />
+    <!-- 子路由对应组件的挂载点 -->
+    <router-view />
+    <router-view name="helper" />
+  </div>
+</template>
+
+<script>
+const routes = [
+  {
+    path: '/settings',
+    // 父路由对应组件
+    component: UserSettings,
+    // 嵌套路由
+    children: [
+      {
+        path: 'emails',
+        // UserEmailsSubscriptions 被渲染到 UserSettings 的 `<router-view>` 内部
+        component: UserEmailsSubscriptions
+      },
+      {
+        path: 'profile',
+        // 由 `/settings/emails` 跳转到 `/settings/profile` 时，UserSettings 组件被替换为 UserProfile 组件，同时渲染 `name=helper` 的 UserProfilePreview 组件。
+        components: {
+          default: UserProfile,
+          helper: UserProfilePreview
+        }
+      },
+      {
+        // 不拼接父路由（`/settings/rootProfile`），直接为：`/rootProfile`
+        path: '/rootRrofile',
+        components: {
+          default: UserProfile,
+          helper: UserProfilePreview
+        }
+      }
+    ]
+  }
+]
+</script>
+```
+
+> 注意：
+>
+> - 不以 `/` 开头的嵌套路由需要拼接父路由访问。
+> - 以 `/` 开头的嵌套路径被视为从根路径开始，但是仍然可以利用组件嵌套，而不必拼接父路由。
+
+##### （6）component 命名视图
+
+默认情况下，一个路由对应一个组件，如果我们想在一个路由中展示多个组件，此时就需要命名视图。
+
+通过设置 `<router-view>` 的 name（默认值为 default）属性设置值：
+
+```html
+<router-view class="view one"></router-view>
+<router-view class="view two" name="a"></router-view>
+<router-view class="view three" name="b"></router-view>
+<!-- 路由对象 component 属性中没有对应的组件，就不会展示 -->
+<router-view class="view three" name="c"></router-view>
+```
+
+同时路由对象的 component 属性设置为对象：
+
+```javascript
+const router = new Router({
+  routes: [
+    {
+      path: '/',
+      components: {
+        default: Foo,
+        a: Bar, // 挂载到 name 为 a 的 <router-view>
+        b: Baz // 挂载到 name 为 b 的 <router-view>
+      }
+    }
+  ]
+})
+```
+
+就可以将对应名称的组件挂载到对应 name 的 `<router-view>` 标签上。
+
+##### （7）meta 元信息
+
+路径对象提供 meta 属性，可以将任意信息附加到路由上。
+
+```javascript
+const routes = [{
+  path: ':id',
+  component: PostsDetail
+  // 任何人都可以阅读文章
+  meta: { requiresAuth: false }
+}]
+
+router.beforeEach((to, from) => {
+  // `this.$route.meta` 会获取当前路由对象及直接子路由对象的 meta 字段的并集
+})
+```
+
+##### （8）props 路由组件传参
+
+组件中使用 `this.$route` 获取 params 时，会让组件与路由紧密耦合，这限制了组件的灵活性，因为它只能用于特定的 url。虽然这不一定是件坏事，但我们可以通过路径对象的 props 属性来解除这种行为，通过 props 属性可以直接**将路径对象的 params 对象传递给组件的 props**。
+
+① 布尔模式
+
+当 props 为 true 时，`this.route.params` 将被设置为组件的 props。
+
+```javascript
+const User = {
+  // 这里 id 为 this.$route.params.id
+  props: ['id'],
+  template: '<div>User {{ id }}</div>'
+}
+
+const routes = [{ path: '/user/:id', component: User, props: true }]
+```
+
+② 命名视图
+
+对于有命名视图的路由，必须为每个命名视图分别定义 props 配置。
+
+```javascript
+const routes = [
+  {
+    path: '/user/:id',
+    components: { default: User, sidebar: Sidebar },
+    // 分别为每个命名视图单独设置 props
+    props: { default: true, sidebar: false }
+  }
+]
+```
+
+③ 对象模式
+
+当 props 是一个对象时，会将 **props 对象中的属性值**传递给**组件的 props 中对应的属性值**：
+
+```javascript
+const routes = [
+  {
+    path: '/promotion/from-newsletter',
+    component: Promotion,
+    props: { newsletterPopup: false, myName: 'test' }
+  }
+]
+
+const User = {
+  // 这里直接获取值
+  props: ['newsletterPopup', 'myName'],
+  template: '<div>User {{ id + myName}}</div>'
+}
+```
+
+④ 函数模式
+
+传入一个函数，函数的返回值为以上三种方式：
+
+```javascript
+const routes = [
+  {
+    path: '/search',
+    component: SearchUser,
+    props: route => ({ query: route.query.q })
+  }
+]
+```
+
+#### 2、linkActiveClass 路由样式
 
 `<router-link>` 在前端默认渲染为 `<a>`，并且 `class="router-link-exat-active router-link-active"`，若想修改该标签默认的类名，则需在 router 对象中配置 linkActiveClass 属性，可以覆盖默认 class 类名。
 
@@ -1821,251 +2135,121 @@ const routes = [
 </template>
 
 <script>
-const router = VueRouter.createRouter({
-  linkActiveClass: "myactive",
-});
+const router = new Router({
+  linkActiveClass: 'myactive'
+})
 </script>
 ```
 
-### （二）路径对象
+#### 3、scrollBehavior 滚动
 
-路径对象就是 routes 数组中的一个元素。
+当切换到新路由时，想要页面滚到顶部，或者是保持原先的滚动位置，就像重新加载页面那样。 scrollBehavior 属性让你可以自定义路由切换时页面如何滚动，提供三个参数：
 
-#### 1、name 命名路径
+- to：路径对象，即将进入的目标。
+- from：路径对象，即将离开的位置。
+- savedPosition：只有当这是一个 `popstate` 导航时才可用（由浏览器的后退/前进按钮触发）。
 
-除了 path 属性之外，路径对象还提供 name 属性，有以下优点：
-
-- 没有硬编码的 URL
-- params 的自动编码/解码（也就是说会将动态路由匹配的 params 属性，放入 url 中）。
-- 防止你在 url 中出现打字错误。
-- 绕过路径排序（如显示一个）
-
-```vue
-<template>
-  <!-- 第一种写法，这里生成的 url 是 `/url/erina` -->
-  <router-link :to="{ name: 'user', params: { username: 'erina' } }" />
-
-  <!-- 第二种写法 -->
-  <router-link to="/url/erina" />
-</template>
-
-<script>
-const routes = [
-  {
-    path: "/user/:username",
-    name: "user",
-    component: User,
-  },
-];
-
-var vm = new Vue({
-  ......
-  methods: {
-    test() {
-      // 第三种写法
-      router.push({ name: "user", params: { username: "erina" } });
-    },
-  },
-});
-</script>
-```
-
-#### 2、redirect 重定向
-
-路径对象也提供 redirect 属性进行重定向，有三种取值：
-
-##### （1）path 字符串
-
-```js
-// 由 `/home` 重定向到 `/`
-const routes = [{ path: "/home", redirect: "/" }];
-```
-
-##### （2）路径对象
-
-```js
-// 由 `/home` 重定向到 name 为 homepage 的路径对象
-const routes = [{ path: "/home", redirect: { name: "homepage" } }];
-
-// 由 `/home` 重定向到 `/home/page`
-const routes = [{ path: "/home", redirect: { path: "/home/page" } }];
-```
-
-##### （3）函数
-
-```js
-const routes = [
-  {
-    // /search/screens -> /search?q=screens
-    path: "/search/:searchText",
-    redirect: (to) => {
-      // 方法接收目标路径对象作为参数
-      // return 重定向的字符串路径/路径对象
-      return { path: "/search", query: { q: to.params.searchText } };
-    },
-  },
-];
-```
-
-> 注意：
->
-> - 导航守卫并没有应用在跳转路由上，而仅仅应用在重定向后的目标上。在上面的例子中，在 `/home` 路由中添加 beforeEnter 守卫不会有任何效果。
-> - 在写 redirect 的时候，可以省略 component 属性，因为它从来没有被直接访问过，所以没有组件要渲染。唯一的例外是嵌套路由：如果一个路径对象记录有 children 和 redirect 属性，它也应该有 component 属性。
-
-#### 3、alias 别名
-
-可以为当前 path 起一个或多个别名，别名可以为相对路径或绝对路径。
-
-```js
-// `/` 或 `home` 都指向同一个组件
-const routes = [{ path: "/", component: Homepage, alias: "/home" }];
-
-const routes = [
-  {
-    path: "/users",
-    component: UsersLayout,
-    children: [
-      // 为这 3 个 URL 呈现 UserList
-      // - /users
-      // - /users/list
-      // - /people
-      { path: "", component: UserList, alias: ["/people", "list"] },
-    ],
-  },
-];
-
-const routes = [
-  {
-    path: "/users/:id",
-    component: UsersByIdLayout,
-    children: [
-      // 为这 3 个 URL 呈现 UserDetails
-      // - /users/24
-      // - /users/24/profile
-      // - /24
-      { path: "profile", component: UserDetails, alias: ["/:id", ""] },
-    ],
-  },
-];
-```
-
-#### 4、children 嵌套路由
-
-一些页面由多层嵌套组件组成，当一个路由跳转到另一个路由时，只想切换页面中的某些组件时，可以使用 children 属性声明嵌套路由，在路由对应组件中添加 `<router-view>` 作为嵌套视图。
-
-![嵌套命名视图](./嵌套命名视图.png)
-
-```vue
-<template>
-  <!-- UserSettings.vue -->
-  <div>
-    <h1>User Settings</h1>
-    <NavBar />
-    <!-- 嵌套视图 -->
-    <router-view />
-    <router-view name="helper" />
-  </div>
-</template>
-
-<script>
-const routes = [
-  {
-    path: "/settings",
-    // 你也可以在顶级路由就配置命名视图
-    component: UserSettings,
-    // 嵌套路由
-    children: [
-      {
-        path: "emails",
-        // UserEmailsSubscriptions 被渲染到 UserSettings 的 `<router-view>` 内部
-        component: UserEmailsSubscriptions,
-      },
-      {
-        path: "profile",
-        // 由 `/settings/emails` 跳转到 `/settings/profile` 时，将 UserSettings 组件替换为 UserProfile 组件，同时渲染 `name=helper` 的 UserProfilePreview 组件。
-        components: {
-          default: UserProfile,
-          helper: UserProfilePreview,
-        },
-      },
-      {
-        // 不拼接父路由（`/settings/rootProfile`），直接为：`/rootProfile`
-        path: "/rootRrofile",
-        components: {
-          default: UserProfile,
-          helper: UserProfilePreview,
-        },
-      },
-    ],
-  },
-];
-</script>
-```
-
-> 注意：
->
-> - 不以 `/` 开头的嵌套路由需要拼接父路由访问。
-> - 以 `/` 开头的嵌套路径被视为从根路径开始，但是仍然可以利用组件嵌套，而不必拼接父路由。
-
-#### 5、meta 元信息
-
-路径对象提供 meta 属性，可以将任意信息附加到路由上。
-
-```js
-const routes = [{
-  path: ':id',
-  component: PostsDetail
-  // 任何人都可以阅读文章
-  meta: { requiresAuth: false }
-}]
-
-router.beforeEach((to, from) => {
-  // `this.$route.meta` 会获取当前路由对象及直接子路由对象的 meta 字段的并集
+```javascript
+const router = createRouter({
+  routes: [...],
+  scrollBehavior (to, from, savedPosition) {
+    // return 期望滚动到哪个的位置
+  }
 })
 ```
 
-### （三）路由传参方式
+**滚动函数提供几种返回值：**
 
-在路由规则中定义参数，可以将 url 地址中 hash 的参数传给组件使用。
+- 绝对位置
 
-#### 1、query 方式传参
-
-不需要修改路由中的 path， 通过 `this.$route.query` 就可以获取到参数。
-
-```vue
-<template>
-  <router-link to="/login?name=zs&age=12">
-</template>
-
-<script>
-//在组件的属性中都可以使用
-var register = Vue.extend({
-  template: '<h1>注册组件 --- {{this.$route.query.name}}</h1>'
-});
-</script>
+```javascript
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终滚动到顶部
+    return { top: 0 }
+  }
+})
 ```
 
-#### 2、params 方式传参
+- 相对位置：通过 `el` 传递一个 CSS 选择器或一个 DOM 元素。在这种情况下，`top` 和 `left` 将被视为该元素的相对偏移量。
 
-需要修改 path 进行匹配， 通过 `this.$route.params` 就可以获取到参数。
-
-```vue
-<template>
-  <router-link to="/login/zs/12">
-</template>
-
-<script>
-var register = Vue.extend({
-  template: '<h1>注册组件 --- {{this.$route.params.name}}</h1>'
-});
-
-const route = [{path: "/login/:name/:age", component: login}]
-</script>
+```javascript
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    // 始终在元素 #main 上方滚动 10px
+    return {
+      // 也可以这么写
+      // el: document.getElementById('main'),
+      el: '#main',
+      top: -10
+    }
+  }
+})
 ```
 
-### （四）动态路由匹配
+- 锚点：滚动到锚点。
 
-当需要将给定匹配模式的路由映射到同一个组件，同时将路由中匹配的值以键值对存储到 `this.$route.params` 中，需要使用动态路由匹配。路径参数用冒号 `:` 表示，当一个路由被匹配时，它的 params 的值将在每个组件中以 `this.$route.params` 的形式暴露出来。
+```javascript
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    if (to.hash) {
+      return {
+        el: to.hash
+      }
+    }
+  }
+})
+```
+
+- 延迟滚动：需要返回一个 Promise。
+
+```javascript
+const router = createRouter({
+  scrollBehavior(to, from, savedPosition) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve({ left: 0, top: 0 })
+      }, 500)
+    })
+  }
+})
+```
+
+#### 4、mode 模式
+
+mode 用于设置 URL 的表现形式，有两个值：
+
+- hash：默认值，即**地址栏的 URL 中包含 # 符号**，使用 URL 的 hash 来模拟一个完整的 URL，当 URL 改变时，页面不会重新加载。例如：hash 模式下的 URL 为 `http://www.abc.com/#/hello`，hash 的值为 `#/hello`。
+- history：使用 history 模式时，URL 中就没有 # 井号，例如 `http://www.abc.com/hello`。history 模式利用了 HTML5 History Interface 中新增的 pushState() 和 replaceState() 方法来完成 URL 跳转而无须重新加载页面（需要特定浏览器支持）。
+
+#### 5、[base](https://www.cnblogs.com/wangweizhang/p/12807680.html) 基础路径
+
+应用的基础路径，默认值为 `/`。
+
+有时候，一个服务器上可能部署了多个前端 Vue 项目，我们需要使用二级域名进行区分（例如：商城项目的根路径是 `http://192.168.0.1/app`，二级域名就是 app；图书管理项目的根路径是 `http://192.168.0.1/lib`，二级域名是 lib），这时候 base 就很有用了。
+
+可以将商城项目的 base 设置为 `/app/`，图书管理项目的 base 设置为 `/lib/`，同时需要分别将 Vue 打包后的项目放入 nginx 内 test（自定义的）的 app 和 lib 目录下，然后再对 nginx 进行配置：
+
+```conf
+#test路径
+location ^~ /app/ {
+　　root  test/;
+　　$uri $uri/ /app/index.html; // 商城项目
+　　index.html login.html;
+}
+
+location ^~ /lib/ {
+　　root  test/;
+　　$uri $uri/ /lib/index.html; // 商城项目
+　　index.html login.html;
+}
+```
+
+这时就可以通过上面的二级域名进行访问。
+
+### （三）动态路由匹配
+
+当需要将指定**匹配语法**的路由映射到同一个组件，同时将路由中匹配的值以键值对存储到 `this.$route.params` 中，需要使用动态路由匹配。路径参数用冒号 `:` 表示，当一个路由被匹配时，它的 params 的值将在每个组件中以 `this.$route.params` 的形式暴露出来。
 
 > 例如：我们可能有一个 User 组件，它应该对所有用户进行渲染，但用户 ID 不同。在 Vue-Router 中，我们可以在路径中使用一个动态字段来实现，我们称之为路径参数。
 
@@ -2073,11 +2257,10 @@ const route = [{path: "/login/:name/:age", component: login}]
 <script>
 const routes = [
   // 匹配 `/user/myId对应的值`，会以键值对 { myId: myId对应的值 } 的形式存储到 `this.$route.params` 中
-  // 使用 `this.$route.params.myId` 获取对应的值
-  { path: "/users/:myId", component: User },
-
   // `/user/` 或 `/user` 匹配不到此路由
-];
+  // 使用 `this.$route.params.myId` 获取对应的值
+  { path: '/users/:myId', component: User }
+]
 </script>
 ```
 
@@ -2091,9 +2274,9 @@ var vm = new Vue({
   watch: {
     $route: function (newVal, oldVal) {
       // 对路由变化做出响应...
-    },
-  },
-});
+    }
+  }
+})
 </script>
 ```
 
@@ -2104,8 +2287,8 @@ var vm = new Vue({
 var vm = new Vue({
   async beforeRouteUpdate(to, from) {
     // 对路由变化做出响应...
-  },
-});
+  }
+})
 </script>
 ```
 
@@ -2119,12 +2302,12 @@ var vm = new Vue({
 <script>
 const routes = [
   // 匹配以`/myHead`开头的路由，例如：`/myHeadBodyValue`，然后以键值对 { isBody: BodyValue }存储到 `this.$route.params` 中
-  { path: "/myHead:isBody" },
-];
+  { path: '/myHead:isBody' }
+]
 </script>
 ```
 
-##### （2）自定义正则
+##### （2）自定义正则表达式
 
 在动态路由中，可以使用正则表达式限定匹配的路由，格式为：`:路由参数(正则表达式)`。
 
@@ -2132,10 +2315,10 @@ const routes = [
 <script>
 const routes = [
   // 仅匹配数字，例如：`/12`、`/123`；不能匹配其他内容，例如：`/user`、`/isString`等
-  { path: "/:orderId(\\d+)" },
+  { path: '/:orderId(\\d+)' },
   // 匹配其他任何内容
-  { path: "/:productName" },
-];
+  { path: '/:productName' }
+]
 </script>
 ```
 
@@ -2147,18 +2330,18 @@ const routes = [
 <script>
 const routes = [
   // 匹配 `/one`、`/one/two`、`/one/two/three`等
-  { path: "/:chapters+" },
+  { path: '/:chapters+' },
   // 匹配 `/`、`/one`、`/one/two`、`/one/two/three`等
-  { path: "/:chapters*" },
+  { path: '/:chapters*' },
   // 匹配 `/1`、`/1/2`等
-  { path: "/:chapters(\\d+)+" },
+  { path: '/:chapters(\\d+)+' },
   // 匹配 `/`、`/1`、`/1/2`等
-  { path: "/:chapters(\\d+)*" },
-];
+  { path: '/:chapters(\\d+)*' }
+]
 </script>
 ```
 
-### （五）编程式导航
+### （四）编程式导航
 
 除了使用 `<router-link>` 创建 `<a>` 导航链接，还可以通过 Vue-Router 的实例方法，通过编写代码来实现。
 
@@ -2168,121 +2351,79 @@ const routes = [
 
 > 当你点击 `<router-link>` 时，内部会调用这个函数，所以点击 `<router-link :to="...">` 相当于调用 `this.$router.push(...)`。
 >
-> `router.push()` 和所有其他导航方法都会返回一个 Promise，让我们可以等到导航完成后才知道是成功还是失败。
+> `router.push()` 和 `router.replace` 都会返回一个 Promise，让我们可以等到导航完成后才知道是成功还是失败。
 
-```js
-// 字符串路径
-router.push("/users/eduardo");
+```javascript
+// 1、字符串路径
+router.push('/users/eduardo')
 
-// 路径对象
-router.push({ path: "/users/eduardo" });
+// 2、路径对象
+router.push({ path: '/users/eduardo' })
 
-// 1、命名的路径对象，并加上参数，让路由建立 url，
+// 3、命名的路径对象，并加上 params 参数
 // 当 path 为动态路由时，使用 `name` 和 `params` 从自动 URL 编码中获益
-router.push({ name: "user", params: { username: "eduardo" } });
+router.push({ name: 'user', params: { username: 'eduardo' } })
 
-// 2、`params` 不能与 `path` 一起使用
-router.push({ path: "/user", params: { username } });
+// `params` 不能与 `path` 一起使用
+// router.push({ path: '/user', params: { username } })
 
-// 带查询参数，结果是 /register?plan=private
-router.push({ path: "/register", query: { plan: "private" } });
+// 4、带查询参数，结果是 /register?plan=private
+router.push({ path: '/register', query: { plan: 'private' } })
 
-// 带 hash，结果是 /about#team
-router.push({ path: "/about", hash: "#team" });
+// 5、带 hash，结果是 /about#team
+router.push({ path: '/about', hash: '#team' })
 ```
 
 #### 2、replace()
 
-它的作用类似于 `router.push`，唯一不同的是，它在导航时不会向 `window.history` 添加新记录，也就是使用后退键时不会回到上一个 url。
+它的作用类似于 `router.push`，唯一不同的是，它在导航时不会向 `window.history` 添加新记录，也就是使用后退键时不会回到上一个 URL。
 
 #### 3、go()
 
 采用一个整数作为参数，表示在历史堆栈中前进或后退多少步，类似于 `window.history.go(n)`。
 
-```js
+```javascript
 // 向前移动一条记录，与 router.forward() 相同
-router.go(1);
+router.go(1)
 
 // 返回一条记录，与router.back() 相同
-router.go(-1);
+router.go(-1)
 
 // 如果没有那么多记录，静默失败
-router.go(-100);
+router.go(-100)
 ```
 
-### （六）路由组件传参
+### （五）路由传参方式
 
-组件中使用 `this.$route` 获取 params 时，会让组件与路由紧密耦合，这限制了组件的灵活性，因为它只能用于特定的 url。虽然这不一定是件坏事，但我们可以通过 props 属性来解除这种行为，通过 props 属性可以直接将路径对象的 params 对象传递给组件的 props。
+当我们使用 `router.push()` 进行路由跳转时，可以通过 query 和 params 属性携带参数传递给目标 URL。
 
-#### 1、布尔模式
+#### 1、query 方式传参
 
-当 props 为 true 时，`this.route.params` 将被设置为组件的 props。
+query 传参类似于网络请求中的 get 请求，query 传过去的参数会拼接在地址栏中（?name=xx）。query 较为灵活，既可以配合 path 使用，也能配合 name 使用。
 
-```js
-const User = {
-  // 这里 id 为 this.$route.params.id
-  props: ["id"],
-  template: "<div>User {{ id }}</div>",
-};
+```javascript
+// 通过 query 传参
+this.$router.push({ path: '/home', query: { username: this.username } })
 
-const routes = [{ path: "/user/:id", component: User, props: true }];
+// 获取 query 参数
+this.$route.query.username
 ```
 
-#### 2、命名视图
+#### 2、params 方式传参
 
-对于有命名视图的路由，必须为每个命名视图定义 props 配置。
+params 传参类似于网络请求中的 post 请求，params 传过去的参数不会显示在地址栏中。params 只能配合 name 使用， 通过 `this.$route.params` 就可以获取参数。
 
-```js
-const routes = [
-  {
-    path: "/user/:id",
-    components: { default: User, sidebar: Sidebar },
-    // 分别为每个命名视图单独设置 props
-    props: { default: true, sidebar: false },
-  },
-];
+```javascript
+// params 只能和 name 同时使用
+this.$router.push({ name: 'home', params: { username: this.username } })
+
+// 获取 params 参数
+this.$route.query.username
 ```
 
-#### 3、对象模式
+### （六）导航守卫
 
-当 props 是一个对象时，将原样设置为组件的 props。
-
-```js
-const routes = [
-  {
-    path: "/promotion/from-newsletter",
-    component: Promotion,
-    props: { newsletterPopup: false, myName: "test" },
-  },
-];
-
-const User = {
-  // 这里直接获取值
-  props: ["newsletterPopup", "myName"],
-  template: "<div>User {{ id + myName}}</div>",
-};
-```
-
-#### 4、函数模式
-
-创建一个返回组件 props 的函数。
-
-```js
-const routes = [
-  {
-    path: "/search",
-    component: SearchUser,
-    // 返回值作为组件的 props
-    props: (route) => ({ query: route.query.q }),
-  },
-];
-```
-
-### （七）导航守卫
-
-导航守卫（导航钩子）类似于生命周期钩子，包含路由进入前，进入后，更新时，退出前等几个周期，主要用于控制导航的前进后退或跳转等。
-
-根据作用范围不同，分为：全局导航守卫、私有导航守卫、组件导航守卫。
+导航守卫（导航钩子）类似于生命周期钩子，包含路由进入前，进入后，更新时，退出前等几个周期，主要用于控制导航的前进后退或跳转等。**根据作用范围不同，分为：全局导航守卫、私有导航守卫、组件导航守卫。**
 
 #### 1、全局导航守卫
 
@@ -2297,16 +2438,16 @@ const routes = [
 - next：相当于一个 `new Promise((resolve) => { resolve() })` 中的 resolve，必须执行保证进入下一步，对于不同的参数用不同的效果：
 
   - next()：不传入参数，进入管道中的下一个钩子函数或目标 url。
-  - next(false)：中断当前的导航，如果浏览器中的 url 改变了，那么会重置到 from 路径对象对应的 url 地址。
-  - next(path 路径或路径对象)：跳转到指定的 url 地址或路由对象对应的 url 地址。
+  - next(false)：中断当前的导航，如果浏览器中的 URL 改变了，那么会重置到 from 路径对象对应的 URL 地址。
+  - next(path 路径或路径对象)：跳转到指定的 URL 地址或路由对象对应的 URL 地址。
 
   > next 一般只能被执行一次，可以出现执行多次的情况，但是只能在所有的逻辑路径不重叠的情况下，否则钩子函数永远不会被解析或报错。
 
-```js
+```javascript
 router.beforeEach((to, from, next) => {
-  if (to.name !== "Login" && !isAuthenticated) next({ name: "Login" });
-  else next();
-});
+  if (to.name !== 'Login' && !isAuthenticated) next({ name: 'Login' })
+  else next()
+})
 ```
 
 ##### （2）`router.beforeResolve()`
@@ -2319,10 +2460,10 @@ router.beforeEach((to, from, next) => {
 
 > 没有 next，也不会改变导航本身。
 
-```js
+```javascript
 router.afterEach((to, from) => {
-  sendToAnalytics(to.fullPath);
-});
+  sendToAnalytics(to.fullPath)
+})
 ```
 
 #### 2、私有导航守卫
@@ -2333,32 +2474,32 @@ router.afterEach((to, from) => {
 
 > 只有进入路由时触发，不会在 params、query 或 hash 改变时触发。
 
-```js
+```javascript
 const routes = [
   // `/users/2` 进入到 `/users/3`，或者从 `/users/2#info` 进入到 `/users/2#projects` 不触发
   {
-    path: "/users/:id",
+    path: '/users/:id',
     component: UserDetails,
     beforeEnter: (to, from) => {
       // reject the navigation
-      return false;
-    },
-  },
-];
+      return false
+    }
+  }
+]
 
 // 也可以接收一个或多个函数
 const routes = [
   {
-    path: "/users/:id",
+    path: '/users/:id',
     component: UserDetails,
-    beforeEnter: [removeQueryParams, removeHash],
+    beforeEnter: [removeQueryParams, removeHash]
   },
   {
-    path: "/about",
+    path: '/about',
     component: UserDetails,
-    beforeEnter: [removeQueryParams],
-  },
-];
+    beforeEnter: [removeQueryParams]
+  }
+]
 ```
 
 #### 3、组件导航守卫
@@ -2374,7 +2515,7 @@ const routes = [
 > - 由于是在创建组件（beforeCreate()）前触发，因此不能获取组件实例 `this` 。可以传一个回调函数给 next 来访问组件实例，此回调函数在 beforeMount()之后调用。
 > - 只有 beforeRouteEnter()的 next 才能传回调函数。
 
-```js
+```javascript
 beforeRouteEnter (to, from, next) {
   next(vm => {
     // 通过 vm 访问组件实例
@@ -2386,21 +2527,21 @@ beforeRouteEnter (to, from, next) {
 
 当前路由改变，但是组件被复用时调用。例如：动态路由匹配。
 
-```js
+```javascript
 const routes = [
   // `/users/2` 进入到 `/users/3` 时触发
   {
-    path: "/users/:id",
-    component: UserDetails,
-  },
-];
+    path: '/users/:id',
+    component: UserDetails
+  }
+]
 ```
 
 ##### （3）beforeRouteLeave
 
 在导航离开渲染该组件的对应路由时调用，也就是在 beforeDestroy()之前执行。
 
-#### 4、[路由导航解析流程](https://www.jb51.net/article/144337.htm)
+#### 4、[路由导航执行流程](https://www.jb51.net/article/144337.htm)
 
 - 触发进入其他路由。
 - 调用要离开路由的组件守卫 beforeRouteLeave()。
@@ -2434,7 +2575,7 @@ Vuex 充当一个全局变量的角色来存储值，用于解决兄弟组件传
 
 ### （一）使用 Vuex
 
-```js
+```javascript
 import Vue from 'vue'
 import Vuex from 'vuex'
 
@@ -2452,14 +2593,14 @@ new Vue({store: store})
 
 相当于 Vue 的 data 属性，保存着定义的状态（数据），在根节点注册后，可以 `this.$store.state.变量名` 全局使用。
 
-```js
+```javascript
 let store = createStore({
   state() {
     return {
-      count: 0,
-    };
-  },
-});
+      count: 0
+    }
+  }
+})
 ```
 
 ##### （1）mapState
@@ -2468,77 +2609,77 @@ mapState 是一个辅助函数，主要用于生成局部组件中的计算属�
 
 > 在 Vue 中 computed 属性中，若调用很多 state 中的数据，会导致代码很多很冗余，使用 mapState 函数 state 可以减少代码冗余（其实就是少写了 `this.$store.`）。
 
-```js
-import { mapState } from "vuex";
+```javascript
+import { mapState } from 'vuex'
 
 export default {
   computed: mapState({
-    count: (state) => state.count,
+    count: state => state.count,
 
     // 传字符串参数 'count' 等同于 `state => state.count`
-    countAlias: "count",
+    countAlias: 'count',
 
     countPlusLocalState(state) {
-      return state.count + this.localCount;
-    },
-  }),
-};
+      return state.count + this.localCount
+    }
+  })
+}
 ```
 
 当映射的计算属性的名称与 state 的子节点名称相同时，我们也可以给 `mapState` 传一个字符串数组：
 
-```js
+```javascript
 computed: mapState([
   // 映射 this.count 为 store.state.count
-  "count",
-]);
+  'count'
+])
 ```
 
 #### 2、getter
 
 相当于 Vue 的 computed 属性，通过 `state.变量` 获取 state 中的变量的 computed 值，可以 `this.$store.getter.变量名` 全局使用。
 
-```js
+```javascript
 const store = createStore({
   state: {
     todos: [
-      { id: 1, text: "...", done: true },
-      { id: 2, text: "...", done: false },
-    ],
+      { id: 1, text: '...', done: true },
+      { id: 2, text: '...', done: false }
+    ]
   },
   getters: {
     doneTodos(state) {
-      return state.todos.filter((todo) => todo.done);
-    },
-  },
-});
+      return state.todos.filter(todo => todo.done)
+    }
+  }
+})
 ```
 
 ##### （1）mapGetters
 
 mapGetters 辅助函数仅仅是将 store 中的 getter 映射到局部组件的计算属性，简化调用时的代码。
 
-```js
-import { mapGetters } from "vuex";
+```javascript
+import { mapGetters } from 'vuex'
 
 export default {
   // ...
   computed: {
     // 使用对象展开运算符将 getter 混入 computed 对象中
-    ...mapGetters(["doneTodosCount"]),
+    ...mapGetters(['doneTodosCount']),
     ...mapGetters({
       // 将 doneTodos 映射为组件中 computed 的 doneCount
-      doneCount: "doneTodos",
-    }),
-  },
-};
+      doneCount: 'doneTodos'
+    })
+  }
+}
 ```
 
 #### 3、mutations
 
 相当于 Vue 的 methods 属性，mutations 定义的方法中第一个参数默认为 state，可以 `this.$store.commit('方法名', 参数1, 参数2, ...)` 全局使用，这是修改 state 中数据的唯一方式。
 
-```js
+```javascript
 let store = createStore({
   mutations: {
     increment (state, n) {
@@ -2559,25 +2700,25 @@ this.$store.commit('increment', 3) // 3
 
 mapMutations 辅助函数仅仅是将 store 中的 mutations 映射到局部组件的方法，简化调用时的代码。
 
-```js
-import { mapMutations } from "vuex";
+```javascript
+import { mapMutations } from 'vuex'
 
 export default {
   // ...
   methods: {
     ...mapMutations([
       // 将 `this.increment()` 映射为 `this.$store.commit('increment')`
-      "increment",
+      'increment',
 
       // 将 `this.incrementBy(amount)` 映射为 `this.$store.commit('incrementBy', amount)`
-      "incrementBy",
+      'incrementBy'
     ]),
     ...mapMutations({
       // 将 `this.add()` 映射为 `this.$store.commit('increment')`
-      add: "increment",
-    }),
-  },
-};
+      add: 'increment'
+    })
+  }
+}
 ```
 
 #### 4、actions
@@ -2589,18 +2730,18 @@ export default {
 > - actions 中的 context 参数是一个与 store 实例具有相同方法和属性的对象，可以 `context.dispatch` 分发一个 actions、`context.commit` 提交一个 mutations、`context.state` 获取 state 或 `context.getters` 获取 getters；mutations 的 state 参数是 Vuex 的 state 属性。
 > - actions 可以是一个异步函数；mutations 必须是同步函数。
 
-```js
+```javascript
 let store = createStore({
   actions: {
     incrementAsync({ commit }) {
       setTimeout(() => {
-        commit("increment");
-      }, 1000);
-    },
-  },
-});
+        commit('increment')
+      }, 1000)
+    }
+  }
+})
 
-this.$store.dispath("incrementAsync");
+this.$store.dispath('incrementAsync')
 ```
 
 > 注意：
@@ -2610,32 +2751,32 @@ this.$store.dispath("incrementAsync");
 
 ##### （1）mapActions
 
-```js
-import { mapActions } from "vuex";
+```javascript
+import { mapActions } from 'vuex'
 
 export default {
   // ...
   methods: {
     ...mapActions([
       // 将 `this.increment()` 映射为 `this.$store.dispatch('increment')`
-      "increment",
+      'increment',
 
       // 将 `this.incrementBy(amount)` 映射为 `this.$store.dispatch('incrementBy', amount)`
-      "incrementBy",
+      'incrementBy'
     ]),
     ...mapActions({
       // 将 `this.add()` 映射为 `this.$store.dispatch('increment')`
-      add: "increment",
-    }),
-  },
-};
+      add: 'increment'
+    })
+  }
+}
 ```
 
 #### 5、module
 
 Vuex 也提供模块化，可以将 store 分割成模块，每个模块拥有自己的 state、getters、mutations、actions 以及子模块：
 
-```js
+```javascript
 const moduleA = {
   state: () => ({ ... }),
   mutations: { ... },
@@ -2643,63 +2784,73 @@ const moduleA = {
   getters: { ... }
 }
 
+const moduleB = {
+  state: () => ({ ... }),
+  mutations: { ... },
+  actions: { ... }
+}
+
 const store = createStore({
   modules: {
     a: moduleA,
+    b: moduleB
   }
 })
+
+store.state.a // -> moduleA 的状态
+store.state.b // -> moduleB 的状态
 ```
 
-##### （1）模块的局部状态
+##### （1）模块的局部属性
 
-对于模块内部的 mutation 和 getter，接收的第一个参数是模块的局部状态对象。
+对于模块内部的 getter 和 mutation，第一个参数是**模块局部的 state**。
 
-```js
+```javascript
 const moduleA = {
   state: () => ({
-    count: 0,
+    count: 0
   }),
   mutations: {
     increment(state) {
       // 这里的 `state` 对象是模块的局部状态
-      state.count++;
-    },
+      state.count++
+    }
   },
   getters: {
     doubleCount(state) {
-      return state.count * 2;
-    },
-  },
-};
+      return state.count * 2
+    }
+  }
+}
 ```
 
-同样，对于模块内部的 action，局部状态通过 `context.state` 暴露出来，根节点状态则为 `context.rootState`：
+对于模块内部的 getter，**根节点的 state**会作为第三个参数传入：
 
-```js
+```javascript
+const moduleA = {
+  // ...
+  getters: {
+    sumWithRootCount(state, getters, rootState) {
+      return state.count + rootState.count
+    }
+  }
+}
+```
+
+对于模块内部的 action 上的 content 参数，**模块局部的 state** 通过 `context.state` 属性获取，**根节点的 state** 则通过 `context.rootState` 属性获取：
+
+```javascript
 const moduleA = {
   // ...
   actions: {
     // rootState 是父节点的 state
     incrementIfOddOnRootSum({ state, commit, rootState }) {
       if ((state.count + rootState.count) % 2 === 1) {
-        commit("increment");
+        commit('increment')
       }
-    },
-  },
-};
-```
-
-对于模块内部的 getter，根节点状态会作为第三个参数暴露出来：
-
-```js
-const moduleA = {
-  // ...
-  getters: {
-    sumWithRootCount(state, getters, rootState) {
-      return state.count + rootState.count;
-    },
-  },
-};
+    }
+  }
+}
 ```
 
 ##### （2）命名空间
@@ -2715,7 +2866,7 @@ const moduleA = {
 
 通过添加 `namespaced: true` 的方式使其成为带命名空间的模块。当模块被注册后，它的所有 getters、actions 及 mutations 都会自动根据模块注册的路径调整命名。
 
-```js
+```javascript
 const store = createStore({
   modules: {
     account: {
@@ -2752,9 +2903,9 @@ const store = createStore({
 
 ① 带命名空间的模块访问全局内容
 
-若想访问全局（也就是根节点）的 state 和 getters，可以直接使用 rootState 和 rootGetters，但是若需要在模块内分发全局命名空间的 actions 或提交 mutations，将 `{root: true}` 作为第三参数传给 actions 或提交 mutations 的方法。
+若想访问全局（也就是根节点）的 state 和 getters，可以直接使用 rootState 和 rootGetters，但是若需要在模块内 dispatch 分发全局命名空间的 actions 或 commit 提交 mutations，将 `{root: true}` 作为第三参数传给 actions 或提交 mutations 的方法。
 
-```js
+```javascript
 modules: {
   foo: {
     namespaced: true,
@@ -2782,7 +2933,7 @@ modules: {
         dispatch('someOtherAction', null, { root: true }) // -> 'someOtherAction'
 
         commit('someMutation') // -> 'foo/someMutation'
-        commit('someMutation', null, { root: true }) // -> 'someMutation'
+        commit('someMutation', null, { root: true }) // -> 'someMutation'，太麻烦了，不如使用命名空间方式调用
       },
       someOtherAction (ctx, payload) { ... }
     }
@@ -2794,7 +2945,7 @@ modules: {
 
 当模块 `namespaced: true` 时，actions 必须添加当前命名空间前缀才可以访问，可以在 actions 中使用 `root: true` 属性，将 actions 注册到根节点上。
 
-```js
+```javascript
 {
   actions: {
     someOtherAction ({dispatch}) {
@@ -2820,7 +2971,7 @@ modules: {
 
 当使用 mapSate、mapGetters、mapActions 和 mapMutations 这些函数来绑定带命名空间的模块时，会很繁琐：
 
-```js
+```javascript
 computed: {
   ...mapState({
     a: state => state.some.nested.module.a,
@@ -2839,9 +2990,9 @@ methods: {
 }
 ```
 
-可以将模块的空间名称字符串作为第一个参数传递给上述函数，这样所有绑定都会自动将该模块作为上下文。于是上面的例子可以简化为：
+可以将模块的**空间名称字符串**作为第一个参数传递给上述函数，这样所有绑定都会自动将该模块作为上下文。于是上面的例子可以简化为：
 
-```js
+```javascript
 computed: {
   ...mapState('some/nested/module', {
     a: state => state.a,
@@ -2860,53 +3011,53 @@ methods: {
 }
 ```
 
-可以通过使用 createNamespacedHelpers 创建基于某个命名空间辅助函数。它返回一个对象，对象里有新的绑定在给定命名空间值上的组件绑定辅助函数：
+可以通过**使用 createNamespacedHelpers 创建基于某个命名空间辅助函数**。它返回一个对象，对象里有新的绑定在给定命名空间值上的组件绑定辅助函数：
 
-```js
-import { createNamespacedHelpers } from "vuex";
+```javascript
+import { createNamespacedHelpers } from 'vuex'
 
-const { mapState, mapActions } = createNamespacedHelpers("some/nested/module");
+const { mapState, mapActions } = createNamespacedHelpers('some/nested/module')
 
 export default {
   computed: {
     // 在 `some/nested/module` 中查找
     ...mapState({
-      a: (state) => state.a,
-      b: (state) => state.b,
-    }),
+      a: state => state.a,
+      b: state => state.b
+    })
   },
   methods: {
     // 在 `some/nested/module` 中查找
-    ...mapActions(["foo", "bar"]),
-  },
-};
+    ...mapActions(['foo', 'bar'])
+  }
+}
 ```
 
 ##### （3）动态注册
 
 模块除了静态写在 js 文件中进行注册，Vuex 也提供一些函数来动态注册模块：
 
-```js
-import { createStore } from "vuex";
-import myModule from "./myModule";
+```javascript
+import { createStore } from 'vuex'
+import myModule from './myModule'
 
 const store = createStore({
   /* 选项 */
-});
+})
 
 // 注册模块 `myModule`
-store.registerModule("myModule", myModule);
+store.registerModule('myModule', myModule)
 
 // 注册嵌套模块 `nested/myModule`
-store.registerModule(["nested", "myModule"], myModule);
+store.registerModule(['nested', 'myModule'], myModule)
 
 // 卸载模块，不可卸载静态模块
-store.unregisterModule("myModule");
+store.unregisterModule('myModule')
 
-store.unregisterModule(["nested", "myModule"]);
+store.unregisterModule(['nested', 'myModule'])
 
 // 判断模块是否已经被注册到store
-store.hasModule("myModule");
+store.hasModule('myModule')
 ```
 
 > 注意：嵌套模块应该以数组形式传递给动态注册函数，而不是以路径字符串的形式。
@@ -2938,16 +3089,16 @@ JavaScript 使用原型模式深克隆创建对象，创建的对象实例可以
 
 ![原型关系图](./原型关系图.png)
 
-```js
+```javascript
 // 定义并创建对象
 function Person() {}
-var person = new Person();
+var person = new Person()
 
 // 获取实例原型
-console.log(Person.prototype, person.__proto__);
+console.log(Person.prototype, person.__proto__)
 
 // 设置原型属性或方法
-Person.prototype.myPrototype = "自定义属性";
+Person.prototype.myPrototype = '自定义属性'
 ```
 
 #### 2、原型链
@@ -2958,12 +3109,12 @@ Person.prototype.myPrototype = "自定义属性";
 
 ![原型链关系图](./原型链关系图.png)
 
-```js
+```javascript
 function Father() {}
 function Son() {}
 
 // 修改 `Son 的实例原型` 的实例原型为 `Father 的实例原型`
-Son.prototype.__proto__ = Father.prototype;
+Son.prototype.__proto__ = Father.prototype
 ```
 
 从 new 出来的对象获取属性时，会先检查是否拥有该属性，若没有再递归检查其原型实例（实例的 `__proto__` 属性）中是否有该属性，若有，便会返回值。
@@ -3042,16 +3193,16 @@ let 是 ES6 中提供的关键字，也用于声明变量，变量作用范围�
 - 只能在声明变量之后使用该变量。
 - 在子代码块中可以重新声明父代码块的变量。
 
-```js
+```javascript
 // 在变量声明之前使用会报错
-console.log(a);
-let a = 2;
+console.log(a)
+let a = 2
 
 {
-  let b = 1;
+  let b = 1
   {
     // 在子代码块中重新声明父代码块的变量
-    let b = 2;
+    let b = 2
   }
 }
 ```
@@ -3068,7 +3219,7 @@ const 用于声明常量，和 let 作用域类似，不过声明的常量不可
 
 为函数形参提供默认值，当不给形参传参时，会使用此默认值。
 
-```js
+```javascript
 function myTest1(first = 0, second) {......}
 // 不给first传参，first使用默认值0
 myTest1(undefined, 2)
@@ -3084,7 +3235,7 @@ function myTest3(first = 0, second = myFunction()) {......}
 
 形参作为一个数组，可以获取 0 或多个实参。
 
-```js
+```javascript
 function myTest(...myArgs) {......}
 ```
 
@@ -3095,21 +3246,21 @@ arguments 是一个关键字， 是调用函数时传入的参数组成的数组
 
 > 注意：arguments 是函数被调用时实参值，不包含参数默认值。
 
-```js
+```javascript
 function myTest(first = 0, second) {
-  console.log(arguments);
+  console.log(arguments)
 }
-myTest(1, 2); // [1, 2]
+myTest(1, 2) // [1, 2]
 
 // 只有一个实参 2
-myTest(undefined, 2); // [2]
+myTest(undefined, 2) // [2]
 ```
 
 #### 4、箭头函数
 
 箭头函数是对匿名函数的快捷写法，并且没有自己的 this，arguments，super 和 new.target。这些函数表达式更适用于那些本来需要匿名函数的地方，并且它们不能用作构造函数。
 
-```js
+```javascript
 (参数1, 参数2, …, 参数N) => { ...... }
 
 // 相当于：(参数1, 参数2, …, 参数N) =>{ return 表达式; }
@@ -3121,49 +3272,49 @@ myTest(undefined, 2); // [2]
 
 箭头函数不会创建自己的 this,它只会从自己的作用域链的上一层继承 this（这也是箭头函数最常用的用法）。
 
-```js
+```javascript
 function Person() {
-  this.age = 0;
+  this.age = 0
 
   setInterval(() => {
     // 这个函数里面的this指的是Person对象
-    this.age++;
-  }, 1000);
+    this.age++
+  }, 1000)
 }
 
-var p = new Person();
+var p = new Person()
 ```
 
 #### 5、立即调用函数
 
 其实是一个匿名函数在创建后，便立即调用了。
 
-```js
+```javascript
 let person = (function (name) {
   return {
     getName: function () {
-      return name;
-    },
-  };
-})("Nicholas");
+      return name
+    }
+  }
+})('Nicholas')
 
 // person不再表示这个匿名函数，而是此匿名函数的返回值
-console.log(person);
+console.log(person)
 ```
 
 ### （三）对象扩展
 
 #### 1、变量作为属性名
 
-```js
-var lastName = "last name";
+```javascript
+var lastName = 'last name'
 
 // 使用变量作为属性名
 var person = {
-  [lastName]: "myLast",
-};
+  [lastName]: 'myLast'
+}
 
-console.log(person[lastName]);
+console.log(person[lastName])
 ```
 
 #### 2、属性名排序
@@ -3172,15 +3323,15 @@ console.log(person[lastName]);
 
 #### 3、更强大的原型
 
-```js
+```javascript
 // 使用 myPrototype 作为原型实例创建 myObject 对象实例
-var myObject = Object.create(myProtptype);
+var myObject = Object.create(myProtptype)
 
 // 获取myObject对象实例的原型实例
-Object.getPrototypeOf(myObject);
+Object.getPrototypeOf(myObject)
 
 // 将 myObject 对象实例的原型实例替换为 myPrototype2
-Object.setPrototypeOf(myObject, myPrototype2);
+Object.setPrototypeOf(myObject, myPrototype2)
 ```
 
 #### 4、引入 super
@@ -3189,48 +3340,48 @@ this 指向函数所在的当前对象，super 指向当前对象的原型对象
 
 > 注意：super 只能用在对象的方法之中，用在其他地方会报错。
 
-```js
+```javascript
 // 报错
 const obj = {
-  foo: () => super.foo,
-};
+  foo: () => super.foo
+}
 
 // 报错
 const obj = {
   foo: function () {
-    return super.foo;
-  },
-};
+    return super.foo
+  }
+}
 
 // 正确
 // 虽然这种简写法和上面效果一致，但是只有对象方法的简写法可以让 JavaScript 引擎确认，定义的是对象的方法。
 const obj = {
   foo() {
-    return super.foo;
-  },
-};
+    return super.foo
+  }
+}
 ```
 
 `super.foo` 等同于 `Object.getPrototypeOf(this).foo`（属性）或 `Object.getPrototypeOf(this).foo.call(this)`（方法）。
 
-```js
+```javascript
 const proto = {
-  x: "hello",
+  x: 'hello',
   foo() {
-    console.log(this.x);
-  },
-};
+    console.log(this.x)
+  }
+}
 
 const obj = {
-  x: "world",
+  x: 'world',
   foo() {
-    super.foo();
-  },
-};
+    super.foo()
+  }
+}
 
-Object.setPrototypeOf(obj, proto);
+Object.setPrototypeOf(obj, proto)
 
-obj.foo(); // "world"
+obj.foo() // "world"
 ```
 
 上面代码中，`super.foo` 指向原型对象 `proto` 的 `foo` 方法，但是绑定的 `this` 却还是当前对象 `obj`，因此输出的就是 `world`。
@@ -3243,14 +3394,14 @@ obj.foo(); // "world"
 
 #### 1、基本用法
 
-```js
+```javascript
 let node = {
-  type: "Identifier",
-  name: "foo",
+  type: 'Identifier',
+  name: 'foo',
   inner: {
-    age: 20,
-  },
-};
+    age: 20
+  }
+}
 
 // 以前的写法
 // let type = node.type
@@ -3261,43 +3412,43 @@ let node = {
 let {
   type,
   name,
-  inner: { age },
-} = node;
-console.log(type, name, age); // "Identifier", "foo", 20
+  inner: { age }
+} = node
+console.log(type, name, age) // "Identifier", "foo", 20
 
-let colors = ["red", "green", "blue"];
+let colors = ['red', 'green', 'blue']
 
 // 以前的写法
 // let firstColor = colors[0];
 
 // 变量名下标位置和元素下标位置对应
-let [firstColor] = colors;
+let [firstColor] = colors
 
-console.log(firstColor); // red
+console.log(firstColor) // red
 ```
 
 #### 2、默认值
 
 默认值生效的条件是：对象的属性值严格等于 `undefined`。
 
-```js
-let { a, b = 2, c = 3, d = 4 } = { a: 1, b: null, c: undefined };
-console.log(a, b, c, d); // 1, null, 3, 4
+```javascript
+let { a, b = 2, c = 3, d = 4 } = { a: 1, b: null, c: undefined }
+console.log(a, b, c, d) // 1, null, 3, 4
 ```
 
 #### 3、其他变量名
 
 当想变量名和属性名不相等时：
 
-```js
+```javascript
 let node = {
-  type: "Identifier",
-  name: "foo",
-};
+  type: 'Identifier',
+  name: 'foo'
+}
 
 // 变量名和属性名不相等
-let { type: myType, name: myName } = node;
-console.log(myType, myName);
+let { type: myType, name: myName } = node
+console.log(myType, myName)
 ```
 
 ### （五）Set 和 Map
@@ -3306,49 +3457,49 @@ console.log(myType, myName);
 
 ES6 引入 Set，可以让我们对数组进行去重。
 
-```js
+```javascript
 // 传入数组初始化 Set
-let mySet = new Set([1, 2, 3, 4, 4]);
-console.log(mySet); // [1, 2, 3, 4]
+let mySet = new Set([1, 2, 3, 4, 4])
+console.log(mySet) // [1, 2, 3, 4]
 
 // 对于全等的元素，不会存入 set
-mySet.add(4);
+mySet.add(4)
 
 // Set 中是否存在某个值
-mySet.has(4);
+mySet.has(4)
 
 // 删除某个元素
-mySet.delete(4);
+mySet.delete(4)
 
 // 清空 Set
-mySet.clear();
+mySet.clear()
 
-mySet.size;
+mySet.size
 ```
 
 #### 2、Map
 
 JavaScript 的 Object 对象本质上是键值对的集合，但是只能使用字符串作为键，Map 可以使用各种数据类型作为键。
 
-```js
+```javascript
 // 传入数组初始化 Set
 const myMap = new Map([
-  ["name", "张三"],
-  ["title", "Author"],
-]);
-console.log(myMap); // {name: '张三', title: 'Auther'}
+  ['name', '张三'],
+  ['title', 'Author']
+])
+console.log(myMap) // {name: '张三', title: 'Auther'}
 
 // 以其他类型作为键
-let array = ["1"];
-myMap.set(array, "isArray");
+let array = ['1']
+myMap.set(array, 'isArray')
 
 // 获取键对应的值
-myMap.get(array);
+myMap.get(array)
 
-myMap.has(array);
-myMap.delete(array);
-myMap.clear();
-myMap.size;
+myMap.has(array)
+myMap.delete(array)
+myMap.clear()
+myMap.size
 ```
 
 ### （六）class
@@ -3357,34 +3508,34 @@ myMap.size;
 
 原型写法：
 
-```js
+```javascript
 function Point(x, y) {
-  this.x = x;
-  this.y = y;
+  this.x = x
+  this.y = y
 }
 
 Point.prototype.toString = function () {
-  return "(" + this.x + ", " + this.y + ")";
-};
+  return '(' + this.x + ', ' + this.y + ')'
+}
 
-var p = new Point(1, 2);
+var p = new Point(1, 2)
 ```
 
 class 写法：
 
-```js
+```javascript
 class Point {
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
+    this.x = x
+    this.y = y
   }
 
   toString() {
-    return "(" + this.x + ", " + this.y + ")";
+    return '(' + this.x + ', ' + this.y + ')'
   }
 }
 
-var p = new Point(1, 2);
+var p = new Point(1, 2)
 ```
 
 #### 1、constructor()
@@ -3393,114 +3544,114 @@ constructor()是类的默认方法，通过 `new` 命令生成对象实例时，
 
 constructor()默认返回实例对象（即 `this`），完全可以指定返回另外一个对象。
 
-```js
+```javascript
 class Foo {
   constructor() {
-    return Object.create(null);
+    return Object.create(null)
   }
 }
 
-new Foo() instanceof Foo; // false
+new Foo() instanceof Foo // false
 ```
 
 #### 2、get 和 set
 
 在类的内部可以使用 get 和 set 关键字，对某个属性设置存值函数和取值函数，拦截该属性的存取行为。
 
-```js
+```javascript
 class MyClass {
   constructor() {
     // ...
   }
   get prop() {
-    return "getter";
+    return 'getter'
   }
   set prop(value) {
-    console.log("setter: " + value);
+    console.log('setter: ' + value)
   }
 }
 
-let inst = new MyClass();
+let inst = new MyClass()
 
-inst.prop = 123; // setter: 123
-inst.prop; // 'getter'
+inst.prop = 123 // setter: 123
+inst.prop // 'getter'
 ```
 
 #### 3、静态方法
 
 若 class 的方法被 `static` 修饰，则表示该方法不会被实例继承，并且只能通过类来调用
 
-```js
+```javascript
 class Foo {
   static classMethod() {
-    return "hello";
+    return 'hello'
   }
 }
 
-Foo.classMethod(); // 'hello'
+Foo.classMethod() // 'hello'
 
-var foo = new Foo();
-foo.classMethod(); // TypeError: foo.classMethod is not a function
+var foo = new Foo()
+foo.classMethod() // TypeError: foo.classMethod is not a function
 ```
 
 如果静态方法包含 `this` 关键字，这个 `this` 指的是类，而不是实例。
 
-```js
+```javascript
 class Foo {
   static bar() {
-    this.baz();
+    this.baz()
   }
   // 静态方法可以和非静态方法重名
   static baz() {
-    console.log("hello");
+    console.log('hello')
   }
   baz() {
-    console.log("world");
+    console.log('world')
   }
 }
 
-Foo.bar(); // hello
+Foo.bar() // hello
 ```
 
 父类的静态方法，可以被子类继承，也可以通过 super 调用。
 
-```js
+```javascript
 class Foo {
   static classMethod() {
-    return "hello";
+    return 'hello'
   }
 }
 
 class Bar extends Foo {
   static classMethod1() {
-    return super.classMethod() + ", too";
+    return super.classMethod() + ', too'
   }
 }
 
-Bar.classMethod(); // 'hello'
-Bar.classMethod(); // 'hello, too'
+Bar.classMethod() // 'hello'
+Bar.classMethod() // 'hello, too'
 ```
 
 #### 4、属性和静态属性
 
 将对象实例的属性定义在 class 上，就可以在对象中直接使用，相当于原型的属性。
 
-```js
+```javascript
 class Foo {
-  bar = "hello";
-  baz = "world";
+  bar = 'hello'
+  baz = 'world'
 }
 ```
 
 静态属性也可以定义在 class 上，只能通过类来调用。
 
-```js
+```javascript
 class Foo {
-  static bar = "hello";
-  static baz = "world";
+  static bar = 'hello'
+  static baz = 'world'
 }
 
-Foo.bar; // 'hello'
+Foo.bar // 'hello'
 ```
 
 #### 5、继承
@@ -3511,26 +3662,26 @@ ES6 提供 extends 实现继承，让子类继承父类的属性和方法，实�
 
 > super()要放在子类构造的顶部，只有调用 super()之后，才可以使用 `this` 关键字。这是因为子类实例的构建，必须先完成父类的继承，只有 `super()` 方法才能让子类实例继承父类。
 
-```js
+```javascript
 class Point {
   constructor(x, y) {
-    this.x = x;
-    this.y = y;
+    this.x = x
+    this.y = y
   }
 }
 
 class ColorPoint extends Point {
   constructor(x, y, color) {
     // 调用父类的constructor(x, y)，
-    super(x, y);
-    this.color = color;
+    super(x, y)
+    this.color = color
   }
 }
 ```
 
 `Object.getPrototypeOf()` 方法可以用来从子类上获取父类。
 
-```js
+```javascript
 class Point {
   /*...*/
 }
@@ -3538,7 +3689,7 @@ class ColorPoint extends Point {
   /*...*/
 }
 
-Object.getPrototypeOf(ColorPoint) === Point; // true
+Object.getPrototypeOf(ColorPoint) === Point // true
 ```
 
 ### （七）Module 模块化
@@ -3557,27 +3708,27 @@ ES6 模块功能（简称 ESM）主要由两个命令构成：export 和 import�
 
 export 可以输出变量、函数或类（class）。
 
-```js
+```javascript
 // ------------------module.js文件------------------
 
-var a = 1;
+var a = 1
 // 输出变量，也可以使用as为变量起一个或多个别名
-export { a, a as num1, a as num2 };
+export { a, a as num1, a as num2 }
 
-export var b = 2;
+export var b = 2
 
 export var c = {
-  foo: 3,
-};
+  foo: 3
+}
 
 export function d() {
-  console.log(4);
+  console.log(4)
 }
 ```
 
 export 命令规定的是对外的接口，必须与模块内部的变量建立一一对应关系，只可以直接导出或使用`{}`（按需导出）的形式导出。
 
-```js
+```javascript
 // 错误
 export 1
 
@@ -3598,7 +3749,7 @@ export { a }
 
 import 可以用于加载并执行其他模块。
 
-```js
+```javascript
 // ------------------main.js文件------------------
 
 // 导入export输出的变量，也可以使用as为变量起别名
@@ -3610,7 +3761,7 @@ import './module.js'
 
 import 输入的变量都是只读的，因为它的本质是输入接口。不允许对输入的变量值进行更改，但若输入的变量是对象，可以更改此对象的属性值。
 
-```js
+```javascript
 import { c } './module.js'
 
 // 错误
@@ -3624,7 +3775,7 @@ c.foo = 31
 
 由于 import 是静态执行，所以不能使用只有在运行时才能得到结果的语法结构，例如：表达式、变量。
 
-```js
+```javascript
 // 报错
 import { 'f' + 'oo' } from 'my_module';
 
@@ -3642,20 +3793,20 @@ if (x === 1) {
 
 除了指定加载某个输出值，还可以使用整体加载，即用星号（`*`）指定一个对象，所有输出值都加载在这个对象上面。
 
-```js
-import * as module from "./module.js";
+```javascript
+import * as module from './module.js'
 
-console.log("c: ", module.c);
+console.log('c: ', module.c)
 
 // 错误
-module.c = {};
+module.c = {}
 ```
 
 ##### （3）export default
 
 export default 用于指定默认输出，相当于输出变量名为 default 的变量、函数（具名函数和匿名函数）或类（class）。
 
-```js
+```javascript
 // ------------------module1.js文件------------------
 
 // 相当于 export var default = 1
@@ -3685,14 +3836,14 @@ export default function() {
 
 import 导入 export default 指定的默认输出时，不需要放在 `{}` 中，并且可以指定成任意变量名。
 
-```js
+```javascript
 // ------------------main.js文件------------------
 
-import myDefault from "./module1.js";
+import myDefault from './module1.js'
 
-import { default as myDefault } from "./module1.js";
+import { default as myDefault } from './module1.js'
 
-import myDefault, { test } from "./module1.js";
+import myDefault, { test } from './module1.js'
 ```
 
 ##### （4）import()
@@ -3701,7 +3852,7 @@ ES 后面又引入 import()函数，支持动态加载模块，可以在需要�
 
 import()函数传入模块路径或变量，返回值为 Promise 对象，加载模块成功后，模块会作为一个对象，当作 `then` 方法的参数。
 
-```js
+```javascript
 if(condition) {
     let path = './module.js'
     import(path).then(object => {
@@ -3722,7 +3873,7 @@ CommonJS 使用 module.exports 或 exports 向外暴露数据，使用 `require(
 > - 初始时 module.exports 和 exports 指向同一个对象，若重新给 module.exports 赋值，则指向不同的内存区域，exports 的存在没意义，因此推荐只使用 module.exports。
 > - module.exports 可以向外暴露数字、字符串、函数、对象等；exports 只能修改初始时对象的属性。
 
-```js
+```javascript
 // ----------- a.js -----------
 // 此时 modules.exports 已经指向新的对象，和 exports 断开联系，暴露的是新的对象
 modules.exports = {
@@ -3735,7 +3886,7 @@ exports.i= 2
 const aData = require(./a.js) // { i: 1 }
 ```
 
-```js
+```javascript
 // ----------- a.js -----------
 exports.i= 2
 
@@ -3754,41 +3905,41 @@ const aData = require(./a.json) // { i: 2 }
 
 - ES6 的 export 输出的接口其实是引用，其对应的值是动态绑定关系，即通过该接口，可以取到模块内部实时的值。
 
-  ```js
-  export var foo = "bar";
-  setTimeout(() => (foo = "baz"), 500); // 500ms后，foo的值变成'baz'
+  ```javascript
+  export var foo = 'bar'
+  setTimeout(() => (foo = 'baz'), 500) // 500ms后，foo的值变成'baz'
   ```
 
   CommonJS 输出的是值的拷贝，不存在动态更新。
 
-  ```js
+  ```javascript
   // ------------------commonJs.js文件------------------
-  var num = 0;
+  var num = 0
   module.exports = {
     num: num,
     add: function () {
-      num++;
+      num++
     },
     get: function () {
-      return num;
-    },
-  };
+      return num
+    }
+  }
   ```
 
-  ```js
+  ```javascript
   // ------------------main.js文件------------------
-  const lib1 = require("./commonJs");
-  const lib2 = require("./commonJs");
+  const lib1 = require('./commonJs')
+  const lib2 = require('./commonJs')
 
-  console.log(lib1.num); // 0
-  lib1.num = 10;
+  console.log(lib1.num) // 0
+  lib1.num = 10
   // 导入同一模块，使用的都是同一块拷贝
-  console.log(lib2.num); // 10
+  console.log(lib2.num) // 10
 
-  lib1.add();
-  console.log(lib1.get()); // 1
-  lib2.add();
-  console.log(lib2.get()); // 2
+  lib1.add()
+  console.log(lib1.get()) // 1
+  lib2.add()
+  console.log(lib2.get()) // 2
   ```
 
 - ES6 模块是编译时输出接口，也就是编译的时候就已经确定引入具体模块的具体内容；CommonJS 模块是运行时加载。不过后面 ESM 提供 import()函数，也可以运行时加载。
@@ -3810,7 +3961,7 @@ Promise 用于代表异步操作未来返回的结果值，被代理的值在异
 
 #### 1、创建 Promise 对象
 
-```js
+```javascript
 new Promise(function(resolve, reject) {...} /* executor */ );
 ```
 
@@ -3835,14 +3986,14 @@ Promise 有以下几种状态:
 
 then()函数在 Promise 原型（Promise.prototype.then(onFulfilled, onRejected) ）上，因此每个 Promise 对象都可以直接使用。
 
-```js
+```javascript
 new Promise((resolve, reject) => {
   // do something
   //
   // resolve(someValue); // fulfilled
   // 或
   // reject("failure reason"); // rejected
-}).then(onFulfilled, onRejected);
+}).then(onFulfilled, onRejected)
 ```
 
 then()函数中参数是可选的，接收 onFulfilled 和 onRejected 两个回调函数作为参数，返回一个新的 Promise 对象。
@@ -3862,15 +4013,15 @@ then()函数会将 onFulfilled /onRejected 回调函数的返回值封装为 Pro
 
 - 若回调函数抛异常，则返回的 Promise 状态变为 rejected，且 reject 回调函数参数为抛出的异常。
 
-```js
+```javascript
 var p = new Promise((resolve, reject) => {
-  resolve("foo");
-});
+  resolve('foo')
+})
 
 // 'bar' 不是函数，会在内部被替换为 (x) => x
-p.then("bar").then((value) => {
-  console.log(value); // 'foo'
-});
+p.then('bar').then(value => {
+  console.log(value) // 'foo'
+})
 ```
 
 > 注意：如果调用 then()函数的 Promise 的状态由 pending 变为 fulfilled / rejected，但是 then()函数中没有关于这种状态的回调函数或提供非函数作为参数，那么 then()函数没有任何操作也不会报错，返回的 Promise 状态与原 Promise 状态一致，且回调函数参数为原 Promise 中 resolve / reject 回调函数的参数。
@@ -3885,17 +4036,17 @@ catch(onRejected)相当于 then(undefined, onRejected)，只有 Promise 状态�
 
 finally()函数在 Promise 原型（Promise.prototype.finally(onFinally) ）上，因此每个 Promise 对象都可以直接使用。
 
-```js
+```javascript
 var p = new Promise((resolve, reject) => {
-  resolve("foo");
-});
+  resolve('foo')
+})
 
-let q = p.finally((res) => {
-  console.log(res); // undefined
-  return "bar";
-});
+let q = p.finally(res => {
+  console.log(res) // undefined
+  return 'bar'
+})
 
-console.log("fReturn", q); // foo
+console.log('fReturn', q) // foo
 ```
 
 finally()函数主要用于执行和状态无关的操作，有以下特性：
@@ -3906,11 +4057,11 @@ finally()函数主要用于执行和状态无关的操作，有以下特性：
 
 ##### （4）Promise.resolve(value)
 
-```js
-Promise.resolve(value);
+```javascript
+Promise.resolve(value)
 
 // 相当于
-new Promise((resolve) => resolve(value));
+new Promise(resolve => resolve(value))
 ```
 
 返回一个状态为 fulfilled 的 Promise 对象，resolve 回调函数参数为传入的 value 值。
@@ -3919,11 +4070,11 @@ new Promise((resolve) => resolve(value));
 
 ##### （5）Promise.reject(value)
 
-```js
-Promise.resolve(value);
+```javascript
+Promise.resolve(value)
 
 // 相当于
-new Promise((resolve, reject) => reject(value));
+new Promise((resolve, reject) => reject(value))
 ```
 
 返回一个状态为 rejected 的 Promise 对象，reject 回调函数参数为传入的 value 值。
@@ -3957,14 +4108,14 @@ Promise.any()函数接受一个 Promise 对象数组作为参数，返回一个�
 
 ##### （1）Promise 链式调用
 
-```js
+```javascript
 new Promise((resolve, reject) => {
-  resolve();
+  resolve()
 })
   .then(onFulfilled1)
   .then(onFulfilled2)
   .catch(onRejected)
-  .finally(onFinally);
+  .finally(onFinally)
 ```
 
 连续执行两个或者多个异步操作是一个常见的需求，在上一个操作执行成功之后，开始下一个的操作，并带着上一步操作所返回的结果。链式调用有以下约定：
@@ -3989,19 +4140,19 @@ new Promise((resolve, reject) => {
 
 我们可以通过以上事件为 Promise 失败时提供补偿处理，也有利于调试 Promise 相关的问题。在每一个上下文中，该处理都是全局的，因此不管源码如何，所有的错误都会在同一个 handler 中被捕捉处理。
 
-```js
+```javascript
 window.addEventListener(
-  "unhandledrejection",
-  (event) => {
+  'unhandledrejection',
+  event => {
     /* 你可以在这里添加一些代码，以便检查
      event.promise 中的 promise 和
      event.reason 中的 rejection 原因 */
     // 调用event的preventDefault()方法是为了告诉JavaScript引擎当 Promise 状态变为 rejected 时不要执行默认操作，
     // 默认操作一般会包含把错误打印到控制台。
-    event.preventDefault();
+    event.preventDefault()
   },
   false
-);
+)
 ```
 
 > 注意：在添加拒绝事件监听器前，应该优先为 rejected 的 Promise 添加 onRejected 回调函数，来确认这不是代码中的 bug。
@@ -4010,7 +4161,7 @@ window.addEventListener(
 
 then()函数中的回调函数参数被放在一个微任务队列，而不是立即执行，这意味着它是在 JavaScript 事件队列的所有事件运行时结束了，事件队列被清空之后，才开始执行。
 
-```js
+```javascript
 let promise = new Promise(function(resolve, reject) {
   // 注意：Promise构造函数中 execution()是同步函数，因此最早执行
   console.log('Promise');
@@ -4043,21 +4194,21 @@ console.log(1);
 
 嵌套 Promise 是一种可以限制 catch()函数的作用域的控制结构写法。明确来说，嵌套的 catch()函数仅捕捉在其之前同时还必须是其作用域的 failureres，而捕捉不到在其链式以外或者其嵌套域以外的 error。如果使用正确，那么可以实现高精度的错误修复。
 
-```js
+```javascript
 promise()
-  .then((result) =>
+  .then(result =>
     innerPromise()
-      .then((innerResult) => innerOnFulfilled(innerResult))
-      .catch((e) => {
+      .then(innerResult => innerOnFulfilled(innerResult))
+      .catch(e => {
         // catch 的是 `rejected 状态的 innerPromise` 或 `抛异常的 innerOnFulfilled()函数`
-        console.log(e);
+        console.log(e)
       })
   )
   .then(() => onFulfilled())
-  .catch((e) =>
+  .catch(e =>
     // catch 的是 `rejected 状态的 promise` 或 `抛异常的 onFulfilled()函数`
     console.log(e)
-  );
+  )
 ```
 
 > 注意：简便的 Promise 链式编程最好保持扁平化，不要嵌套 Promise，因为嵌套经常会是粗心导致的。
@@ -4066,7 +4217,7 @@ promise()
 
 在 async / await 之前，我们有三种方式写异步代码：以 Promise 为主的链式回调、以 Promise 为主的嵌套回调和使用[Generators](https://es6.ruanyifeng.com/#docs/generator)，但是这三种写起来都不够优雅，ES6 做了优化改进，async / await 应运而生。
 
-```js
+```javascript
 async function functionName(...params) { ... }
 ```
 
@@ -4094,7 +4245,7 @@ async / await 的使用规则：
 
 被 async 修饰的函数相当于一个 Promise 对象。
 
-```js
+```javascript
 async function() {
     doSomething1()
     await doSomething2()
@@ -4120,32 +4271,32 @@ new Promise(resolve => {
 
 放入`try...catch...`中，catch 能够捕捉到 Promise 对象 rejected 的数据或者抛出的异常：
 
-```js
+```javascript
 function timeout(ms) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       // reject模拟出错，返回error
-      reject("error");
-    }, ms);
-  });
+      reject('error')
+    }, ms)
+  })
 }
 
 async function asyncPrint(ms) {
   try {
-    console.log("start");
-    await timeout(ms); // 这里返回了错误
-    console.log("end"); // 所以这句代码不会被执行了
+    console.log('start')
+    await timeout(ms) // 这里返回了错误
+    console.log('end') // 所以这句代码不会被执行了
   } catch (err) {
-    console.log(err); // 这里捕捉到错误error
+    console.log(err) // 这里捕捉到错误error
   }
 }
 
-asyncPrint(1000);
+asyncPrint(1000)
 ```
 
 如果不用 `try...catch...` 的话，也可以像下面这样处理错误：
 
-```js
+```javascript
 async function asyncPrint(ms) {
   console.log('start');
   await timeout(ms)
@@ -4159,63 +4310,63 @@ asyncPrint(1000).catch(err => {
 
 如果你不想让错误中断后面代码的执行，可以提前截留住错误：
 
-```js
+```javascript
 async function asyncPrint(ms) {
-  console.log("start");
-  await timeout(ms).catch((err) => {
+  console.log('start')
+  await timeout(ms).catch(err => {
     // 注意要用catch
-    console.log(err);
-  });
-  console.log("end"); //这句代码会被执行
+    console.log(err)
+  })
+  console.log('end') //这句代码会被执行
 }
 
-asyncPrint(1000);
+asyncPrint(1000)
 ```
 
 #### 3、[return await 与 return](https://jakearchibald.com/2017/await-vs-return-vs-return-await/)
 
 return 的例子：
 
-```js
+```javascript
 // 可能抛异常的函数
 async function waitAndMaybeReject() {
   // Wait one second
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise(r => setTimeout(r, 1000))
   // Toss a coin
-  const isHeads = Boolean(Math.round(Math.random()));
+  const isHeads = Boolean(Math.round(Math.random()))
 
-  if (isHeads) return "yay";
-  throw Error("Boo!");
+  if (isHeads) return 'yay'
+  throw Error('Boo!')
 }
 
 async function foo() {
   try {
-    return waitAndMaybeReject();
+    return waitAndMaybeReject()
   } catch (e) {
-    return "caught";
+    return 'caught'
   }
 }
 
-foo();
+foo()
 // yay
-或;
+或
 // Error('Boo!')的相关信息
 ```
 
 return await 的例子：
 
-```js
+```javascript
 async function foo() {
   try {
-    return await waitAndMaybeReject();
+    return await waitAndMaybeReject()
   } catch (e) {
-    return "caught";
+    return 'caught'
   }
 }
 
-foo();
+foo()
 // yay
-或;
+或
 // caught
 ```
 
@@ -4236,7 +4387,7 @@ Node.js 是一个基于 Chrome V8 引擎和 JavaScript 语言的开源 Web 服�
 <html>
   <head>
     <script>
-      alert("Hello, world");
+      alert('Hello, world')
     </script>
   </head>
   <body>
@@ -4247,10 +4398,10 @@ Node.js 是一个基于 Chrome V8 引擎和 JavaScript 语言的开源 Web 服�
 
 现在我们在服务器上安装配置了 Node.js 环境后，就可以在 Node.js 环境中运行 JavaScript 代码：
 
-```js
-"use strict";
+```javascript
+'use strict'
 
-console.log("Hello, world.");
+console.log('Hello, world.')
 ```
 
 ```shell
@@ -4355,11 +4506,11 @@ path 是 Node.js 提供用于处理文件和目录路径的 API，需要手动�
 
 `path.resolve([...paths])` 方法接收一组路径片段作为参数，并尝试将它们解析为一个绝对路径。
 
-```js
-const path = require("path");
+```javascript
+const path = require('path')
 
 // path.resolve() 用于返回绝对路径，可以有多个参数
-console.log(path.resolve(__dirname, "../"));
+console.log(path.resolve(__dirname, '../'))
 /* 相当于 
  cd $__dirname
  cd ../
@@ -4377,10 +4528,10 @@ console.log(path.resolve(__dirname, "../"));
 
 `path.join([...paths])` 接收一组路径片段作为参数，但它不关心路径的绝对性，仅负责将这些片段使用适当的斜杠分隔符拼接成一个路径字符串。
 
-```js
-const path = require("path");
+```javascript
+const path = require('path')
 
-console.log(path.join("assets", "images", "logo.png"));
+console.log(path.join('assets', 'images', 'logo.png'))
 // assets/images/logo.png
 ```
 
@@ -4402,9 +4553,9 @@ child_process 是 Node.js 提供用于创建子进程的 API。Node.js 由于是
 
 以同步的形式执行 shell 命令或者跟软件交互。
 
-```js
+```javascript
 // 获取当前目录
-console.log(execSync("pwd").toString().trim());
+console.log(execSync('pwd').toString().trim())
 ```
 
 ### （二）[Babel](https://www.jiangruitao.com/babel/)
@@ -4434,13 +4585,13 @@ plugins 告诉 Babel 要使用哪些插件，这些插件可以控制 Babel 如�
 
 转化前后的代码对比：
 
-```js
+```javascript
 // test.js
-const fn = () => {};
+const fn = () => {}
 
 // test-compiled.js
-("use strict");
-const fn = function () {};
+;('use strict')
+const fn = function () {}
 ```
 
 然而每个版本的 ES 都带来许多新特性，为每个新特性分别引入对应的插件会让配置文件显得极其臃肿，因此 Babel 提供 presets 属性。
@@ -4516,25 +4667,25 @@ plugins 插件数组和 presets 预设数组是有顺序要求的，如果两个
 
 转化前后的代码对比，会发现并没有变化，因为 Chrome 60 已经实现了箭头函数语法，所以不会转换成 ES5 的函数定义语法：
 
-```js
+```javascript
 // test.js
-var fn = (num) => num + 2;
+var fn = num => num + 2
 
 // test-compiled.js
-("use strict");
-var fn = (num) => num + 2;
+;('use strict')
+var fn = num => num + 2
 ```
 
 把 `chrome 60` 改为 `chrome 38`，会发现转换后的代码是 ES5 的函数定义语法，因为 Chrome 38 不支持箭头函数语法：
 
-```js
+```javascript
 // test.js
-var fn = (num) => num + 2;
+var fn = num => num + 2
 
-("use strict");
+;('use strict')
 var fn = function fn(num) {
-  return num + 2;
-};
+  return num + 2
+}
 ```
 
 [browserlist](https://cloud.tencent.com/developer/tools/blog-entry?target=https%3A%2F%2Fgithub.com%2Fbrowserslist%2Fbrowserslist&source=article&objectId=1612197) 是具体的可配置列表，可以根据你自己项目的兼容性要求来配置。
@@ -4586,53 +4737,53 @@ useBuiltIns 属性就是控制 @babel/preset-env 使用何种方式帮我们导�
 
 @babel/preset-env 在做语法转换的时候，默认会注入一些函数声明，以便语法转换后使用：
 
-```js
+```javascript
 class Person {
   sayname() {
-    return "name";
+    return 'name'
   }
 }
-var john = new Person();
-console.log(john);
+var john = new Person()
+console.log(john)
 ```
 
-```js
-"use strict";
+```javascript
+'use strict'
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
-    throw new TypeError("Cannot call a class as a function");
+    throw new TypeError('Cannot call a class as a function')
   }
 }
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
-    var descriptor = props[i];
-    descriptor.enumerable = descriptor.enumerable || false;
-    descriptor.configurable = true;
-    if ("value" in descriptor) descriptor.writable = true;
-    Object.defineProperty(target, descriptor.key, descriptor);
+    var descriptor = props[i]
+    descriptor.enumerable = descriptor.enumerable || false
+    descriptor.configurable = true
+    if ('value' in descriptor) descriptor.writable = true
+    Object.defineProperty(target, descriptor.key, descriptor)
   }
 }
 function _createClass(Constructor, protoProps, staticProps) {
-  if (protoProps) _defineProperties(Constructor.prototype, protoProps);
-  if (staticProps) _defineProperties(Constructor, staticProps);
-  return Constructor;
+  if (protoProps) _defineProperties(Constructor.prototype, protoProps)
+  if (staticProps) _defineProperties(Constructor, staticProps)
+  return Constructor
 }
 var Person = /*#__PURE__*/ (function () {
   function Person() {
-    _classCallCheck(this, Person);
+    _classCallCheck(this, Person)
   }
   _createClass(Person, [
     {
-      key: "sayname",
+      key: 'sayname',
       value: function sayname() {
-        return "name";
-      },
-    },
-  ]);
-  return Person;
-})();
-var john = new Person();
-console.log(john);
+        return 'name'
+      }
+    }
+  ])
+  return Person
+})()
+var john = new Person()
+console.log(john)
 ```
 
 但这样做存在一个问题：在我们正常的前端工程开发的时候，少则几十个 js 文件，多则上千个，如果每个文件里都使用了 class 类语法，那会导致每个转换后的文件上部都会注入这些相同的函数声明，这会导致我们用构建工具打包出来的包非常大。
@@ -4692,11 +4843,11 @@ Webpack 有以下核心概念：
 
 #### 1、entry
 
-```js
+```javascript
 module.exports = {
   context: path.resolve(__dirname),
-  entry: "./src/main.js",
-};
+  entry: './src/main.js'
+}
 ```
 
 （1）context 是指上下文路径，默认值是执行命令时所在目录的绝对路径。
@@ -4707,38 +4858,38 @@ module.exports = {
 
 ② 数组：它表示的含义是数组最后一个文件是资源的入口文件，数组其余文件会预先构建到入口文件。
 
-```js
+```javascript
 module.exports = {
-  entry: ["core-js/stable", "regenerator-runtime/runtime", "./a.js"],
-};
+  entry: ['core-js/stable', 'regenerator-runtime/runtime', './a.js']
+}
 
 // 相当于
 
 // a.js
-import "core-js/stable";
-import "regenerator-runtime/runtime";
+import 'core-js/stable'
+import 'regenerator-runtime/runtime'
 
 // webpack.config.js
 module.exports = {
-  entry: "./a.js",
-};
+  entry: './a.js'
+}
 ```
 
 ③ 对象：入口 entry 是对象形式的又称之为多入口配置。
 
-```js
-var path = require("path");
+```javascript
+var path = require('path')
 module.exports = {
   entry: {
-    app: ["core-js/stable", "regenerator-runtime/runtime", "./a.js"],
-    vendor: "./vendor",
+    app: ['core-js/stable', 'regenerator-runtime/runtime', './a.js'],
+    vendor: './vendor'
   },
   output: {
-    path: path.resolve(__dirname, ""),
-    filename: "[name].js",
+    path: path.resolve(__dirname, ''),
+    filename: '[name].js'
   },
-  mode: "none",
-};
+  mode: 'none'
+}
 ```
 
 上方的配置分别从两个入口文件打包，每个入口文件各自寻找自己依赖的文件模块打包成一个 JS 文件，最终得到两个 JS 文件。
@@ -4755,16 +4906,16 @@ output 是打包后的资源出口配置项，有以下子属性：
 
 ① hash：是一串 hash 值。
 
-```js
-var path = require("path");
+```javascript
+var path = require('path')
 module.exports = {
-  entry: "./a.js",
+  entry: './a.js',
   output: {
-    path: path.resolve(__dirname, ""),
-    filename: "[hash]-bundle.js",
+    path: path.resolve(__dirname, ''),
+    filename: '[hash]-bundle.js'
   },
-  mode: "none",
-};
+  mode: 'none'
+}
 ```
 
 输出文件名为 hash 值，例如 `eaf163aa8342f012d6ee-bundle.js`。
@@ -4773,18 +4924,34 @@ module.exports = {
 
 当 entry 值为字符串或数组时，name 值为 main：
 
-```js
-filename: "[name].js";
+```javascript
+filename: '[name].js'
 // main.js
 ```
 
 当 entry 值为对象时，会生成多个资源出口文件，name 值就是对象中对应的键名：
 
-```js
-filename: "[name].js";
+```javascript
+filename: '[name].js'
 // app.js
 // vendor.js
 ```
+
+#### 3、publicPath
+
+publicPath 用于作为 Webpack 打包后的 src、link 等引用文件的基础路径，会作为前缀添加到 src、link 前面：
+
+```html
+<script defer=defer src=/static/js/runtime~app.e6e26863e4.2024.07.10.1720579807710.js></script>
+
+<!-- publicPath 设置为 test，就是相当于当前 index.html 的路径内的 js 文件 -->
+<script defer=defer src=/test/static/js/runtime~app.e6e26863e4.2024.07.10.1720579807710.js></script>
+
+<!-- publicPath 设置为 http://myhelloworldtest，就是网络上的 js 文件 -->
+<script defer=defer src=http://myhelloworldtest/static/js/runtime~app.e6e26863e4.2024.07.10.1720579807710.js></script>
+```
+
+当 Webpack 打包后的 index.html 和它所引用的资源不在一起（不在同一级目录或者同一台主机），就需要设置 publicPath。
 
 ### （四）[Vue-Cli](https://cli.vuejs.org/zh/guide/index.html)
 
