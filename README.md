@@ -37,4 +37,4 @@
 - [x] [Maven](https://github.com/onezilin/StudyNotes/blob/master/Maven/Maven.md)
 - [x] [Linux](https://github.com/onezilin/StudyNotes/blob/master/Linux/Linux.md)
 - [x] Docker
-- [ ] Nginx
+- [x] Nginx
