@@ -1009,6 +1009,38 @@ redis-server /etc/redis/redis.conf
 root@01b9f364e133:/data# redis-cli
 ```
 
+### （四）Portainer
+
+由于使用命令行的方式操作 Docker 服务器不是很方便，因此我们可以通过 Portainer 提供的 Dashboard 仪表盘操作 Docker。
+
+```shell
+# 启动 Portainer 容器
+[root@www ~]# docker run -p 8000:8000 -p 9000:9000 -v /docker/portainer/data:/data -v /var/run/docker.sock:/var/run/docker.sock --name portainer portainer/portainer
+```
+
+访问虚拟机的 9000 端口便可以使用 Portainer 操作 Docker：
+
+![Portainer控制台](./Portainer控制台.png)
+
+Portainer 除了可以管理同一台宿主机下的 Docker 服务器，还可以连接远程的 Docker 进行管理，此时远程 Docker 服务器需要开启远程访问功能：
+
+```shell
+# 1、修改 docker.service 文件
+[root@www ~]# vim /usr/lib/systemd/system/docker.service
+# 1.1、修改前
+ExecStart=/usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+# 1.2、修改后
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:2375 -H unix://var/run/docker.sock --containerd=/run/containerd/containerd.sock
+
+# 重新加载并重启 Docker
+[root@www ~]# systemctl daemon-reload
+[root@www ~]# systemctl restart docker
+```
+
+开启远端访问功能后，Portainer 可以通过 API `ip:2375` 访问远程的 Docker。
+
+> 注意：上面 Docker 开启远程访问功能配置仅限于内网，因为没有身份校验的功能，不可在外网的 Docker 上开启。
+
 ## 四、[Dockerfile 构建](https://docs.docker.com/reference/dockerfile/)
 
 Dockerfile 是用来构建 Docker 镜像的文本文件，是由一条条构建新镜像所需的指令和参数组成的脚本。
@@ -1261,7 +1293,7 @@ RUN set -x ; echo ${DOCKER_USERNAME}
 
 #### 10、VOLUME
 
-定义匿名卷，有两种格式：
+定义匿名卷，也就是在宿主机上定义匿名数据卷，**将容器中的指定路径挂载到匿名数据卷**上，有两种格式：
 
 ```dockerfile
 VOLUME ["<路径1>", "<路径2>"...]
