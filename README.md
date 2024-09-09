@@ -36,5 +36,5 @@
 - [x] [Git](https://github.com/onezilin/StudyNotes/blob/master/Git/Git.md)
 - [x] [Maven](https://github.com/onezilin/StudyNotes/blob/master/Maven/Maven.md)
 - [x] [Linux](https://github.com/onezilin/StudyNotes/blob/master/Linux/Linux.md)
-- [x] Docker
-- [x] Nginx
+- [x] [Docker](https://github.com/onezilin/StudyNotes/blob/master/Docker/Docker.md)
+- [x] [Nginx](https://github.com/onezilin/StudyNotes/blob/master/Nginx/Nginx.md)
