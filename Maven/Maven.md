@@ -748,6 +748,8 @@ jdbc.driver=${jdbc.driver}
 </plugin>
 ```
 
+##### （1）SpringBoot 项目打包
+
 我们还可以添加其他的 Maven 插件到当前项目中，这样就可以通过 Maven 命令执行指定插件目标，实现对应的功能，例如引入 spring-boot-maven-plugin 插件：
 
 ```xml
@@ -765,7 +767,7 @@ jdbc.driver=${jdbc.driver}
 执行下面命令，就可以将项目打包成可执行的 SpringBoot 项目 jar 包：
 
 ```shell
-mvn clean package spring-cloud:repackage -Dmaven.test.skip=true
+mvn clean package spring-boot:repackage -Dmaven.test.skip=true
 ```
 
 此外 `<plugin>` 内部还有一个 `<configuration>` 标签，可以对 plugin 插件进行一些配置：
@@ -789,6 +791,60 @@ mvn clean package spring-cloud:repackage -Dmaven.test.skip=true
 ```
 
 > 注意：`<configuration>` 标签内部的配置由插件本身决定的，并没有统一的格式。
+
+##### （2）多模块下的 SpringBoot 项目打包
+
+当我们使用 Maven 多模块架构时，例如：father 下有两个模块 common、son（依赖 common 模块），需要进行下面配置。
+
+father 父模块的 pom.xml 配置：
+
+```xml
+<build>
+    <pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.6.13</version>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- 打包成可执行 jar -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </pluginManagement>
+</build>
+```
+
+common 中不能引入 spring-boot-maven-plugin 插件，son 的 pom.xml 添加以下配置：
+
+```xml
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+        </plugin>
+    </plugins>
+</build>
+```
+
+进入到 father 所在目录，使用 Maven 命令进行打包：
+
+```shell
+mvn clean -DskipTests=true package
+```
 
 ### （六）profile 切换环境
 
