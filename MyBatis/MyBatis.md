@@ -632,14 +632,14 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
 
   ```java
   public class DbcpDataSourceFactory extends BasicDataSource implements DataSourceFactory {
-
+  
       private Properties properties;
-
+  
       @Override
       public void setProperties(Properties properties) {
           this.properties = properties;
       }
-
+  
       @Override
       public DataSource getDataSource() {
           DataSource dataSource = null;
@@ -651,7 +651,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
           }
           return dataSource;
       }
-
+  
       @Override
       public Logger getParentLogger() throws SQLFeatureNotSupportedException {
           return Logger.getLogger(DbcpDataSourceFactory.class.getName());
@@ -1333,7 +1333,7 @@ public class Suv extends Vehicle {
 ```xml
 <select>
     select * from table_name where 1 = 1
-    <if test = "if != null and id != ''">
+    <if test = "id != null and id != ''">
         and id = #{id}
     </if>
 </select>
@@ -1368,7 +1368,7 @@ public class Suv extends Vehicle {
 <select>
     select * from table_name
     <where>
-        <if test = "if != null and id != ''">
+        <if test = "id != null and id != ''">
             and id = #{id}
         </if>
     </where>

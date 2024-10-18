@@ -262,7 +262,7 @@ docker info
 为镜像起一个别名。
 
 ```shell
-[root@www ~]# docker tag 源镜像名称 模板镜像名称
+[root@www ~]# docker tag 源镜像名称 目标镜像名称
 ```
 
 例如：为 `ubuntu:18.04` 镜像起一个别名。
