@@ -48,7 +48,7 @@ MyBatis 中提供[两种构建 SqlSessionFactory 的方式](https://blog.csdn.ne
                 <property name="url"
                           value="jdbc:mysql://192.168.190.134:3306/study_notes?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;autoReconnect=true"/>
                 <property name="username" value="root"/>
-                <property name="password" value="W110514"/>
+                <property name="password" value="xxxxxx"/>
             </dataSource>
         </environment>
     </environments>
@@ -604,7 +604,7 @@ MyBatis 中可以有多个配置环境，每个 environment 下分为两个部�
             <property name="url"
                       value="jdbc:mysql://192.168.190.134:3306/study_notes?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;autoReconnect=true"/>
             <property name="username" value="root"/>
-            <property name="password" value="W110514"/>
+            <property name="password" value="xxxxxx"/>
         </dataSource>
     </environment>
 </environments>
@@ -667,7 +667,7 @@ transactionManager 配置的是数据库事务，其中 type 数据值有三种�
       <property name="url"
                 value="jdbc:mysql://192.168.190.134:3306/study_notes?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;serverTimezone=Asia/Shanghai&amp;autoReconnect=true"/>
       <property name="username" value="root"/>
-      <property name="password" value="W110514"/>
+      <property name="password" value="xxxxxx"/>
   </dataSource>
   ```
 
@@ -1773,7 +1773,7 @@ spring:
     driver-class-name: org.gjt.mm.mysql.Driver
     url: jdbc:mysql://192.168.190.134:3306/study_notes?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&autoReconnect=true
     username: root
-    password: W110514
+    password: xxxxxx
 
 mybatis:
   # 加载 Mapper 映射文件

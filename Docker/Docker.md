@@ -856,7 +856,7 @@ collation_server=utf8_general_ci
 -v /onezilin/mysql/log:/var/log/mysql \
 -v /onezilin/mysql/data:/var/lib/mysql \
 -v /onezilin/mysql/conf:/etc/mysql/conf.d \
--e MYSQL_ROOT_PASSWORD=W110514 \
+-e MYSQL_ROOT_PASSWORD=xxxxxx \
 --name mysql \
 mysql:5.7.28
 ```
@@ -896,7 +896,7 @@ slave_skip_errors=1062
 -v /mydata/mysql-master/log:/var/log/mysql \
 -v /mydata/mysql-master/data:/var/lib/mysql \
 -v /mydata/mysql-master/conf:/etc/mysql/conf.d \
--e MYSQL_ROOT_PASSWORD=W110514 \
+-e MYSQL_ROOT_PASSWORD=xxxxxx \
 --name mysql-master \
 mysql:5.7.28
 ```
@@ -934,7 +934,7 @@ slave_skip_errors=1062
 -v /mydata/mysql-slave/log:/var/log/mysql \
 -v /mydata/mysql-slave/data:/var/lib/mysql \
 -v /mydata/mysql-slave/conf:/etc/mysql/conf.d \
--e MYSQL_ROOT_PASSWORD=W110514 \
+-e MYSQL_ROOT_PASSWORD=xxxxxx \
 --name mysql-slave \
 mysql:5.7.28
 ```
@@ -947,10 +947,10 @@ mysql:5.7.28
 # 1、进入 MySQL 容器
 [root@www ~]# docker exec -it mysql-master /bin/bash
 # 2、连接 MySQL
-root@26fa23c04870:/# mysql -uroot -pW110514
+root@26fa23c04870:/# mysql -uroot -pxxxxxx
 # 3、创建数据同步用户
 mysql> USE mysql;
-mysql> CREATE USER 'slave'@'%'IDENTIFIED BY'W110514';
+mysql> CREATE USER 'slave'@'%'IDENTIFIED BY'xxxxxx';
 mysql> GRANT REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO 'slave'@'%';
 # 4、查看主 MySQL 状态
 mysql> show master status;
@@ -964,9 +964,9 @@ mysql> show master status;
 # 1、进入 MySQL 容器
 [root@www ~]# docker exec -it mysql-master /bin/bash
 # 2、连接 MySQL
-root@26fa23c04870:/# mysql -uroot -pW110514
+root@26fa23c04870:/# mysql -uroot -pxxxxxx
 # 3、添加主数据库配置
-mysql> change master to master_host='192.168.190.137', master_port=3307, master_user='slave', master_password='W110514', master_log_file='mall-mysql-bin.000003', master_log_pos=400, master_connect_retry=30;
+mysql> change master to master_host='192.168.190.137', master_port=3307, master_user='slave', master_password='xxxxxx', master_log_file='mall-mysql-bin.000003', master_log_pos=400, master_connect_retry=30;
 # 4、开启主从同步
 mysql> START SLAVE;
 # 5、查看从 MySQL 状态

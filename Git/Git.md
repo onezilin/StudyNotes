@@ -146,7 +146,11 @@ git config --global --unset user.email
 
 创建一条分支，并切换到分支上。相当于 `git branch 分支名 + git checkout 分支名`。
 
-##### （4）git branch [-d |-D] 分支名
+##### （4）git checkout -b 分支名 远程仓库名/分支名
+
+创建并切换到本地分支，设置本地分支跟踪远程仓库的分支。
+
+##### （5）git branch [-d |-D] 分支名
 
 删除指定分支，当分支没有合并到当前分支时，需要使用 `-D` 强制删除。
 
